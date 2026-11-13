@@ -321,7 +321,10 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    In our 4.8 beta, start players with `play_stream()` (4.8 rejects its re-bound
    `play`) and keep at least one `ResonanceGeometry` in the scene
    (`docs/upstream/nexus-resonance-godot-4.8.md`). Open: editor hot-reload (a manual
-   check). Next: engine core (groups 3 to 5).
+   check). **Engine core started** (stubby-rack `engine-core`): group 3 done except the
+   Rust parity fixtures (3.6). It has the rack, the lock-free command boundary, an
+   allocation guard, and 200 modules at about 0.6 ms per block. Next: the master clock
+   (group 4), then the Godot classes (group 5).
 2. **Archived (2026-11-13), specs in `openspec/specs/`:** `add-burbler-rack-screen`,
    `add-scrub-oak`, `add-sky-motion-and-mountains`, `migrate-off-stubby-music`.
    **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,

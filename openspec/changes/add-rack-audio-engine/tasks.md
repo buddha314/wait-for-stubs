@@ -30,13 +30,13 @@
 
 ## 3. Engine core (`src/core`, plain C++17)
 
-- [ ] 3.1 Per-sample rack scheduler with double-buffered ports (1-sample cables), feedback allowed, polyphony-ready cable type
-- [ ] 3.2 VCV voltage standards (±5 V audio, 10 V gates, Schmitt 0.1/1.0 V, 1 V/oct, NaN → 0)
-- [ ] 3.3 Emission stems: per-emitter block buffers plus a non-spatial UI stem
-- [ ] 3.4 Lock-free SPSC command and return queues; modules built and freed off the audio thread
-- [ ] 3.5 Offline renderer; allocation guard in tests (global operator new hook during render)
+- [x] 3.1 Per-sample rack scheduler with double-buffered ports (1-sample cables), feedback allowed, polyphony-ready cable type
+- [x] 3.2 VCV voltage standards (±5 V audio, 10 V gates, Schmitt 0.1/1.0 V, 1 V/oct, NaN → 0)
+- [x] 3.3 Emission stems: per-emitter block buffers plus a non-spatial UI stem
+- [x] 3.4 Lock-free SPSC command and return queues; modules built and freed off the audio thread
+- [x] 3.5 Offline renderer; allocation guard in tests (global operator new hook during render; self-tested with a non-elidable allocation)
 - [ ] 3.6 Parity fixtures: render stubby-music's engine tests and `spike_rack` patches offline in Rust and compare (timing exact; spectra and RMS within tolerance)
-- [ ] 3.7 Determinism and 200-module budget tests
+- [x] 3.7 Determinism and 200-module budget tests (200 modules: about 0.6 ms per 512-frame block, 5.6%)
 
 ## 4. Master clock
 
