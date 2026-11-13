@@ -183,8 +183,11 @@ module kind is a C++ class implementing the core's per-sample `process()`. Sourc
 in order of preference:
 
 1. **DaisySP**, MIT core only, never the `DaisySP-LGPL` submodule: oscillators
-   (band-limited), filters (SVF, ladder), ADSR, noise, delay, reverb, modal and string
-   voices.
+   (band-limited), filters (SVF, `ladder.h`), ADSR, noise, delay, modal and string
+   voices, drums, chorus/flanger/phaser/overdrive. *Corrected 2026-11-13
+   (`add-module-library`):* the reverb (`ReverbSc`), compressor and Csound
+   `MoogLadder` are in DaisySP-LGPL, not the MIT core. Reverbs come from Mutable's
+   `fx/`, Faust or CloudSeed; the compressor from Mutable Streams.
 2. **Mutable Instruments' STM32 code** (`pichenettes/eurorack`, MIT; the AVR code is
    GPL and excluded): Plaits engines, Rings, Clouds.
 3. **Faust → C++** for anything those lack, checking each Faust library file's licence.
