@@ -180,6 +180,15 @@ only receives parameters, and it schedules any sound itself.
 3. **Thunderstorm**, once stubby-rack can schedule events: decide the strike-on-clock
    question first.
 
+## Decisions since (2026-11-13)
+
+- **Weather events align with the clock.** The user decided that lightning and most
+  events, rain patter included, land on master-clock grids. The flash and other
+  event visuals show at the audible instant, and thunder lands on the grid by
+  choosing the strike distance. See `add-weather-and-dust-storm`.
+- **Weather recipes** (a rain song or dance) are wanted later. The weather
+  controller takes requests so recipes can drive it.
+
 ## Sources
 
 [TCA_Weather_System](https://github.com/kS222138/TCA_Weather_System) ([Asset Library](https://godotengine.org/asset-library/asset/4960)),

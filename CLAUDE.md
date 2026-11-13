@@ -244,6 +244,12 @@ local edits, so check `git status` first.
   master clock for all game audio** (design D5). Godot exposes no mix counter or
   callback to extensions, and `AudioStreamGenerator` is fed from the main thread, so
   neither can be the clock. Never time music from `_process` delta or wall time.
+- **Weather is on the clock too** (decided 2026-11-13). Lightning and most weather
+  events, rain patter included, land on grids at whole multiples of the master.
+  Thunder lands on the grid because the strike distance is chosen as a whole number
+  of ticks × 343 m. Event visuals (flash, splash) appear at the event's audible
+  instant. Wind, storm intensity and rain rate are smooth parameters, never timing
+  (`add-weather-and-dust-storm`).
 
 ## Audio occlusion (researched 2026-11-13, not used yet)
 
@@ -277,11 +283,15 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    level meter, sound gating) and `add-stream-building` (streams of reeds as the
    conveyor from the burbler's outlet; reads the burbler's `sounding`). The game will vendor stubby-rack's built addon into
    `addons/stubby_rack/` via `tools/sync_stubby_rack.sh` (design D11, task 2.6).
-3. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
+3. **Proposed:** `add-weather-and-dust-storm` (clock-aligned weather events, the
+   dust storm, one wind; a request hook for later weather recipes). **To propose
+   later:** weather recipes, such as a rain song or dance the player builds to call
+   rain or calm a storm (user note, 2026-11-13).
+4. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
    audit); time-speed controls (Bevy had ¼×–64×; without them, reaching day takes
    about 9 minutes); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
    amber haze.
-4. **Upstream:** report the Godot 4.8 beta abort on a clean headless `--import` with
+5. **Upstream:** report the Godot 4.8 beta abort on a clean headless `--import` with
    any GDExtension (exit 134; it reproduces with godot-cpp's own test extension;
    task 2.5). Once the game loads stubby-rack, its first clean import will hit it too:
    run the import again.
