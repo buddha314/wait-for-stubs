@@ -137,10 +137,19 @@ count of rendered samples is the only sample-exact time base.
   share the clock. A raw `AudioStreamPlayer` for anything timed is a bug.
 - **Simulation time stays separate.** The `Calendar` autoload remains simulation time
   and never drives audio.
-- **Default tempo is configuration (decided 2026-11-13).** The project settings
-  `audio/master_clock/tempo_bpm` (20.0) and `audio/master_clock/beats_per_bar` (4)
-  are read at start. Changing the default is a settings edit, not a code change. At
-  20 BPM a beat is 3 s and a bar 12 s.
+- **Default tempo is configuration (decided 2026-11-13, revised the same day).** The
+  project settings `audio/master_clock/tempo_bpm` (1.0) and
+  `audio/master_clock/beats_per_bar` (4) are read at start. Changing the default is a
+  settings edit, not a code change. At 1 BPM a master beat is 60 s and a bar 4 min.
+- **Every tempo is a whole multiple of the master (decided 2026-11-13).** A tempo
+  clock runs at N × the master BPM, N a whole number, and computes its ticks from the
+  master beat phase rather than counting its own period. With a 1 BPM master, N *is*
+  the clock's BPM, so a burbler's 40–180 BPM is ×40 to ×180, and every clock in the
+  world lands together once a minute. Rejected: free-running per-instance BPM (clocks
+  drift apart and never share a downbeat, so machines can't be composed against each
+  other); a 20 BPM master with ratios (only 9 burbler tempos between 40 and 180, or
+  fractional ratios that again share a downbeat only rarely). Seeded random clocks
+  (lightning bugs) are the one exception: they stay free, in master samples.
 - **Pause keeps time and mutes the music (decided 2026-11-13).** Godot's pause skips
   paused playbacks, so the driver and every stem player run with
   `process_mode = ALWAYS`, and the rack keeps rendering. Muting is a gain stage in the
@@ -213,6 +222,18 @@ end, fine for a rack you listen to. The sync point corrects visuals for it.
 200 modules ≈ 0.9 ms (8.5%) in Rust. The C++ spike must confirm a similar cost
 per module-sample. The 15% budgets in the specs are percentages, so they still apply.
 
+**D11 — The game vendors the built addon (decided 2026-11-13).** wait-for-stubs keeps
+a copy of stubby-rack's built `addons/stubby_rack/` (the `.gdextension` and its
+binaries, in Git LFS), pinned by a `VERSION` file naming the stubby-rack commit, and
+refreshed by `tools/sync_stubby_rack.sh`. This follows Godot's conventions: commit
+everything but `.godot/`; addons live in `res://addons/` (as the Asset Library
+installs them); `godot-cpp-template` builds the extension in its own repo and CI and
+ships the addon folder. Rejected: a git submodule (Godot would scan godot-cpp and
+`thirdparty/` inside `res://` unless `.gdignore`d, and every clone would need a C++
+toolchain); downloading release artifacts on demand (needs CI for every platform
+first, too slow while the engine changes daily). Release builds for other platforms
+come from stubby-rack's CI artifacts through the same script.
+
 ## Risks / Trade-offs
 
 - [Rewriting the engine core in C++ loses the Rust engine's tested behaviour] →
@@ -250,11 +271,10 @@ history.
 ## Open Questions
 
 - ~~Pause~~: decided, the clock keeps running and the music is muted (D5).
-- ~~Master default tempo~~: decided, 20 BPM in 4/4, in configuration (D5).
+- ~~Master default tempo~~: decided, 1 BPM in 4/4, in configuration (D5).
+- ~~The burbler's tempo~~: decided, a whole multiple of the master: ×40 to ×180,
+  seeded per instance (D5).
 - ~~Host language~~: decided, a C++ GDExtension (D1).
-- **The burbler's tempo:** its profile sets a per-instance BPM (40–180, from the world
-  seed), far above the 20 BPM master. Should each burbler run free at its own BPM, or
-  follow the master at a ratio (for example ×2 to ×9, which gives 40–180)?
 - **HRTF provider** (D8), decided by the spike.
 - **Emitter per module:** stubby-music leaned toward VCOs, VCAs and mixers emitting by
   default, and utilities not.

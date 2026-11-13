@@ -175,6 +175,7 @@ shape = SubResource("WorldBoundaryShape3D_ground")
 
 [node name="MudpitBurbler" parent="." unique_id=492250762 instance=ExtResource("4_burbler")]
 transform = Transform3D(-0.46270576, 0, 0.8865119, 0, 1, 0, -0.8865119, 0, -0.46270576, -1.459, 0, -35.11)
+instance_id = "mudpit_burbler-1"
 
 [node name="LightningBugs" type="Node3D" parent="." unique_id=561398352]
 

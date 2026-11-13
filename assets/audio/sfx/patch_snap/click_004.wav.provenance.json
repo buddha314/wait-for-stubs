@@ -1,0 +1,11 @@
+{
+  "file": "click_004.wav",
+  "source": "https://kenney.nl/assets/interface-sounds",
+  "pack": "Interface Sounds (1.0)",
+  "author": "Kenney (www.kenney.nl)",
+  "licence": "CC0-1.0",
+  "date": "2020-02-11",
+  "modifications": "none; copied unchanged via stubby-music assets/audio/sfx/patch_snap",
+  "used_by": "rack screen plug-in snap (add-burbler-rack-screen)",
+  "note": "Local to wait-for-stubs, beside the upstream LICENSE.txt; format per add-acoustic-asset-profiles (source, author, SPDX licence, date, modifications)."
+}

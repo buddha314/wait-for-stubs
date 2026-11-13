@@ -51,13 +51,14 @@ The game SHALL provide a Sine VCO with a frequency parameter, a V/oct input and 
 - **THEN** the dominant spectral peak is at 440 Hz and the peak level is 5 V (±0.05 V)
 
 ### Requirement: Clock module
-The game SHALL provide a Clock with a tempo parameter (BPM), a gate output (10 V),
-and a mode: follow the master transport at a ratio, or run free. A free-running clock
+The game SHALL provide a Clock with a gate output (10 V) and a mode: a tempo clock
+that follows the master at a whole-number multiple (its BPM parameter is that multiple
+times the master BPM, set in whole steps), or a seeded random clock. A random clock
 MAY use a seeded random interval between a minimum and a maximum. Every tick SHALL
 be reported to the game with its exact sample time.
 
-#### Scenario: Free-running tempo
-- **WHEN** a free-running Clock at 120 BPM renders 10 seconds at 48 kHz
+#### Scenario: Tempo clock
+- **WHEN** a Clock at ×120 of the 1 BPM master renders 10 seconds at 48 kHz from a master downbeat
 - **THEN** it ticks 20 times, 24,000 samples apart, with zero sample error
 
 #### Scenario: Seeded random clock

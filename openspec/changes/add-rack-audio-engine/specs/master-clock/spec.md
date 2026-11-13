@@ -18,7 +18,7 @@ time or wall time.
 ### Requirement: Musical transport
 The master clock SHALL provide a transport with a tempo in BPM and a meter in beats
 per bar, and SHALL derive the current bar, beat and beat phase from the sample count.
-The default tempo and meter SHALL come from configuration (shipped as 20 BPM, 4 beats
+The default tempo and meter SHALL come from configuration (shipped as 1 BPM, 4 beats
 per bar), never from constants in code.
 The transport SHALL start and stop. While it is stopped, the sample count SHALL keep
 advancing, and only the musical position SHALL hold. A tempo change SHALL keep the
@@ -26,7 +26,7 @@ beat phase continuous: the musical position never jumps.
 
 #### Scenario: Configured default tempo
 - **WHEN** the game starts with the shipped configuration
-- **THEN** the transport runs at 20 BPM in 4/4, so one beat lasts 3 seconds (144,000 samples at 48 kHz)
+- **THEN** the transport runs at 1 BPM in 4/4, so one beat lasts 60 seconds (2,880,000 samples at 48 kHz)
 
 #### Scenario: Changing the default without code
 - **WHEN** the configured default tempo is changed to 60 BPM and the game restarts
@@ -56,17 +56,28 @@ with the number of samples it missed by.
 - **WHEN** the game schedules an action for a sample that has already been rendered
 - **THEN** it takes effect at the next block, and the game receives a late notice with the miss in samples
 
-### Requirement: Clocks follow the master or run free
-A rack clock module SHALL either follow the master transport, at a ratio (for example
-×2 or ÷4) and phase-locked to it, or run free at its own rate or random schedule.
-Free-running clocks SHALL still be timed in master samples. Clocks SHALL synchronize
-with each other only by following the master, or by explicitly following the same
-clock. A seeded random clock (such as a lightning bug's) SHALL stay independent
-unless it is set to follow another clock.
+### Requirement: Tempo clocks are whole multiples of the master
+Every rack clock with a tempo SHALL follow the master transport at a whole-number
+multiple N ≥ 1 of the master tempo, phase-locked to it, so its tempo is N × the master
+BPM. Its ticks SHALL be derived from the master beat phase (tick k of a master beat at
+phase k/N), never accumulated, so clocks never drift apart and all of them tick
+together on every master beat. Changing N SHALL take effect from the current master
+phase: the next tick is the next k/N boundary of the new multiple. There SHALL be no
+fractional ratios and no free-running fixed tempo. The only clocks that run free are
+seeded random clocks (such as a lightning bug's); they SHALL still be timed in master
+samples, and SHALL stay independent unless set to follow another clock.
 
 #### Scenario: Locked clocks
 - **WHEN** two clock modules follow the master at ×1 and ×2
 - **THEN** every ×1 tick falls on the same sample as a ×2 tick, and the ×2 clock also ticks exactly halfway between them
+
+#### Scenario: Shared downbeat
+- **WHEN** clocks at ×90 and ×120 run at the shipped 1 BPM master
+- **THEN** both tick on the first sample of every master beat (once a minute), and neither has drifted after an hour
+
+#### Scenario: Retuning a clock
+- **WHEN** a ×90 clock is set to ×120 at master phase 0.5
+- **THEN** its next tick falls at phase 61/120 of the same master beat, and it ticks on the following master beat with every other clock
 
 #### Scenario: Independent bugs
 - **WHEN** two lightning bugs run free with different seeds
@@ -118,9 +129,9 @@ their samples. While paused, the music and world audio SHALL be muted, fading ou
 and back in over 20–50 ms so neither edge clicks. On resume, playback SHALL continue
 at the transport's current position, not where it was when the game paused.
 
-#### Scenario: Pause for a minute at 20 BPM
-- **WHEN** the game is paused at bar 3 beat 1 for 60 seconds at 20 BPM and then resumed
-- **THEN** nothing was audible during the pause, the clock ticked 20 times meanwhile, and audio resumes at bar 8 beat 1
+#### Scenario: Pause for three minutes at 1 BPM
+- **WHEN** the game is paused at bar 3 beat 1 for 180 seconds at 1 BPM, with a ×90 clock running, and then resumed
+- **THEN** nothing was audible during the pause, the ×90 clock ticked 270 times meanwhile, and audio resumes at bar 3 beat 4
 
 #### Scenario: No click on pause
 - **WHEN** the game pauses while a loud tone is sounding
