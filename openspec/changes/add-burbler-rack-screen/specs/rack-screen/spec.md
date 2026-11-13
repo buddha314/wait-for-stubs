@@ -201,3 +201,26 @@ such and removed when the sampler lands.
 #### Scenario: Plugging in
 - **WHEN** the player plugs in three cables in a row
 - **THEN** three different snap clips play, each traceable to its CC0 source
+
+### Requirement: Right-click unplugs, and a hint says so
+Right-clicking a plugged jack SHALL unplug that cable entirely: a comb cable SHALL
+hang back on the comb, and a player cable SHALL return to the inventory (or stay
+plugged, with INVENTORY FULL, if there is no room). Right-clicking a removable
+module elsewhere SHALL still remove it. A short hint beside the pointer SHALL say
+what the mouse would do there:
+- over a plug: "[RMB] unplug · drag to move the plug";
+- over a free jack: drag to patch;
+- over a knob: drag or scroll to turn;
+- over a comb cable: drag or click to take it;
+- over a removable module: "[RMB] remove the module".
+
+The hint SHALL hide when the pointer leaves the rack or the screen closes, and the
+key prompts SHALL list right-click to unplug.
+
+#### Scenario: Unplugging a patched burbler
+- **WHEN** the player right-clicks the volume's IN plug on a sounding burbler
+- **THEN** the rust cable hangs back on the comb, the VCO stays mounted, and the burbler falls silent
+
+#### Scenario: The hint
+- **WHEN** the pointer rests on a plugged jack
+- **THEN** a hint beside it reads "[RMB] unplug · drag to move the plug"

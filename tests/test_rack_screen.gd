@@ -109,6 +109,26 @@ func _run() -> void:
 	_mouse(screen, knob_pixel + Vector2(0, -120), false)
 	_expect(absf(state.knob("volume/gain") - 0.5) < 0.01, "120 px drag sets gain 0.5 (got %s)" % state.knob("volume/gain"))
 
+	# Right-click a plug: the hint says so, and the cable unplugs and goes home.
+	_expect(screen.hint_at(_jack(view, "volume", "in")).contains("[RMB] unplug"), "hint over a plug offers unplug")
+	_expect(screen.hint_at(_jack(view, "vco", "voct")).contains("patch"), "hint over a free jack offers patching")
+	var right_in := InputEventMouseButton.new()
+	right_in.button_index = MOUSE_BUTTON_RIGHT
+	right_in.pressed = true
+	right_in.position = _jack(view, "volume", "in")
+	screen._on_rack_input(right_in)
+	_expect(state.cables.size() == 1 and not state.comb_in_use(1), "right-click unplugs; rust back on the comb")
+	_expect(state.mounted.has("vco"), "right-click on a plug doesn't remove the module")
+	_expect(not voice.playing, "unplugging by right-click silences the voice")
+	# Re-patch OUT → IN for the drag-off check below.
+	_mouse(screen, view.to_screen(view._comb_points[1][12]), true)
+	_motion(screen, _jack(view, "vco", "out"))
+	_mouse(screen, _jack(view, "vco", "out"), false)
+	_motion(screen, _jack(view, "volume", "in"))
+	_mouse(screen, _jack(view, "volume", "in"), true)
+	_mouse(screen, _jack(view, "volume", "in"), false)
+	_expect(state.cables.size() == 2 and voice.playing, "re-patched and sounding again")
+
 	# Unplug by dragging the TRIG end off into empty space: the comb cable goes home.
 	_mouse(screen, _jack(view, "volume", "trig"), true)
 	_motion(screen, Vector2(5, 5))

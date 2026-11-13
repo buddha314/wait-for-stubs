@@ -8,8 +8,9 @@ extends CanvasLayer
 ##
 ## Gestures (VCV Rack's): drag between jacks to patch; drag a cable off the comb, or
 ## click it to carry it; a cable in hand snaps to a jack within SNAP_PX; drag a
-## plugged end to move it, or off any jack to unplug; drag or scroll a knob; drag an
-## item onto its slot, click it, or press its number; right-click a module to remove.
+## plugged end to move it, or off any jack to unplug; right-click a plug to unplug it;
+## drag or scroll a knob; drag an item onto its slot, click it, or press its number;
+## right-click a module to remove it. A hint beside the pointer says what applies.
 ##
 ## A machine that opens a rack provides: rack_state, configure, knob_overrides(),
 ## rack_header() and bpm().
@@ -53,6 +54,8 @@ var _notice_left := 0.0
 ## drop callbacks never run.
 @onready var _input_layer: Control = $Window/Rows/Body/Rack/Input
 @onready var _notice: Label = $Notice
+## A helper line beside the pointer saying what the mouse would do here.
+@onready var _hint: Label = $Hint
 @onready var _snap: AudioStreamPlayer = $Snap
 
 
@@ -66,6 +69,7 @@ func _ready() -> void:
 	material.set_shader_parameter("dim", float(backdrop.get("dim", 0.55)))
 	_input_layer.gui_input.connect(_on_rack_input)
 	_input_layer.set_drag_forwarding(Callable(), _can_drop_item, _drop_item)
+	_input_layer.mouse_exited.connect(func() -> void: _hint.visible = false)
 	_centre.resized.connect(_view.fit)
 	Inventory.changed.connect(_refresh_items)
 
@@ -91,6 +95,7 @@ func open_rack(point: MachineInteract) -> void:
 
 func close() -> void:
 	_drop_held()
+	_hint.visible = false
 	if machine:
 		var state: RackState = machine.rack_state
 		if state.changed.is_connected(_on_state_changed):
@@ -173,6 +178,23 @@ func insert(item: String, place_name: String = "") -> bool:
 				_state().mount(place.place, accept.module)
 				return true
 	return false
+
+
+## Unplugs the cable in `jack` ({place, port}) entirely: a comb cable hangs back on
+## the comb, a player cable returns to the inventory (or stays plugged if the
+## inventory is full). True if a cable was unplugged.
+func unplug(jack: Dictionary) -> bool:
+	if jack.is_empty():
+		return false
+	var cable := _state().cable_at(jack)
+	if cable.is_empty():
+		return false
+	if cable.source == "inventory" and not Inventory.give(PATCH_CABLE):
+		show_notice("INVENTORY FULL")
+		return true
+	_state().remove_cable(cable)
+	_play_snap()
+	return true
 
 
 ## Removes a non-fixed module: unplugs its cables, returns its item. True if removed.
@@ -306,13 +328,14 @@ func _on_rack_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			if not _view.held.is_empty():
 				_drop_held()
-			else:
+			elif not unplug(_view.jack_at(pixel, _jack_radius_px())):
 				remove(_view.place_at(pixel))
 		elif event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 			var knob := _view.knob_at(pixel)
 			if not knob.is_empty():
 				var direction := 1.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1.0
 				turn_knob(knob.place, knob.param, direction * KNOB_SCROLL_STEP)
+		_update_hint(pixel, event.global_position)
 		_input_layer.accept_event()
 	elif event is InputEventMouseMotion:
 		var pixel := _to_viewport(event.position)
@@ -322,7 +345,34 @@ func _on_rack_input(event: InputEvent) -> void:
 		if not _view.held.is_empty():
 			_view.held.pointer = pixel
 			_view.held.snap = _snap_target(pixel)
+		_update_hint(pixel, event.global_position)
 		_input_layer.accept_event()
+
+
+## What the mouse would do at `pixel`, or "" if nothing.
+func hint_at(pixel: Vector2) -> String:
+	var held := _view.held
+	if not held.is_empty():
+		return "release on a jack to plug in  ·  [RMB] put the cable back"
+	var jack := _view.jack_at(pixel, _jack_radius_px())
+	if not jack.is_empty():
+		if _state().is_patched(jack):
+			return "[RMB] unplug  ·  drag to move the plug"
+		return "drag to another jack to patch"
+	if not _view.knob_at(pixel).is_empty():
+		return "drag up/down or scroll to turn"
+	if _view.comb_cable_at(pixel, 12.0) >= 0:
+		return "drag or click to take the cable"
+	var place := _view.place_at(pixel)
+	if place != "" and _state().mounted.has(place) and not _state().place_of(place).get("fixed", false):
+		return "[RMB] remove the module"
+	return ""
+
+
+func _update_hint(pixel: Vector2, screen_position: Vector2) -> void:
+	_hint.text = hint_at(pixel)
+	_hint.visible = _hint.text != ""
+	_hint.position = screen_position + Vector2(18, 14)
 
 
 func _press(pixel: Vector2) -> void:
