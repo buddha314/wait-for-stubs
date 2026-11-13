@@ -310,9 +310,16 @@ regrow in 60 s); the burbler's rack: mount the square VCO, patch with comb or ow
 cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
 
 **Open threads, roughly in order:**
-1. **stubby-rack spike** (`add-rack-audio-engine` task group 1): fan one tone to 48
-   AudioStreamPlayer3D, then measure drift, cost per player, a 200-module rack in
-   `_mix`, and clock-to-light jitter. Work happens in `/home/buddha/src/stubby-rack`.
+1. **stubby-rack spike done** (`add-rack-audio-engine` group 1; results in its design.md,
+   code on stubby-rack's `spike-hosting` branch). The driver-player approach holds:
+   - stems are sample-aligned by step detection;
+   - about 10 µs per emitter per step; a 200-module rack takes 6% of a block in `_mix`;
+   - the sync point is accurate to 0.4 ms;
+   - the driver must be `PROCESS_MODE_ALWAYS` or pause stops the clock.
+
+   Open: editor hot-reload (a manual check), and the HRTF live test with Nexus
+   Resonance (MIT plus Steam Audio, Apache-2.0), which needs approval to load its
+   native libraries. Next: engine core (groups 3 to 5).
 2. **Archived (2026-11-13), specs in `openspec/specs/`:** `add-burbler-rack-screen`,
    `add-scrub-oak`, `add-sky-motion-and-mountains`, `migrate-off-stubby-music`.
    **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,

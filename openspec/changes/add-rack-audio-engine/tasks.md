@@ -8,15 +8,15 @@
 
 ## 1. Spike: Godot hosting (measure before building)
 
-- [ ] 1.1 Minimal godot-cpp extension (`spikes/host`) built against this binary's dumped `extension_api.json`, and against the 4.7 baseline; record which loads in 4.8
-- [ ] 1.2 Driver playback plus N stem playbacks rendering one shared test tone, rendered on first request per block via a block cursor; stems ignore `pitch_scale`, doppler off
-- [ ] 1.3 Drift and glitch test: one tone fanned to 48 AudioStreamPlayer3D for 10 minutes; check sample alignment and dropouts
-- [ ] 1.4 Cost per AudioStreamPlayer3D (main thread and mixer) at 16, 48 and 96 emitters
-- [ ] 1.5 Port stubby-music's `spike_rack` patch to the C++ core: a 200-module feedback patch's cost per 512-frame block inside `_mix`, against the 15% budget and Rust's 8.8 ns per module-sample
-- [ ] 1.6 Clock-to-light jitter: publish the sync point, flash a light on ticks, measure the error against the predicted audible instant
-- [ ] 1.7 Pause with `process_mode = ALWAYS` players: the rack keeps rendering, and the in-core mute fades cleanly
-- [ ] 1.8 Scene reload and editor hot-reload of the extension
-- [ ] 1.9 HRTF: check whether the Steam Audio fork or Nexus Resonance accepts a custom stream; otherwise measure in-core binaural rendering at 16 emitters
+- [x] 1.1 Minimal godot-cpp extension (`spikes/host`) built against this binary's dumped `extension_api.json`, and against the 4.7 baseline; record which loads in 4.8
+- [x] 1.2 Driver playback plus N stem playbacks rendering one shared test tone, rendered on first request per block via a block cursor; stems ignore `pitch_scale`, doppler off
+- [x] 1.3 Drift and glitch test: one tone fanned to 48 AudioStreamPlayer3D for 10 minutes; check sample alignment and dropouts
+- [x] 1.4 Cost per AudioStreamPlayer3D (main thread and mixer) at 16, 48 and 96 emitters
+- [x] 1.5 Port stubby-music's `spike_rack` patch to the C++ core: a 200-module feedback patch's cost per 512-frame block inside `_mix`, against the 15% budget and Rust's 8.8 ns per module-sample
+- [x] 1.6 Clock-to-light jitter: publish the sync point, flash a light on ticks, measure the error against the predicted audible instant
+- [x] 1.7 Pause with `process_mode = ALWAYS` players: the rack keeps rendering, and the in-core mute fades cleanly
+- [ ] 1.8 Scene reload and editor hot-reload of the extension (scene reload passes: 20 cycles × 32 players, 0 skips; editor hot reload needs a manual check in the editor)
+- [ ] 1.9 HRTF: check whether the Steam Audio fork or Nexus Resonance accepts a custom stream; otherwise measure in-core binaural rendering at 16 emitters (Nexus Resonance: MIT + Steam Audio Apache-2.0; `ResonancePlayer` wraps any stream with HRTF; live test awaits approval to load its native libraries)
 - [ ] 1.10 Record results in design.md (D1, D4, D8); if the driver-player approach fails, evaluate the engine-module fallback
 
 ## 2. Repository and build
