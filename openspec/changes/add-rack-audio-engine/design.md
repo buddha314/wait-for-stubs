@@ -69,16 +69,32 @@ them offline to reference files, and C++ tests must match within a tolerance
 (bit-exact isn't expected across fundsp and DaisySP oscillators). The two engines then
 evolve separately, and stubby-music keeps its Rust engine.
 
-**D3 — Layout: a Godot-free DSP core inside the extension.**
+**D3 — Its own repository, with a Godot-free DSP core.** The engine lives in
+[`buddha314/stubby-rack`](https://github.com/buddha314/stubby-rack) (MIT, created
+2026-11-13), so it can be versioned, tested and reused apart from the game. This
+spec stays in the game repository, and stubby-rack's README points back here.
 
 ```
-extension/stubby_rack/
+stubby-rack/
   src/core/       rack, master clock, scheduler, modules: plain C++17, no godot-cpp types
   src/godot/      AudioStream/Playback, Resources, Nodes, the RackServer singleton
-  thirdparty/     DaisySP (MIT core only), Mutable Instruments STM32 dsp (MIT), godot-cpp
-  tests/          doctest unit + offline-render tests of src/core
+  thirdparty/     DaisySP (MIT core), Mutable Instruments STM32 + stmlib (MIT),
+                  CHOC subset (ISC), Signalsmith DSP (MIT), doctest; pins in THIRDPARTY.md
+  godot-cpp/      submodule at 10.0.0-stable
+  api/            extension_api.json dumped from the Godot 4.8 binary
+  tests/          doctest tests of src/core (`scons tests`, no Godot)
+  demo/           minimal project; the build writes the addon to demo/addons/stubby_rack/
   SConstruct      godot-cpp's SCons build, as Godot itself uses
 ```
+
+**Reuse survey (2026-11-13, `docs/research/rack-engine-reuse.md`).** Adopted: CHOC's
+lock-free FIFO and block dispatcher, and Signalsmith DSP alongside DaisySP and
+Mutable Instruments. Nothing permissive provides a per-sample scheduler with VCV
+semantics (permissive engines are block-based; the per-sample ones are all GPL-3), a
+master clock that other code can schedule against, the stem fan-out, or the
+Godot-facing classes, so those are written here. *How the game consumes the
+addon* (copy `demo/addons/stubby_rack`, a git submodule, or release artifacts) is
+decided when the game first uses it.
 
 The core builds and tests with no Godot (requirement "Engine core is independent of
 the game engine"), and offline rendering lives there. Only `src/godot/` touches
@@ -143,7 +159,7 @@ count of rendered samples is the only sample-exact time base.
 
 - **Lock-free boundary.** Calls on `Rack` and `RackServer` queue commands on the main
   thread. `commit()` publishes the frame's batch to the audio thread through a
-  lock-free SPSC queue, with module objects prebuilt off the audio thread. Removed
+  lock-free SPSC queue (CHOC), with module objects prebuilt off the audio thread. Removed
   modules return on a second queue and are freed on the main thread.
 - **Events.** Events drain on the main thread and are emitted as signals carrying
   sample times. Module IDs are assigned by the game.

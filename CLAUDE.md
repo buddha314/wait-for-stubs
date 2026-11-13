@@ -25,7 +25,10 @@ start a feature without a change proposal.**
   `#### Scenario:` blocks written as WHEN/THEN.
 - Research notes behind decisions go in `docs/research/`.
 
-**Audio is specified in `openspec/changes/add-rack-audio-engine`** (not built yet).
+**Audio is specified in `openspec/changes/add-rack-audio-engine`** and is being built in
+its own repository, **`/home/buddha/src/stubby-rack`**
+([buddha314/stubby-rack](https://github.com/buddha314/stubby-rack); scaffold only:
+`RackServer` loads, core voltage tests pass). Read its CLAUDE.md before working there.
 It's a Godot-native C++ GDExtension (godot-cpp, chosen 2026-11-13 over hosting
 stubby-music's Rust `stubby_audio`, which is now only a reference and test oracle),
 rendered from Godot's mix. Godot sees it as Resources (`RackPatch`,
