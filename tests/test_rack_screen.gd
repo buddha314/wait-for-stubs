@@ -174,6 +174,10 @@ func _run() -> void:
 	_action("release_cursor")
 	_expect(not screen.is_open(), "Esc closes")
 
+	# Plugging snapped through the rack sampler on the UI stem, not a raw player.
+	_expect(screen._snap_ids.size() == 3 and screen._snap_ids.all(func(i: int) -> bool: return i >= 0),
+			"snap clips load into the rack sampler: %s" % [screen._snap_ids])
+
 	if _failures.is_empty():
 		print("test_rack_screen: OK")
 		quit(0)
