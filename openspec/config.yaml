@@ -1,0 +1,44 @@
+schema: spec-driven
+
+context: |
+  wait-for-stubs is a Godot 4.8 (beta, custom build, Linux) port of
+  /home/buddha/src/stubby-music (Rust/Bevy). The game is VCV Rack inside a 3D
+  factory builder: in-world machines are racks of Eurorack-style modules that the
+  player mounts and patches with cables; the factory is the patch, and the music
+  is the output. Sound is discovered: the world opens silent and sources are found
+  by ear, so audio is spatial and central. More synth voices and modules will keep
+  being added.
+
+  Acoustic ecology (docs/design/acoustic-ecology-brief.md): listening, acoustic
+  experimentation and modular composition are the main verbs. Physical things in
+  the world (tubes, cavities, plates, ground, foliage) are part of the instrument.
+  Every world asset carries an acoustic profile (acoustics.json). Physics stays
+  legible and approximate, and every behaviour is labelled as established physics,
+  a simplified simulation, or a gameplay abstraction. The world still opens in
+  silence.
+
+  stubby-music's openspec/ and docs/research/ are the design record. When porting a
+  feature, start from its change there (proposal, design, specs) and keep any
+  requirement that doesn't depend on Bevy; say what changed and why.
+
+  Use existing tools whenever possible: Godot built-ins, maintained addons and
+  GDExtensions, and existing permissively licensed C++ DSP libraries. Audio is a
+  Godot-native C++ GDExtension (godot-cpp); stubby-music's Rust engine is a
+  reference design, not a dependency. Write new code only where nothing suitable exists, and record what
+  was considered. The repo is MIT; GPL code cannot be linked into the game.
+
+  Layout: scenes/<feature>/ (scene + script), autoload/, common/, addons/ (vendored,
+  unmodified), assets/ (copied from stubby-music). See CLAUDE.md.
+
+rules:
+  proposal:
+    - List the existing tools (engine features, addons, libraries, stubby-music crates) the change relies on, and anything it deliberately writes from scratch.
+  design:
+    - For every decision that builds instead of reuses, name the existing options considered and why each was rejected.
+    - Note which stubby-music change and decisions this ports, and what differs in Godot.
+  specs:
+    - For any new world asset or acoustic mechanic, include its acoustic profile requirements (see add-acoustic-asset-profiles) and audit sound-file licences separately from code.
+    - Requirements use SHALL/MUST; every requirement has at least one "#### Scenario:" written as WHEN/THEN.
+    - Keep requirements engine-agnostic where possible (behaviour and numbers, not Godot class names), so they stay valid if the implementation changes.
+  tasks:
+    - Put spikes and measurements before the work that depends on their results.
