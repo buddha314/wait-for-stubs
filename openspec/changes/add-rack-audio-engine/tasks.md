@@ -2,8 +2,8 @@
 
 - [x] 0.1 Host: a C++ GDExtension on godot-cpp; stubby-music's Rust engine is the reference, not a dependency (design D1, D2)
 - [x] 0.2 Pause: the clock keeps running and the music is muted (design D5)
-- [x] 0.3a Master default tempo: 20 BPM, 4/4, as project settings `audio/master_clock/*` (design D5)
-- [ ] 0.3b Burbler tempo model: free-running per-instance BPM, or following the master at a ratio
+- [x] 0.3a Master default tempo: 1 BPM, 4/4, as project settings `audio/master_clock/*` (design D5)
+- [x] 0.3b Burbler tempo model: a whole multiple of the master (×40 to ×180, seeded per instance); every tempo clock is a whole multiple (design D5)
 - [x] 0.4 Confirm no existing open-source package replaces the rack scheduler, clock, fan-out or queues: only the queues (CHOC) are adopted (design D3, `docs/research/rack-engine-reuse.md`)
 
 ## 1. Spike: Godot hosting (measure before building)
@@ -24,7 +24,8 @@
 - [x] 2.1 Repository `buddha314/stubby-rack` with godot-cpp 10.0.0-stable as a submodule, SCons build against the dumped 4.8 API (and the 4.7 baseline), `.gdextension` in `demo/addons/stubby_rack/`; `RackServer` loads headless (`demo/smoke_test.gd`)
 - [x] 2.2 `thirdparty/`: DaisySP MIT core (no `DaisySP-LGPL`), Mutable Instruments STM32 dsp and stmlib (MIT), CHOC subset (ISC), Signalsmith DSP (MIT), doctest; `tools/check_licences.py` passes
 - [x] 2.3 `tests/` with doctest for `src/core`, running with no Godot (`scons tests`: VCV voltage scenarios pass); build documented in stubby-rack's README and CLAUDE.md
-- [ ] 2.4 Decide how wait-for-stubs consumes the addon (copy, submodule or release artifact) when it is first used
+- [x] 2.4 Decide how wait-for-stubs consumes the addon: vendored copy in `res://addons/stubby_rack/`, as Godot's version-control guidance and the Asset Library expect (design D11)
+- [ ] 2.6 `tools/sync_stubby_rack.sh` in wait-for-stubs: build stubby-rack (or fetch its CI artifact for other platforms), copy `demo/addons/stubby_rack/` to `addons/stubby_rack/`, write `VERSION` with the stubby-rack commit, run `--import` twice (task 2.5); add `*.so`, `*.dll`, `*.dylib` to `.gitattributes` before the first commit; `.gdextension` sets `compatibility_minimum` and `reloadable = true`
 - [ ] 2.5 Report the Godot 4.8 beta clean-import abort with GDExtensions upstream (it reproduces with godot-cpp's own test extension)
 
 ## 3. Engine core (`src/core`, plain C++17)
@@ -41,7 +42,7 @@
 
 - [ ] 4.1 Sample counter as the single time base; transport (tempo, meter, start/stop, continuous beat phase across tempo changes)
 - [ ] 4.2 Scheduler: absolute-sample and quantized (beat, bar, division) actions at exact in-block offsets; late notices
-- [ ] 4.3 Clock modes: follow the master at a ratio, phase-locked; free-running (fixed or seeded random)
+- [ ] 4.3 Clock modes: tempo clocks at a whole multiple of the master, ticks derived from master phase; seeded random clocks run free
 - [ ] 4.4 Sync point per block (sample, mix instant, output latency) published atomically
 - [ ] 4.5 Read the default tempo and meter from project settings `audio/master_clock/tempo_bpm` and `beats_per_bar`
 - [ ] 4.6 Pause: driver and stem players use `process_mode = ALWAYS`; an in-core mute gain on world and music stems, faded over 20–50 ms; the UI stem is unaffected

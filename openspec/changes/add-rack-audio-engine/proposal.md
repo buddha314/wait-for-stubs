@@ -25,7 +25,8 @@ beat) depends on this engine, so it comes first.
   reference and test oracle.
 - **A central master clock** that times all game audio:
   - one sample counter;
-  - a musical transport at a configurable default of 20 BPM, 4/4;
+  - a musical transport at a configurable default of 1 BPM, 4/4, with every tempo
+    clock a whole multiple of it;
   - sample-accurate and beat-quantized scheduling;
   - clocks that follow the master or run free;
   - lock-free time reads for visuals.
@@ -91,7 +92,7 @@ beat) depends on this engine, so it comes first.
   `addons/stubby_rack/bin/*.so` and a `.gdextension` file. The build needs SCons and a
   C++17 compiler (already present for the custom Godot build). No Rust toolchain.
 - Project settings, already added: `audio/driver/mix_rate=48000`,
-  `audio/master_clock/tempo_bpm=20.0`, `audio/master_clock/beats_per_bar=4`.
+  `audio/master_clock/tempo_bpm=1.0`, `audio/master_clock/beats_per_bar=4`.
 - Game code: `scenes/lightning_bug/` and `scenes/rack_screen/`, and later the
   burbler. `RackServer` replaces the planned GDScript audio autoload.
 - Godot 4.8 beta API churn: godot-cpp built against this binary's dumped
