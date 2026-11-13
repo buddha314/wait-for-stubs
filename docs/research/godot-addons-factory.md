@@ -31,6 +31,46 @@ GDExtensions also hit the beta's clean-import abort (`add-rack-audio-engine` tas
 | Voxel terrain / digging | **godot_voxel** (Zylann) | MIT · C++ · 2026-11-07 | **Not now.** It's heavy, and is either an engine module or a GDExtension. Terrain3D's holes and sculpting cover shallow digging; revisit only if `add-digging` needs caves. | No |
 | Audio and music | GDSiON, godot-blipkit, rhythm "conductor" add-ons, godot-midi-player (arlez80, 5 stars) | — | **Covered by `rack-engine-reuse.md`.** Audio is stubby-rack, and the rack's sample counter is the clock. No Godot audio add-on fits that. | — |
 
+## Crafting and recipe systems in depth (2026-11-13, second pass)
+
+*Asked: "look for godot addons for crafting and recipe systems / management."
+Licences and activity checked with `gh api repos/...` on this date.*
+
+**Our current format.** `assets/recipes/recipes.json` is schema-validated JSON
+(`schema/recipes.schema.json`). A recipe is `{id, name, inputs[], outputs[]}` with
+item stacks, and the file is still empty. `items.json`, `resources.json`,
+`mines.json`, `buildables.json` and `goals.json` follow the same pattern, and
+`autoload/rules.gd` loads them. Machines will need more fields: the station kind, and
+a craft cycle in beats.
+
+| Add-on | Licence · language · last push · stars | What it does | Verdict |
+| --- | --- | --- | --- |
+| **Inventory System** (expressobits) | MIT · C++ GDExtension · 2026-02-20 · 741 | The most complete free crafting: an item database, `CraftStation`s that filter recipes by station type, timed crafting, autocraft, output to inventories, and an item/recipe editor | **Reference design, don't adopt.** Its station flow is closest to a constructor, but it owns items and recipes in its own resources (duplicating our JSON), it's a C++ GDExtension with no release since March (4.8 registration risk, see `docs/upstream/nexus-resonance-godot-4.8.md`), and crafting time is wall-time, not beats. |
+| **Wyvernbox** (don-tnowe, the author of Edit Resources as Table) | MIT · GDScript · 2026-01-27 · 164 | ARPG inventory. Recipes are `ItemConversion`s, and **`ItemPattern`s match "one of several items"** (e.g. any fuel, with an efficiency each) | **Borrow the idea:** ingredient patterns suit "any VCO" or "any clean water" inputs. The ARPG inventory doesn't fit. |
+| **GLoot** (peter-kish) | MIT · GDScript · 2026-07-14 · 994 | Inventory containers (stacks, grids, JSON prototypes). No crafting | Still the pick for inventory and machine buffers, as in the first pass. |
+| **Inventory Forge** (Menkos) | MIT · GDScript · 2026-01-31 · 27 | A visual item database editor with ingredients, material types, recipes, loot tables, and JSON/CSV import and export. Its README says it was developed with AI assistance | **Watch.** It's small and young. JSON import is interesting for editing our rules, but it has its own item model. |
+| **Nexus Forge** (Ketei) | MIT · GDScript · 2026-11-09 · 44 | A modular editor for dialogues, quests, items and "Blueprints (recipes)" | **Watch.** Active, but small, and it's a whole content framework. |
+| **YARD** (elliotfontaine) | MIT · GDScript · Godot 4.4–4.8 | A registry of `.tres` resources by string id, with a table editor and inspector id pickers | **Later, if rules move to `.tres`.** Our rules are JSON today. |
+| **Pandora** / **Pandora+** (bitbrain / trobugno) | MIT core · GDScript · alpha | An RPG data framework; Pandora+ (itch.io) adds recipes with validation, waste output and categories | **Reject** (alpha, and a second data model). |
+| **Survival Core Lite** (huginhelm / openclawaimac) | MIT · GDScript · v0.4.0, Oct 2026 | Survival starter with a data-driven `RecipeBook` | **Reject:** same pattern as Factory Core Lite (brand new, paid Pro edition). |
+| Paid: **Crafting System** (selodev, itch.io), **ItemVault** (Chris' Tutorials, Patreon) | Commercial | Shaped and shapeless recipes, stations, timed queues, save support | **Reject:** commercial licences, and the same wall-time crafting. |
+
+**No add-on covers production chains:** machines feeding machines, rates per minute,
+and crafting cycles timed on a musical clock. Here the machines are racks and the
+clock is the music (master-clock D5: whole multiples of the 1 BPM master), so a
+craft cycle is "once per N beats of this machine's clock".
+
+**Recommendation:**
+- **Keep our schema'd JSON rules** and write a small recipe runtime in GDScript
+  (`Rules` plus a `Crafter` component on machines). It should run each craft on the
+  machine's clock ticks, never on frame time.
+- **Extend `recipes.schema.json` when the first constructor is specced:** `station`
+  (machine kind), `beats` (a cycle length in the machine's beats), and optional
+  ingredient patterns (Wyvernbox's idea).
+- **Use GLoot** for machine input and output buffers when they're built.
+- **Read expressobits' `CraftStation`** for the station state machine (validate,
+  process, output) before writing ours.
+
 ## What this means
 
 1. **Godot's ecosystem pays off around the factory, not in it.** There's strong,
