@@ -28,6 +28,14 @@ func _run() -> void:
 				"%s far meshes begin at %d m" % [check[0].get_file(), check[1]])
 		raw.free()
 
+	# Raw models ship posed hidden (start_scale), with real child transforms.
+	var raw_oak := (load("res://assets/flora/scrub_oak/scrub_oak_2/scrub_oak_2.glb") as PackedScene).instantiate()
+	var foliage := ScrubOak._named(raw_oak, "Foliage_")[0]
+	_expect(foliage.scale.is_zero_approx(), "raw oak ships dormant (Foliage_ at scale 0)")
+	_expect(foliage.get_children().all(func(c: Node3D) -> bool: return not c.scale.is_zero_approx()),
+			"the leaves inside keep their exported transforms")
+	raw_oak.free()
+
 	# Same seed and id, same tree.
 	var a := _oak("scrub_oak-test")
 	var b := _oak("scrub_oak-test")
@@ -42,13 +50,13 @@ func _run() -> void:
 	a.growth = 1.0
 	_expect(_all_scale(a, "Dead_", 0.0) and _all_scale(a, "Bloom_", 1.0) and _all_scale(a, "Foliage_", 1.0),
 			"full bloom: no dry leaves, full foliage, every bloom open")
-	# The meshes inside the parts must show too. Known upstream issue: the models ship
-	# those meshes at scale 0 with lost transforms (docs/upstream/zero-scale-exports.md).
+	# The meshes inside the parts show (exported at scale 1, start_scale restored at import).
 	var leaves := ScrubOak._named(a._model, "Foliage_")[0].find_children("*", "MeshInstance3D", true, false)
-	if leaves.all(func(m: Node3D) -> bool: return m.scale.is_zero_approx()):
-		print("test_scrub_oak: SKIP full-bloom meshes (upstream zero-scale export; see docs/upstream/zero-scale-exports.md)")
-	else:
-		_expect(true, "")
+	var catkins := ScrubOak._named(a._model, "Bloom_")[0].find_children("*", "MeshInstance3D", true, false)
+	_expect(not leaves.is_empty() and leaves.all(func(m: Node3D) -> bool: return not m.scale.is_zero_approx()),
+			"leaf meshes are visible at full bloom")
+	_expect(not catkins.is_empty() and catkins.all(func(m: Node3D) -> bool: return not m.scale.is_zero_approx()),
+			"catkin meshes are visible at full bloom")
 	a.free()
 	b.free()
 

@@ -70,7 +70,7 @@
   "far_lod": {
     "distance_m": 30.0,
     "levels": "nodes reed_clump_<k>_LOD0 and reed_clump_<k>_LOD1 inside the model",
-    "note": "imported into the model's settings by Jackdaw (model.lod.import)"
+    "note": "set as visibility ranges at import by tools/import/asset_lod_import.gd"
   },
   "triangles": {
     "reed_clump_0": {

@@ -223,10 +223,10 @@ buildables. Keep game rules data-driven; load these, don't hardcode them. Also
 
 **Placing assets:** see `docs/godot-asset-guide.md`. In short: instance the master
 scene, give it a unique `instance_id`, and never pick an LOD. LODs are set at import,
-never in scenes. **Known issue:** parts exported at scale 0 (oak leaves and blooms,
-reed stubble, halos) have broken child transforms until the models are re-exported
-at full scale (`docs/upstream/zero-scale-exports.md`). The generators are ours now,
-so that's a follow-up change here.
+never in scenes. **Hidden parts** (oak leaves and blooms, reed stubble, halos) are
+exported at scale 1 with the glTF extra `start_scale: 0`, and the import script
+restores 0, so models ship posed and their parts open correctly. Game code scales
+only the named part, never its children (`docs/upstream/zero-scale-exports.md`).
 
 Load profiles with `AssetProfile.load_json(path)`. When exports are set up, add
 `*.json` to the export's non-resource include filter, or profiles will be missing
@@ -329,10 +329,9 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    they're discovered in the world and then configured, with a rack built like the
    mudpit burbler's and tied to the local weather. They need their own world asset.
    The rain grid (master or a site's clock) is decided by play-testing.
-4. **In progress:** `migrate-off-stubby-music` (one folder per asset, the generators
-   and sources moved here). **Next:** re-export the models with state parts at full
-   scale (`docs/upstream/zero-scale-exports.md`), so oak leaves, blooms and reed
-   stubble show. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
+4. **Done (to archive):** `migrate-off-stubby-music` and the re-export with
+   `start_scale` (oak leaves and blooms, reed stubble and halos show correctly).
+   **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
    audit); time-speed controls (Bevy had ¼×–64×; without them, reaching day takes
    about 9 minutes); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
    amber haze.

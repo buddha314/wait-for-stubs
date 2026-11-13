@@ -32,8 +32,9 @@ You never pick an LOD by hand, and scene scripts never set visibility ranges.
   the models need re-importing.
 - **glTF extras** (custom properties) arrive as node metadata `extras` in this Godot
   build, for example `Bloom_3.get_meta("extras").order`.
-- **Known issue:** parts exported at scale 0 have broken child transforms until the
-  models are re-exported at full scale (`docs/upstream/zero-scale-exports.md`).
+- **Hidden parts** are exported at scale 1 with the extra `start_scale: 0`, and the
+  import script restores 0. Scale only the named part (e.g. `Foliage_3`), never the
+  meshes inside it (`docs/upstream/zero-scale-exports.md`).
 
 ## The asset scene
 

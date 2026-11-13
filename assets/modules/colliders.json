@@ -1,5 +1,5 @@
 {
-  "about": "Static collider shapes for the prefabs; see tools/collider_shapes.py. Each shape is an AvianCollider(ColliderConstructor) on a child entity at `translation`, model coordinates (Bevy: Y up), metres.",
+  "about": "Static collider shapes per model; see tools/collider_shapes.py. Each shape is a primitive (Godot: a CollisionShape3D on the asset's StaticBody3D) at `translation`, model coordinates (Y up), metres.",
   "models": {
     "modules/burbler_clock/burbler_clock.glb": {
       "walk_through": true,
@@ -25,12 +25,12 @@
       "colliders": [
         {
           "shape": "Cuboid",
-          "x_length": 0.422,
-          "y_length": 1.383,
+          "x_length": 0.443,
+          "y_length": 1.393,
           "z_length": 0.398,
           "translation": [
             0.0,
-            0.691,
+            0.697,
             0.049
           ]
         }
@@ -41,12 +41,12 @@
       "colliders": [
         {
           "shape": "Cuboid",
-          "x_length": 0.42,
-          "y_length": 1.382,
+          "x_length": 0.438,
+          "y_length": 1.392,
           "z_length": 0.398,
           "translation": [
             0.0,
-            0.691,
+            0.696,
             0.049
           ]
         }
@@ -57,12 +57,12 @@
       "colliders": [
         {
           "shape": "Cuboid",
-          "x_length": 0.418,
-          "y_length": 1.381,
+          "x_length": 0.434,
+          "y_length": 1.389,
           "z_length": 0.398,
           "translation": [
             0.0,
-            0.691,
+            0.695,
             0.049
           ]
         }
@@ -73,12 +73,12 @@
       "colliders": [
         {
           "shape": "Cuboid",
-          "x_length": 0.423,
-          "y_length": 1.383,
+          "x_length": 0.446,
+          "y_length": 1.395,
           "z_length": 0.398,
           "translation": [
             0.0,
-            0.692,
+            0.697,
             0.049
           ]
         }

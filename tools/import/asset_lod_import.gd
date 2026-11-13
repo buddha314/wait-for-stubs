@@ -8,12 +8,14 @@ extends EditorScenePostImport
 ## `far_lod.distance_m` in the asset profile that lists the model. This sets the
 ## ranges once, at import, so any instance of the model (a scene, or the raw .glb
 ## dropped into a level) swaps detail by itself. Models without LOD nodes are left
-## unchanged. Re-run with `godot --headless --path . --import` after changing it.
+## unchanged. It also restores parts the generators pose hidden (`start_scale`).
+## Re-run with `godot --headless --path . --import` after changing it.
 
 const ASSETS := "res://assets/"
 
 
 func _post_import(scene: Node) -> Object:
+	_apply_start_scales(scene)
 	if scene.find_child("*_LOD1", true, false) == null:
 		return scene
 	var source := get_source_file()
@@ -24,6 +26,18 @@ func _post_import(scene: Node) -> Object:
 	AssetLod.apply(scene, far)
 	scene.set_meta("far_lod_m", far)
 	return scene
+
+
+## Parts the generators pose hidden (scale 0) are exported at scale 1 so their
+## children keep real transforms, and tagged with the glTF extra `start_scale`
+## (tools/blender/export_gltf.py). Put them back, so the model ships posed as authored.
+static func _apply_start_scales(node: Node) -> void:
+	if node is Node3D and node.has_meta("extras"):
+		var extras: Variant = node.get_meta("extras")
+		if extras is Dictionary and extras.has("start_scale"):
+			(node as Node3D).scale = Vector3.ONE * float(extras.start_scale)
+	for child in node.get_children():
+		_apply_start_scales(child)
 
 
 ## far_lod.distance_m from the asset.json whose `model` or `variants` lists `source`.
