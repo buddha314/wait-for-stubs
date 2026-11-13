@@ -284,7 +284,11 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    conveyor from the burbler's outlet; reads the burbler's `sounding`). The game will vendor stubby-rack's built addon into
    `addons/stubby_rack/` via `tools/sync_stubby_rack.sh` (design D11, task 2.6).
 3. **Proposed:** `add-weather-and-dust-storm` (clock-aligned weather events, the
-   dust storm, one wind; a request hook for later weather recipes). **To propose
+   dust storm, one wind; a request hook for later weather recipes) and
+   `add-air-quality-field` (10 m cells of air quality, 0 polluted to 1 clean, raised
+   by living plants. The game opens in polluted air that clears cell by cell as
+   plants regrow; one camera-local 3D texture feeds the haze, ground tint, flora
+   glow and the mood blend). **To propose
    later:** weather recipes, such as a rain song or dance the player builds to call
    rain or calm a storm (user note, 2026-11-13).
 4. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance

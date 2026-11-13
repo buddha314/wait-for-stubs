@@ -8,7 +8,7 @@
 - [ ] 2.1 `Weather` autoload: grid periods from `audio/master_clock/tempo_bpm`, `events_between(from, to)` from per-tick seeded draws (design D1, D3)
 - [ ] 2.2 Continuous state: seeded baseline keyframes on grid ticks, smooth interpolation, request hook with ramps (D4)
 - [ ] 2.3 Stand-in time source (`STAND-IN`, wall time × 48 kHz), no sound (D5)
-- [ ] 2.4 Storm curve: troughs every 20–40 s on ×15 ticks; opening grace setting
+- [ ] 2.4 Storm curve: troughs every 20–40 s on ×15 ticks; the game starts inside the storm
 - [ ] 2.5 Patter events (density and drop sizes from rain rate; texture level beyond grid capacity) and strike/thunder events (distance from a whole number of ticks), as data only (D2)
 - [ ] 2.6 Headless tests: grid alignment, frame-rate independence, determinism, trough spacing across 1,000 seeds, thunder distance multiples of 343 m per tick, requests ramp from a tick, no requests means an unchanged baseline
 
@@ -20,9 +20,9 @@
 
 ## 4. Dust storm
 
-- [ ] 4.1 Storm `FogVolume` (REKIEX shader with its MIT header; wind instead of its time scroll) bound to intensity
+- [ ] 4.1 Storm `FogVolume` (REKIEX shader with its MIT header; wind instead of its time scroll) bound to intensity × (1 − air quality), with q = 0 until `add-air-quality-field` provides its texture
 - [ ] 4.2 Sand particles bound to intensity and wind
-- [ ] 4.3 Screenshots: opening (clear), full storm, trough (a burbler silhouette at 60 m or more)
+- [ ] 4.3 Screenshots: opening (polluted), full storm, trough (the burbler and moon read as silhouettes, 60 m or more)
 
 ## 5. Engine hookup (after stubby-rack 4.2, 4.4, 5.1)
 

@@ -22,14 +22,20 @@ the shared wind.
 - **WHEN** the wind turns from north to east
 - **THEN** the sand streams the new way within the gust ramp time
 
-### Requirement: The storm and the opening view
-The storm SHALL NOT hide the opening view (the moon and the burbler from spawn) for
-the first 30 s of a new game, unless the opening is changed to start in the storm.
-The choice SHALL be a single setting.
+### Requirement: The game opens in polluted air that clears where life returns
+A new game SHALL start inside the storm: polluted, dusty air. Its local density SHALL
+be the seeded storm intensity scaled by (1 − local air quality), from
+`add-air-quality-field`, so air clears cell by cell as plants regrow. Before the
+air-quality field exists, its value SHALL be read as 0 everywhere (fully polluted).
+The calm troughs SHALL be what first reveals the moon and the burbler from spawn.
 
 #### Scenario: Opening
-- **WHEN** a new game starts with the default setting
-- **THEN** storm intensity is near calm for the first 30 s, then rises on the seeded curve
+- **WHEN** a new game starts
+- **THEN** the air at spawn is polluted and hazy, and within 40 s a calm trough lets the burbler and the moon read as silhouettes
+
+#### Scenario: A clean pocket in a gust
+- **WHEN** the storm gusts while the player stands in a cell at air quality 1
+- **THEN** that cell's haze stays clear while the surrounding polluted cells thicken
 
 ### Requirement: The storm is silent until voiced
 The storm SHALL produce no sound by itself. Any storm sound SHALL come from the

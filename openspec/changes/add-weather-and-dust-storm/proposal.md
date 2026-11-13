@@ -31,7 +31,11 @@ built, or each would grow its own timer.
   - a storm `FogVolume` (starting from REKIEX's MIT sandstorm fog shader) whose
     density follows intensity;
   - camera-local blowing sand (GPUParticles3D);
-  - silent until the engine voices it.
+  - silent until the engine voices it;
+  - **the game opens in this polluted air** (user, 2026-11-13). Local storm density
+    is intensity × (1 − air quality), so the air clears cell by cell as plants
+    regrow (`add-air-quality-field`). The calm troughs are what first reveal the
+    moon and the burbler.
 - **One wind:**
   - a `Weather.wind` vector (direction, speed, gust) feeds a `wind` global shader
     uniform (particles, storm fog, later foliage);

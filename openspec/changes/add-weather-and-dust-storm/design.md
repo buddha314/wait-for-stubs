@@ -84,8 +84,10 @@ like the rack lamp. It produces no sound.
   density is bound to storm intensity.
 - **Sand:** camera-local GPUParticles3D, with rate from intensity and velocity from
   wind.
-- **The opening:** stays clear for 30 s by default (one setting), then the storm
-  rises on its curve.
+- **The opening:** starts polluted (user, 2026-11-13). The fog shader multiplies
+  density by (1 − q), where q is sampled from the air-quality 3D texture
+  (`add-air-quality-field`), so clean cells are clear pockets. Until that change
+  lands, q = 0.
 
 Rejected: TCA_Weather_System (its own sky, global `randf()`), and the 2D and C#
 add-ons.
@@ -108,15 +110,16 @@ stubby-music overwrites it.
 - [Patter on a strict grid sounds mechanical] → the seeded per-tick density and
   drop sizes vary it, plus the continuous texture. Swing and humanize are engine
   concerns on top of exact event times, if ever wanted.
-- [The storm conflicts with the clear opening] → a 30 s grace period and one
-  setting; an open question for the user.
+- [Opening in polluted air hides the moonlit view] → the calm troughs (every
+  20–40 s, on the grid) are the reveal; tune the trough depth so the moon and the
+  burbler read as silhouettes.
 - [Volumetric fog cost on integrated GPUs] → measure in the spike, and fall back to
   depth fog.
 
 ## Open Questions
 
-- Does the opening start in the storm (stubby-music) or clear (this port's moonlit
-  view)? The default is clear for 30 s.
+- ~~The opening~~: decided 2026-11-13, it starts in polluted air that clears locally
+  as plants regrow (10 m cells, `add-air-quality-field`).
 - Should patter follow the master grid (default) or the nearest sounding burbler?
 - **Weather recipes** (user note, 2026-11-13): a rain song or dance and similar
   recipes that control weather, through the D4 request hook. These need a
