@@ -52,8 +52,10 @@ licence audit rejects NC, ND, SA and unknown licences. Acoustic objects don't so
 until a discovered source excites them, so the world still opens in silence.
 
 **Master clock settings** (project settings, decided 2026-11-13):
-`audio/master_clock/tempo_bpm=20.0`, `audio/master_clock/beats_per_bar=4`,
-`audio/driver/mix_rate=48000`. Pausing never stops the clock. The engine mutes the
+`audio/master_clock/tempo_bpm=1.0`, `audio/master_clock/beats_per_bar=4`,
+`audio/driver/mix_rate=48000`. Every tempo clock runs at a whole multiple of the
+master (a 90 BPM burbler is ×90), with ticks derived from the master phase, so all
+clocks land together once a minute. Only seeded random clocks (bugs) run free. Pausing never stops the clock. The engine mutes the
 music and world stems with a short fade, and the UI stem stays audible.
 
 ## Engine
@@ -81,12 +83,14 @@ scenes/<feature>/       a scene, its script and its feature-only resources toget
   player/               first-person CharacterBody3D (stubby-music's speeds/keys)
                         + Head/Reach area that picks the E target
   hud/                  reticle, "[E] Collect ..." prompt, status/inventory lines
-  rack_screen/          a machine's configure panel (stand-in for Bevy's 3D rack)
-  mudpit_burbler/       static machine + cylinder collider from colliders.json
+  rack_screen/          the common rack screen: window + RackView (3D rack in an
+                        own-world SubViewport), mounting, cables, knobs
+  mudpit_burbler/       clock mine: seeded tempo, owns its RackState, collider
   lightning_bug/        seeded random-clock flash + square click
   reed_clump/           @tool; seeded variant/yaw/scale/sway, LOD0/LOD1 by range
   reed_bed/             @tool; deterministic scatter of reed clumps in a disc
 assets/                 runtime assets copied from stubby-music/assets (see below)
+tests/                  headless checks: godot --headless --path . -s tests/<file>.gd
 ```
 
 Placements in `main.tscn` for the burbler and 7 lightning bugs are copied from
@@ -129,9 +133,23 @@ A `MachineInteract` (machines) acts once per press. The burbler puts one on its
 model's `Interact` node (the profile's `configure.interact.node`) and shows
 `configure.interact.prompt`. E calls `open_rack` on the `rack_screen` group, which
 takes the controls (`Player.controls_enabled = false`, cursor visible) until E or
-Esc. The panel only lists the profile's places and patch steps. Bevy's real rack
-(`machine_config.rs` + `rack.rs`: 3D Eurorack HUD, mounting items into slots,
-cable patching, live synth) is not ported yet and needs the audio engine first.
+Esc.
+
+**The rack** (`add-burbler-rack-screen`, ported from stubby-music's
+`machine_config.rs` + `rack.rs`): a machine provides `rack_state` (a `RackState`
+resource: mounted modules, knob values as `"place/param"`, cables with
+`from`=output, `to`=input and `source` `comb:<n>` or `inventory`), `configure`,
+`knob_overrides()`, `rack_header()` and `bpm()`. `RackState` emits `changed` on
+every edit and `configured` once per completion. It never talks to audio: the
+engine turns it into a `RackPatch` later (`add-rack-audio-engine` 9.2). `RackView`
+draws the real glTFs in its own `World3D`, picks by `Camera3D.unproject_position`
+(no physics), and caches its materials (freeing a mesh together with the only
+reference to its material errors in the 4.8 beta). Module data comes from
+`assets/modules/<id>/asset.json` via `RackModules`; cable geometry from
+`PatchCable`. The burbler's tempo is a seeded whole multiple of the 1 BPM master
+from `assets/machines/mudpit_burbler/tempo.json` (56–64, local, not upstream); its
+BPM knob covers `params.bpm` (40–180) in whole steps. `sounding` /
+`sounding_changed` mean "fully patched".
 Owners react to `collected_changed`: a bug goes dark, and reeds cut
 to stubble and regrow over the interval. Physics layers: 1 world, 2 player,
 3 interact.
@@ -141,8 +159,9 @@ In `-s` test scripts, autoloads aren't compile-time identifiers. Reach them with
 an `InputEventAction`. `Input.action_press` doesn't reach `_unhandled_input`.
 
 **Input actions** live in `project.godot` under `[input]`: `move_*`, `jump`,
-`crouch`, `sprint`, `interact` (E), `release_cursor` (Esc). Use action names, not
-raw keycodes.
+`crouch`, `sprint`, `interact` (E), `release_cursor` (Esc), `item_1`…`item_10`
+(keys 1–0, insert from the rack's Relevant strip). Use action names, not raw
+keycodes.
 
 Add new gameplay as `scenes/<feature>/<feature>.tscn` + `.gd` beside it (e.g.
 `scenes/player/`, `scenes/lightning_bug/`), instanced into `main.tscn`. Put
@@ -198,6 +217,11 @@ local edits, so check `git status` first.
 - **Lightning bugs currently flash on frame time** (a `_process` countdown) and play
   a pre-rendered square click (`AudioStreamWAV`). That's a stand-in. Replace it with
   `RackServer` clock ticks once stubby-rack can play (task 9.1).
+- **Rack screen stand-ins** (marked `STAND-IN` in code): the clock lamp and gate
+  lights flash on a wall-time placeholder tick at the burbler's BPM
+  (`RackView._update_lamps`, replace with `clock_ticked`, task 9.2), and the plug-in
+  snap plays through a plain `AudioStreamPlayer` (`RackScreen._play_snap`, replace
+  with the rack sampler on the UI stem, task 5.5). Neither times anything musical.
 - Audio timing is the musical source of truth. **The rack's sample counter is the
   master clock for all game audio** (design D5). Godot exposes no mix counter or
   callback to extensions, and `AudioStreamGenerator` is fed from the main thread, so
@@ -223,15 +247,18 @@ them. Avoid both unless synthesis moves into the middleware.
 
 **Playable now:** night opening (Sky3D, moon in view at spawn, day after ~7.5 min);
 walking; E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
-regrow in 60 s); the burbler's read-only rack panel.
+regrow in 60 s); the burbler's rack: mount the square VCO, patch with comb or own
+cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
 
 **Open threads, roughly in order:**
 1. **stubby-rack spike** (`add-rack-audio-engine` task group 1): fan one tone to 48
    AudioStreamPlayer3D, then measure drift, cost per player, a 200-module rack in
    `_mix`, and clock-to-light jitter. Work happens in `/home/buddha/src/stubby-rack`.
-2. **Undecided, ask the user:** the burbler's tempo model (free-running 40–180 BPM, or
-   a ratio of the 20 BPM master; task 0.3b); how the game consumes the addon
-   (task 2.4).
+2. **Built:** `add-burbler-rack-screen` (all tasks; archive once played by hand).
+   **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,
+   level meter, sound gating) and `add-stream-building` (streams of reeds as the
+   conveyor from the burbler's outlet; reads the burbler's `sounding`). The game will vendor stubby-rack's built addon into
+   `addons/stubby_rack/` via `tools/sync_stubby_rack.sh` (design D11, task 2.6).
 3. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
    audit); time-speed controls (Bevy had ¼×–64×; without them, reaching day takes
    about 9 minutes); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
