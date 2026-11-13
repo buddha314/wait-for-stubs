@@ -17,7 +17,9 @@ context: |
   a simplified simulation, or a gameplay abstraction. The world still opens in
   silence.
 
-  stubby-music's openspec/ and docs/research/ are the design record. When porting a
+  stubby-music is a frozen archive (2026-11-13): its openspec/ and docs/research/ are
+  the design record, but nothing syncs from it; assets and their Blender generators
+  live here. When porting a
   feature, start from its change there (proposal, design, specs) and keep any
   requirement that doesn't depend on Bevy; say what changed and why.
 
@@ -28,7 +30,8 @@ context: |
   was considered. The repo is MIT; GPL code cannot be linked into the game.
 
   Layout: scenes/<feature>/ (scene + script), autoload/, common/, addons/ (vendored,
-  unmodified), assets/ (copied from stubby-music). See CLAUDE.md.
+  unmodified), assets/<category>/<id>/ (one folder per asset: master scene, models, profile),
+  assets-src/ and tools/blender/ (generators). See CLAUDE.md.
 
 rules:
   proposal:

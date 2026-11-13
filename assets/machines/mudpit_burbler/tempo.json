@@ -1,5 +1,5 @@
 {
-  "note": "Local to wait-for-stubs (not in stubby-music), so an asset rsync never overwrites it. A burbler's starting tempo is a whole multiple of the master clock (audio/master_clock/tempo_bpm), drawn from this window by the instance's seeded generator. The BPM knob's full range is asset.json params.bpm.",
+  "note": "Kept out of asset.json, which tools/blender/create_burbler.py rewrites. A burbler's starting tempo is a whole multiple of the master clock (audio/master_clock/tempo_bpm), drawn from this window by the instance's seeded generator. The BPM knob's full range is asset.json params.bpm.",
   "seed_multiple": {
     "min": 56,
     "max": 64

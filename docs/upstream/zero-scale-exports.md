@@ -1,7 +1,7 @@
 # Upstream issue: parts exported at scale 0 lose their meshes' transforms
 
-*Found 2026-11-13 while porting the scrub oak (`add-scrub-oak`). For stubby-music;
-nothing here edits it.*
+*Found 2026-11-13 while porting the scrub oak (`add-scrub-oak`). The generators have
+since moved into this repo (`tools/blender/`), so the fix is ours to make.*
 
 ## What happens
 
@@ -16,7 +16,7 @@ Scaling the named part back to 1 in a game shows nothing, because its children a
 still at 0. Forcing the children to 1 puts leaves and catkins in the wrong place, at
 the wrong size. This affects Bevy as much as Godot. Both read the same glTF.
 
-## Fix (in stubby-music's Blender tools)
+## Fix (in `tools/blender/`)
 
 Export state parts at **full scale** (1), or at a tiny nonzero scale such as 1e-4, so
 the children keep real transforms. Let the profile say what the game should set at

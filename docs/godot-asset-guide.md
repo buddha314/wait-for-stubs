@@ -1,14 +1,12 @@
-# Using stubby-music assets in Godot
+# Assets in Godot
 
-How assets copied from stubby-music (`assets/`) become things you place in the
-editor. The READMEs under `assets/` are synced from stubby-music and describe the
-Bevy/Jackdaw side (prefabs, `.glb.meta`). Don't edit them here; this is the Godot
-side. Based on Godot's own guidance (sources at the end).
+How the assets in `assets/` (one folder per asset, see `assets/README.md`) become things
+you place in the editor. Based on Godot's own guidance (sources at the end).
 
 ## The rule: one master scene per asset, LODs handled underneath
 
-You place and manipulate **one scene per asset** (`scenes/<asset>/<asset>.tscn`). The
-engine handles detail by itself:
+You place and manipulate **one scene per asset**: `assets/<category>/<id>/<id>.tscn`,
+beside its models and profile. The engine handles detail by itself:
 
 - **Authored LOD levels** (`<id>_LOD0` near, `<id>_LOD1` far, inside each `.glb`)
   become **visibility ranges** at import. That's Godot's documented approach for
@@ -23,25 +21,23 @@ You never pick an LOD by hand, and scene scripts never set visibility ranges.
 
 ## Importing
 
-- **Paths:** profiles use Bevy-style paths relative to `assets/`:
-  `"models/flora/scrub_oak/scrub_oak_0.glb#Scene0"` → `res://assets/flora/scrub_oak/scrub_oak_0/scrub_oak_0.glb`.
-  Drop the `#Scene0`.
+- **Paths:** profiles name models relative to `res://assets/`:
+  `"flora/scrub_oak/scrub_oak_0/scrub_oak_0.glb"`.
 - **Don't edit an imported model.** Godot can't save back into the `.glb`, and a
-  re-sync or reimport discards edits. Wrap it in an asset scene (below), or use an
-  inherited scene for purely visual tweaks. Fix shapes, names and LODs at the source,
-  in stubby-music's Blender tools.
+  reimport discards edits. Wrap it in the asset scene (below). Fix shapes, names and
+  LODs at the source, in the asset's generator in `tools/blender/`, and re-run it.
 - **Import settings are committed** (`*.glb.import`). New models get the LOD import
   script from `[importer_defaults]` in `project.godot`. After changing the script, run
   `godot --headless --path . --import`, deleting `.godot/imported/*.glb-*` first if
   the models need re-importing.
 - **glTF extras** (custom properties) arrive as node metadata `extras` in this Godot
   build, for example `Bloom_3.get_meta("extras").order`.
-- **Known upstream issue:** parts exported at scale 0 have broken child transforms
-  (`docs/upstream/zero-scale-exports.md`).
+- **Known issue:** parts exported at scale 0 have broken child transforms until the
+  models are re-exported at full scale (`docs/upstream/zero-scale-exports.md`).
 
 ## The asset scene
 
-`scenes/<asset>/<asset>.gd` (`@tool`, so it shows in the editor) takes a unique
+`assets/<category>/<id>/<id>.gd` (`@tool`, so it shows in the editor) takes a unique
 `instance_id` export and builds its children in `_ready`:
 
 1. **Seeding:** `WorldSeed.rng(instance_id)` picks the variant and draws the profile's
@@ -59,12 +55,12 @@ You never pick an LOD by hand, and scene scripts never set visibility ranges.
 5. **State from the profile:** growth, harvested, regrowing. Read the mapping from
    `asset.json`, never hard-code it.
 
-`scenes/scrub_oak/` and `scenes/reed_clump/` are the worked examples.
+`assets/flora/scrub_oak/` and `assets/flora/reeds/` (`reed_clump.tscn`) are the worked examples.
 
 ## Placing an instance
 
 In the editor, open `scenes/main/main.tscn`, right-click the parent node (for example
-`ScrubOaks`), choose **Instantiate Child Scene**, pick `scenes/scrub_oak/scrub_oak.tscn`,
+`ScrubOaks`), choose **Instantiate Child Scene**, pick `assets/flora/scrub_oak/scrub_oak.tscn`,
 move it, and set a **unique `instance_id`** in the Inspector (`scrub_oak-4`). The id
 is the tree's identity: changing it gives a different tree, and the same id always
 gives the same tree for a world seed. To preview a state, change the scene's exports

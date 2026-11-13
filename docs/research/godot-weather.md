@@ -97,7 +97,7 @@ marked as such.*
 
 | Weather | Built-ins | Add-on / borrowed | Ours | Size |
 | --- | --- | --- | --- | --- |
-| **Weather state + scheduler** (`Weather` autoload) | `Tween`, global uniforms | TCA's structure as a reference | Seeded from `WorldSeed.rng("weather")` and advanced on `Calendar` time (so pause and time-speed behave). It owns `storm_intensity` (port of Bevy's gust curve with guaranteed troughs), `wind`, `gust`, `rain_rate`, `wetness` and `cloud_cover`, publishes them as globals and signals, and writes Sky3D and the Environment. Presets live as `.tres` in `scenes/weather/`, **not** in `assets/` (rsync from stubby-music would overwrite them). | **Medium** |
+| **Weather state + scheduler** (`Weather` autoload) | `Tween`, global uniforms | TCA's structure as a reference | Seeded from `WorldSeed.rng("weather")` and advanced on `Calendar` time (so pause and time-speed behave). It owns `storm_intensity` (port of Bevy's gust curve with guaranteed troughs), `wind`, `gust`, `rain_rate`, `wetness` and `cloud_cover`, publishes them as globals and signals, and writes Sky3D and the Environment. Presets live as `.tres` in `scenes/weather/`, with the weather scene, not in an asset folder. | **Medium** |
 | **Wind** | global uniforms, Sky3D wind | — | See below. Reeds read the wind; Sky3D gets direction and speed. | **Small** |
 | **Dust storm** (the opening) | volumetric fog, FogVolume, GPUParticles3D, attractors | REKIEX fog shader (MIT) | Camera-local sand particle box with a wind-driven particle shader, a storm `FogVolume` bound to `storm_intensity`, fog and exposure scaled into the lighting keys, and storm intensity falling with light quality (once that field exists). Visibility tuning is the real work: navigable by silhouette, with guaranteed troughs. | **Medium–large** (mostly tuning and art) |
 | **Fog / haze** | Environment fog, volumetric fog, Sky3D AtmFog | — | Mostly configuration: lighting keys → Sky3D/Environment mapping (needed anyway), and weather multiplies it. Morning ground mist over streams is a few `FogVolume`s. | **Small** |
@@ -209,6 +209,6 @@ only receives parameters, and it schedules any sound itself.
 [Godot 4.0 gets global and instance shader uniforms](https://godotengine.org/article/godot-40-gets-global-and-instance-shader-uniforms),
 [Grass rendering series part 3 (hexaquo.at)](https://hexaquo.at/pages/grass-rendering-series-part-3-animating-and-interacting-with-grass-in-godot/).
 Local: `addons/sky_3d/src/Sky3D.gd`, `addons/sky_3d/src/SkyDome.gd`,
-`scenes/reed_clump/reed_clump.gd`, `assets/lighting/lighting_keys.json`,
+`assets/flora/reeds/reed_clump.gd`, `assets/lighting/lighting_keys.json`,
 `openspec/changes/add-acoustic-asset-profiles/design.md` (D7),
 `../stubby-music/AGENTS.md` (the opening), `../stubby-music/openspec/changes/add-desert-opening/`.

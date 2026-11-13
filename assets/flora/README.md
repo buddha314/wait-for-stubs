@@ -1,8 +1,10 @@
 # Flora
 
-Every asset here has a Jackdaw prefab (`jackdaw/assets/prefabs/flora/`). Levels of
-detail are inside each model as `<id>_LOD0` and `<id>_LOD1` nodes, imported into its
-settings (`.glb.meta`) by Jackdaw.
+Master scenes: `reeds/reed_clump.tscn` and `scrub_oak/scrub_oak.tscn` (instance
+these, each with a unique `instance_id`). Levels of detail are inside each model as
+`<id>_LOD0` and `<id>_LOD1` nodes; the import script turns them into visibility
+ranges, so they switch by themselves (`docs/godot-asset-guide.md`). Variant models
+are in `reeds/reed_clump_<k>/` and `scrub_oak/scrub_oak_<k>/`.
 
 ## Reeds (`tools/blender/create_reeds.py`)
 

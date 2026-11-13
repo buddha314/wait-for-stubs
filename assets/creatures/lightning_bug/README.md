@@ -5,7 +5,7 @@ wings and light are completely hidden between pulses. No idle glow or continuous
 emitted. The flash attacks in 15 ms and decays to zero over a total of 180 ms.
 
 - Source: `assets-src/blender/creatures/lightning_bug.blend` (metres, isolated asset scene).
-- Runtime: `assets/models/creatures/lightning_bug.glb`, with a `white_flash` scale animation.
+- Runtime: `lightning_bug.glb` in this folder, with a `white_flash` scale animation. Master scene: `lightning_bug.tscn`.
 - Profile: `asset.json`. The game embeds this profile at build time.
 - Preview: `preview.png` shows the flash at its peak; scrub frames 1–19 in Blender
   to see it collapse to invisibility at 60 FPS.
@@ -34,15 +34,9 @@ for asset preview; the game drives visibility, scale and local light from the
 sample-clock envelope, preserving synchronization despite frame jitter. If the
 audio device cannot open, bugs remain hidden and a diagnostic explains why.
 
-Run the scene and optionally capture both real pulse states:
-
-```sh
-cargo run -p stubby_game -- --seed=42 --pulse-preview=/tmp/lightning-bug
-```
-
-The isolated Jackdaw adapter shares these source files and models. Its
-`assets/models` symlink points to the game's runtime models. In the editor, Play
-shows the flashes; the edit viewport remains the static ground proxy.
+In Godot, bugs flash on a frame-timed stand-in and click with a pre-rendered
+square until stubby-rack's clock drives them (`add-rack-audio-engine` 9.1). Place
+one by instancing `lightning_bug.tscn` with a unique `instance_id`.
 
 `PulseClock` is the common clock trait, with `PeriodicClock` and `RandomClock` implementations. Each bug owns its random state; reusing a follower clock ID is the explicit way to synchronize another asset to that bug.
 

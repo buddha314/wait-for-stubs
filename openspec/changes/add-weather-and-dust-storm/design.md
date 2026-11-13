@@ -102,8 +102,8 @@ add-ons.
 - The engine: parameters.
 
 **D8. Data lives locally.** Grid multiples, storm-curve shape and presets live in
-`scenes/weather/weather_presets.tres`. Not `assets/`, because the rsync from
-stubby-music overwrites it.
+`scenes/weather/weather_presets.tres`, with the weather scene: they aren't one asset's
+data.
 
 ## Risks / Trade-offs
 

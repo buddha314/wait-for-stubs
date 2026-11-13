@@ -91,8 +91,8 @@ segment glTF), and a ring of active tick times. Each frame, a note's distance
 downstream is `note_spacing_m × (clock beats from tick_audible to now_audible)`, so the
 mud follows the burbler clock: speed is spacing × BPM / 60, and a retune changes the
 whole stream's speed without moving any note. `note_spacing_m` (1.0 for raw mud) lives
-in `assets/streams/stream_segment/flow.json`, beside `asset.json` so an rsync from
-stubby-music never overwrites it (decided 2026-11-13). Its transform is
+in `assets/streams/stream_segment/flow.json`, beside `asset.json`, which
+`tools/blender/create_stream.py` rewrites (decided 2026-11-13). Its transform is
 `curve.sample_baked_with_transform(distance)`, offset onto the staff wave, and
 `staff_step × spacing / 2` along the normal. A note is dropped once it passes the
 stream's end. Notes are visuals interpolated between clock events, which

@@ -1,7 +1,8 @@
 # Rules: items, resources, mines, recipes
 
 The game's rules are rows in these files. **The designer owns the rows**; the schema
-and validator are code in `crates/stubby_recipes` (`rules.rs`), and new kinds of rule
+and validator were Rust code in stubby-music's `crates/stubby_recipes` (now an archive; a
+GDScript check is still to be written), and new kinds of rule
 go through OpenSpec. See AGENTS.md, "Rules are data; the schema is code", and
 `openspec/changes/add-rules-data-conventions/`.
 
@@ -22,17 +23,13 @@ go through OpenSpec. See AGENTS.md, "Rules are data; the schema is code", and
 
 1. Edit the JSON in an editor that reads JSON Schema (VS Code does by default: each file
    names its schema in `$schema`, so fields autocomplete and typos are underlined).
-2. Run the formatter, which sorts rows, regenerates the schemas, records new IDs and
-   validates everything:
-
-   ```bash
-   cargo run -p stubby_recipes --bin rules-fmt
-   ```
-
-   It prints every problem at once, each as `file [id] .field: message`.
-   `-- --check` changes nothing and fails if anything would change.
-3. `cargo test -p stubby_recipes` must pass. It loads these exact files and fails if
-   any file is not in the formatter's form or a schema is stale.
+2. Check it: the JSON Schemas in `schema/` validate in any editor that reads `$schema`.
+   stubby-music's Rust formatter and tests (`rules-fmt`, `cargo test -p
+   stubby_recipes`) are archived with it. A GDScript check that loads these files
+   through `autoload/rules.gd` is still to be written; until then, run the game
+   headless and check that `Rules` loads without errors.
+3. Keep `ids.lock` and `migrations.json` in step by hand: record every new ID, and
+   every renamed or removed one, so saves survive the change.
 4. Open a **data PR** (the PR template asks). No code or OpenSpec change is needed for
    a new row or value of a kind that already exists.
 
