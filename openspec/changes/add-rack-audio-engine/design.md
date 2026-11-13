@@ -112,9 +112,12 @@ Godot audio thread, one 512-frame step
  └─ …
 ```
 
-- Rendering is triggered by whichever playback first asks for a block the rack
-  hasn't produced, using a block cursor. That way Godot's playback order doesn't
-  matter.
+- Rendering is triggered by the first playback to read in each Godot mix step. The
+  renderer detects steps itself: a gap of more than a quarter block since the last
+  read, or a reader that already read in this step reading again. Every read in a
+  step gets the same block, so Godot's playback order doesn't matter and emitters
+  stay sample-aligned. Per-player block cursors were tried in the spike and drifted
+  1–2 blocks apart (see Spike results).
 - The driver playback keeps the rack and the clock running when nothing is audible.
 - Stems are plain `AudioStreamPlayback` (not resampled) and ignore `pitch_scale`, so
   **doppler is off** on synth emitters. Godot supplies panning, distance attenuation,
@@ -233,6 +236,108 @@ ships the addon folder. Rejected: a git submodule (Godot would scan godot-cpp an
 toolchain); downloading release artifacts on demand (needs CI for every platform
 first, too slow while the engine changes daily). Release builds for other platforms
 come from stubby-rack's CI artifacts through the same script.
+
+## Spike results (2026-11-13, task group 1)
+
+Measured in stubby-rack (branch `spike-hosting`) on Linux, Godot 4.8 beta, PulseAudio,
+48 kHz, 512-frame steps, a 12-core desktop with an RTX 5070 Ti. Code:
+- `src/core/stem_renderer.*` (fan-out and step detection);
+- `src/core/spike_rack.*` (rack port);
+- `demo/spike_*.gd`, `tools/spike_sync.py`, `bench/spike_rack_bench.cpp`.
+
+**1.1 Hosting (D1): confirmed.**
+- The extension builds against the dumped 4.8 API (godot-cpp 10.0.0-stable) and loads
+  in 4.8.
+- It also builds against godot-cpp's bundled 4.7 API, and that build loads and runs
+  in 4.8 too (the smoke and reload spikes pass).
+- The first clean `--import` aborts (exit 134); the second succeeds (task 2.5).
+
+**1.2 Fan-out (D4): works, with one design change.** Players keeping their own block
+cursors drifted apart permanently: a stem that started mid-game couldn't tell whether
+the current step's block was already rendered, and ended up 1–2 blocks (10–21 ms)
+off the others. That's an audible flam between emitters. The renderer now
+**detects mix steps itself**. A new step begins when:
+- the gap since the end of the previous read exceeds a quarter block (2.7 ms); or
+- a reader that already read in the current step reads again (this catches PulseAudio,
+  which asks for two 512-frame steps back to back).
+
+Every read in a step gets the same block, whatever order Godot mixes players in.
+Measure the gap from the *end* of a read, or render time looks like a gap.
+
+At 250 µs, about one step in 2,000 was split by a preempted audio thread (30 splits
+and 1,470 skipped reads in 10 minutes). At a quarter block: 0 splits in 3 minutes, and
+the 10-minute confirmation run is recorded below.
+
+**1.3 Drift and glitches (48 emitters, 10 minutes):**
+- 0 late steps; the worst gap between mixes was 22.5 ms (PulseAudio pairing; 32 ms
+  counts as late).
+- Stems stay sample-aligned by construction (see 1.2).
+- 10-minute confirmation with the 2.7 ms gap: 56,250 steps and 56,250 renders,
+  **0 skips**, 0 late steps, worst gap 22.5 ms, 0.52 ms of audio-thread CPU per step.
+- The first run's apparent 330 ms "clock drift" was the split steps, not the
+  hardware: each split rendered an extra block (30 × 10.7 ms ≈ 320 ms).
+
+**1.4 Cost per AudioStreamPlayer3D:** about 10 µs of audio-thread CPU per emitter per
+512-frame step, half of it Godot's own 3D panning. Main-thread cost is about 0.1 ms
+per frame at 96 emitters.
+
+| Emitters | Audio-thread CPU per step (mean / max) | Share of the 10.7 ms block |
+| --- | --- | --- |
+| 0 (driver only) | 0.03 / 0.26 ms | 0.3% |
+| 16 | 0.14 / 0.36 ms | 1.3% |
+| 48 | 0.53 / 1.07 ms | 4.9% |
+| 96 | 1.00 / 1.68 ms | 9.3% |
+
+**1.5 Rack cost.** stubby-music's `spike_rack` patch was ported to C++ with the same
+structure (virtual modules, double-buffered 1-sample cables, a feedback loop in every
+voice) and DaisySP oscillators.
+- **Offline (`-O3`, 512 frames):** 4.6 ns per module-sample at 200 modules, against
+  Rust's 8.8. 200 modules take 4.4% of a block and 400 take 9.1%. Finite, bounded at
+  ±5 V and deterministic.
+- **Inside `_mix`** (the debug extension build, 48 emitters): 200 modules add 0.66 ms
+  per step (6.2% of the block, inside the 15% budget). With the stems, the total is
+  1.15 ms mean and 2.05 ms max (10.8%). 400 modules total 1.82 ms (17%). 0 skips.
+
+**1.6 Clock-to-light.** The sync point is (step's first sample, wall time of the render).
+- PulseAudio renders step pairs back to back, so the raw mapping is about 5 ms off.
+- A just-in-time estimator, the upper envelope of (render time − sample time) over the
+  last 16 renders, maps samples to wall time within **0.07 ms median, 0.34 ms p99**.
+- Flashing a light on the frame nearest each predicted tick: 5.8 ms median and 9.5 ms
+  p99 error at 60 fps. That's the frame grid (a half frame is 8.3 ms); the clock isn't
+  the limit.
+- This measured the frame's process time, not its presentation time, which adds about
+  one frame of constant offset to calibrate.
+- `AudioServer.get_output_latency()` read 64 and 84 ms in two runs.
+- Over 10 minutes: the device clock ran within 2 ppm of the system clock. The
+  just-in-time mapping held at 0.37 ms p99 (0.76 ms max), and the light error was
+  3.8 ms median and 9.2 ms p99 across 1,200 ticks.
+
+**1.7 Pause:** with the driver at `PROCESS_MODE_ALWAYS`, the clock ran through a 3 s
+pause (3.01 s advanced). At the default `PAUSABLE`, **it stopped** (0.01 s). D5's
+`process_mode = ALWAYS` is required, not optional. The in-core mute fade is engine
+work (4.6).
+
+**1.8 Reload:**
+- Scene reload: 20 cycles of freeing and recreating 32 stem players while the driver
+  ran. 640 joins, 0 skips, renders equal steps, no crash.
+- Editor hot reload: not verifiable headless (Godot checks on editor focus); check it
+  manually.
+
+**1.9 HRTF (D8): candidate found; live test pending.** Nexus Resonance (undomick/
+godot-nexus-resonance, MIT, last push 2026-10-06, Godot 4.6+, v1.1.0) bundles Steam
+Audio (Apache-2.0, MIT-compatible with a NOTICE). Its `ResonancePlayer` extends
+`AudioStreamPlayer3D` and wraps the assigned stream's playback, and does HRTF
+binaural (`use_binaural`, SOFA files). It also offers occlusion, transmission, material
+absorption, baked reflections and pathing. The live test, our `RackStemStream` inside
+`ResonancePlayer`, needs approval to load its downloaded native libraries. The risk to
+check is that its wrapped `_mix` calls our stem with different frame counts or more than
+once per step, which would trip step detection.
+
+**1.10 Verdict:**
+- The driver-player approach holds. D1 and D4 stand, with the step-detection change
+  above.
+- No engine-module fallback is needed.
+- D8's first option is promising, pending its live test.
 
 ## Risks / Trade-offs
 

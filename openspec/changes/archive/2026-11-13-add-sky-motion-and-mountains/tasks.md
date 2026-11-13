@@ -13,5 +13,5 @@
 
 - [x] 3.1 Headless test: sun position, star rotation and cloud positions change over 60 s of night
 - [x] 3.2 Screenshots at night start, mid-night and dawn; check the far ring isn't lost in fog; tune colours
-- [ ] 3.3 Mountain acoustic profile: note the delays in the design; write `acoustics.json` when `add-acoustic-asset-profiles` 1.1 defines the format (left open here)
+- [x] 3.3 Mountain acoustic profile: delays recorded in the design (2.80/3.44/4.08 s); writing `acoustics.json` moved to `add-acoustic-asset-profiles` task 3.6
 - [x] 3.4 CLAUDE.md (mountains, moon path; the pinned moon is gone) and `openspec validate --strict add-sky-motion-and-mountains`
