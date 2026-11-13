@@ -89,9 +89,13 @@ scenes/<feature>/       a scene, its script and its feature-only resources toget
   lightning_bug/        seeded random-clock flash + square click
   reed_clump/           @tool; seeded variant/yaw/scale/sway, LOD0/LOD1 by range
   reed_bed/             @tool; deterministic scatter of reed clumps in a disc
+  scrub_oak/            @tool; seeded oak, growth display, collider (dormant at start)
   mountains/            @tool; seeded echo ridge rings at 480/590/700 m
   sky/                  moon_path.gd: drives Sky3D's moon along a star-fixed path
 assets/                 runtime assets copied from stubby-music/assets (see below)
+tools/import/           asset_lod_import.gd: default scene import script; sets
+                        authored LODs (_LOD0/_LOD1) as visibility ranges at import
+docs/godot-asset-guide.md  how stubby-music assets become placeable Godot scenes
 tests/                  checks: godot --headless --path . -s tests/<file>.gd
                         (test_rack_drag.gd drives the real GUI and needs a window)
 ```
@@ -206,6 +210,13 @@ excluded), so its JSON paths still resolve:
 - `recipes/*.json` (+ `schema/`) — data-driven items, resources, recipes, goals,
   buildables. Keep game rules data-driven; load these, don't hardcode them.
 - `lighting/lighting_keys.json`, `ui/`, `audio/sfx/`.
+
+**Placing assets in Godot:** see `docs/godot-asset-guide.md`. In short: one master
+scene per asset, LODs set at import (never in scenes), a unique `instance_id` per
+placed copy. The READMEs in `assets/` describe the Bevy/Jackdaw side. **Known
+upstream issue:** parts exported at scale 0 (oak leaves and blooms, reed stubble,
+halos) have broken child transforms until stubby-music re-exports
+(`docs/upstream/zero-scale-exports.md`).
 
 Load profiles with `AssetProfile.load_json(path)`. When exports are set up, add
 `*.json` to the export's non-resource include filter, or profiles will be missing

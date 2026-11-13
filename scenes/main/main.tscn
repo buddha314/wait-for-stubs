@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://addons/sky_3d/src/TimeOfDay.gd" id="11_hxu8e"]
 [ext_resource type="PackedScene" path="res://scenes/mountains/mountain_rings.tscn" id="22_mountains"]
 [ext_resource type="Script" path="res://scenes/sky/moon_path.gd" id="23_moon"]
+[ext_resource type="PackedScene" path="res://scenes/scrub_oak/scrub_oak.tscn" id="24_oak"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pg34l"]
 shader = ExtResource("2_th5th")
@@ -189,6 +190,20 @@ mesh = SubResource("PlaneMesh_outer")
 
 [node name="MoonPath" type="Node" parent="."]
 script = ExtResource("23_moon")
+
+[node name="ScrubOaks" type="Node3D" parent="."]
+
+[node name="ScrubOak1" parent="ScrubOaks" instance=ExtResource("24_oak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 0, -12.5)
+instance_id = "scrub_oak-1"
+
+[node name="ScrubOak2" parent="ScrubOaks" instance=ExtResource("24_oak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 0, -15.5)
+instance_id = "scrub_oak-2"
+
+[node name="ScrubOak3" parent="ScrubOaks" instance=ExtResource("24_oak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.5, 0, 11.5)
+instance_id = "scrub_oak-3"
 
 [node name="Player" parent="." unique_id=933777680 instance=ExtResource("3_player")]
 

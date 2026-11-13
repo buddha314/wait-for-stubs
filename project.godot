@@ -451,3 +451,9 @@ item_10={
 [rendering]
 
 anti_aliasing/quality/msaa_3d=2
+
+[importer_defaults]
+
+scene={
+"import_script/path": "res://tools/import/asset_lod_import.gd"
+}

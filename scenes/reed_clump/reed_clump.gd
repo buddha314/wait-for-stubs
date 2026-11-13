@@ -3,7 +3,7 @@ class_name ReedClump
 extends Node3D
 ## One harvestable clump of reeds (resource: reed). Variant, yaw, scale, height
 ## and sway phase all come from (world seed, instance_id). Walk-through: no
-## collider. Near/far detail swaps at the profile's far_lod distance.
+## collider. Near/far detail swaps at the profile's far_lod distance, set at import.
 
 const PROFILE_PATH := "res://assets/flora/reeds/asset.json"
 const VARIANTS: Array[PackedScene] = [
@@ -12,7 +12,6 @@ const VARIANTS: Array[PackedScene] = [
 	preload("res://assets/models/flora/reeds/reed_clump_2.glb"),
 	preload("res://assets/models/flora/reeds/reed_clump_3.glb"),
 ]
-const LOD_MARGIN := 2.0
 ## Row id in resources.json.
 const RESOURCE_ID := "reed_clump"
 ## Sway cycles per second.
@@ -77,9 +76,7 @@ func _build() -> void:
 	_phase = rng.randf_range(phase.x, phase.y)
 	_sway_max = deg_to_rad(profile.get("sway", {}).get("max_deg", 4.0))
 
-	var far: float = profile.get("far_lod", {}).get("distance_m", 30.0)
-	_set_lod(_model.find_child("*_LOD0", true, false), 0.0, far)
-	_set_lod(_model.find_child("*_LOD1", true, false), far, 0.0)
+	# LOD ranges come with the imported model (tools/import/asset_lod_import.gd).
 	for node in _model.find_children("Sway_*", "Node3D", true, false):
 		_sway.append(node)
 	_standing = _model.find_child("Standing", true, false)
@@ -106,14 +103,3 @@ func _on_collected_changed(collected: bool) -> void:
 		node.scale = Vector3.ONE if collected else Vector3.ZERO
 	if _far:
 		_far.visible = not collected
-
-
-func _set_lod(root: Node, begin: float, end: float) -> void:
-	if root == null:
-		return
-	for mesh: GeometryInstance3D in root.find_children("*", "GeometryInstance3D", true, false):
-		mesh.visibility_range_begin = begin
-		mesh.visibility_range_begin_margin = LOD_MARGIN if begin > 0.0 else 0.0
-		mesh.visibility_range_end = end
-		mesh.visibility_range_end_margin = LOD_MARGIN if end > 0.0 else 0.0
-		mesh.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
