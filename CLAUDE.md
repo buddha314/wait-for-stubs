@@ -196,17 +196,18 @@ local edits, so check `git status` first.
   defaults (blue sky, white clouds) don't match that bleak, hazy look yet. Same seed must give the same world. Use a seeded `RandomNumberGenerator`, never
   the global `randf()`.
 - **Lightning bugs currently flash on frame time** (a `_process` countdown) and play
-  a pre-rendered square click (`AudioStreamWAV`). That's a stand-in. Replace it
-  with audio-clock ticks when the audio engine is ported.
-- Audio timing is the musical source of truth. In stubby-music, clocks run on the
-  audio thread with sample timestamps, not frame time. Preserve that in Godot. Drive
-  beats from `AudioStreamGenerator`/`AudioServer` time, not `_process` delta.
+  a pre-rendered square click (`AudioStreamWAV`). That's a stand-in. Replace it with
+  `RackServer` clock ticks once stubby-rack can play (task 9.1).
+- Audio timing is the musical source of truth. **The rack's sample counter is the
+  master clock for all game audio** (design D5). Godot exposes no mix counter or
+  callback to extensions, and `AudioStreamGenerator` is fed from the main thread, so
+  neither can be the clock. Never time music from `_process` delta or wall time.
 
 ## Audio occlusion (researched 2026-11-13, not used yet)
 
 Godot core has no occlusion or HRTF, only `Area3D` reverb buses and distance
-lowpass. The options that keep Godot's own audio pipeline, which procedural
-`AudioStreamGenerator` synthesis needs:
+lowpass. The options that keep Godot's own audio pipeline, which stubby-rack's
+stems need (they play through AudioStreamPlayer3D):
 
 1. **Raytraced Audio** (whoStoleMyCoffee, GDScript, MIT) or **Spatial Audio
    Extended** (Danikakes, GDScript, MIT). Raycast lowpass and reverb with one bus
@@ -217,3 +218,25 @@ lowpass. The options that keep Godot's own audio pipeline, which procedural
 
 FMOD and Wwise replace Godot's mixer, so Godot-generated synth audio wouldn't reach
 them. Avoid both unless synthesis moves into the middleware.
+
+## Status and next steps (2026-11-13)
+
+**Playable now:** night opening (Sky3D, moon in view at spawn, day after ~7.5 min);
+walking; E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
+regrow in 60 s); the burbler's read-only rack panel.
+
+**Open threads, roughly in order:**
+1. **stubby-rack spike** (`add-rack-audio-engine` task group 1): fan one tone to 48
+   AudioStreamPlayer3D, then measure drift, cost per player, a 200-module rack in
+   `_mix`, and clock-to-light jitter. Work happens in `/home/buddha/src/stubby-rack`.
+2. **Undecided, ask the user:** the burbler's tempo model (free-running 40–180 BPM, or
+   a ratio of the 20 BPM master; task 0.3b); how the game consumes the addon
+   (task 2.4).
+3. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
+   audit); time-speed controls (Bevy had ¼×–64×; without them, reaching day takes
+   about 9 minutes); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
+   amber haze.
+4. **Upstream:** report the Godot 4.8 beta abort on a clean headless `--import` with
+   any GDExtension (exit 134; it reproduces with godot-cpp's own test extension;
+   task 2.5). Once the game loads stubby-rack, its first clean import will hit it too:
+   run the import again.
