@@ -40,14 +40,14 @@
 
 ## 4. Master clock
 
-- [ ] 4.1 Sample counter as the single time base; transport (tempo, meter, start/stop, continuous beat phase across tempo changes)
-- [ ] 4.2 Scheduler: absolute-sample and quantized (beat, bar, division) actions at exact in-block offsets; late notices
-- [ ] 4.3 Clock modes: tempo clocks at a whole multiple of the master, ticks derived from master phase; seeded random clocks run free
-- [ ] 4.4 Sync point per block (sample, mix instant, output latency) published atomically
-- [ ] 4.5 Read the default tempo and meter from project settings `audio/master_clock/tempo_bpm` and `beats_per_bar`
-- [ ] 4.6 Pause: driver and stem players use `process_mode = ALWAYS`; an in-core mute gain on world and music stems, faded over 20–50 ms; the UI stem is unaffected
-- [ ] 4.7 Sample-rate change keeps tempo and musical position; underrun keeps relative timing
-- [ ] 4.8 Offline tests for every master-clock scenario, including pause and the configured default
+- [x] 4.1 Sample counter as the single time base; transport (tempo, meter, start/stop, continuous beat phase across tempo changes)
+- [x] 4.2 Scheduler: absolute-sample and quantized (beat, bar, division) actions at exact in-block offsets; late notices
+- [x] 4.3 Clock modes: tempo clocks at a whole multiple of the master, ticks derived from master phase; seeded random clocks run free
+- [x] 4.4 Sync point per block (sample, mix instant, output latency) published atomically
+- [ ] 4.5 Read the default tempo and meter from project settings `audio/master_clock/tempo_bpm` and `beats_per_bar` (core takes them via `EngineConfig`; reading the settings lands with the Godot classes, group 5)
+- [ ] 4.6 Pause: driver and stem players use `process_mode = ALWAYS`; an in-core mute gain on world and music stems, faded over 20–50 ms; the UI stem is unaffected (core mute and fade done, tested; `process_mode` lands with the driver, group 5)
+- [x] 4.7 Sample-rate change keeps tempo and musical position; underrun keeps relative timing
+- [x] 4.8 Offline tests for every master-clock scenario, including pause and the configured default
 
 ## 5. Godot-facing classes (`src/godot`)
 
