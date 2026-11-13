@@ -1,0 +1,184 @@
+{
+  "id": "mudpit_burbler",
+  "model": "models/machines/mudpit_burbler.glb#Scene0",
+  "kind": "mine",
+  "mine": "mudpit_burbler",
+  "produces": "clock",
+  "size_metres": {
+    "width": 5.0,
+    "depth": 6.6,
+    "height": 0.36
+  },
+  "params": {
+    "bpm": {
+      "min": 40.0,
+      "max": 180.0,
+      "default": 90.0,
+      "note": "set per instance from the world seed"
+    }
+  },
+  "configure": {
+    "screen": "eurorack_hud",
+    "hud": "models/hud/rack_frame.glb",
+    "title": "MUDPIT BURBLER",
+    "interact": {
+      "node": "Interact",
+      "key": "E",
+      "range_m": 3.0,
+      "measured": "ground distance from the player to the Interact node, the same reach as E pickups",
+      "prompt": "Configure burbler",
+      "priority": "when a pickup is also in reach, the nearer target wins"
+    },
+    "places": [
+      {
+        "place": "clock",
+        "kind": "clock",
+        "hp": 8,
+        "fixed": true,
+        "module": "burbler_clock"
+      },
+      {
+        "place": "vco",
+        "kind": "vco",
+        "hp": 8,
+        "fixed": false,
+        "accepts": [
+          {
+            "item": "square_wave",
+            "module": "square_vco"
+          }
+        ]
+      },
+      {
+        "place": "volume",
+        "kind": "vca",
+        "hp": 4,
+        "fixed": true,
+        "module": "volume"
+      }
+    ],
+    "normalled_output": {
+      "place": "volume",
+      "port": "out"
+    },
+    "cables": [
+      {
+        "color": "verdigris",
+        "from": {
+          "place": "clock",
+          "port": "gate"
+        },
+        "to": {
+          "place": "volume",
+          "port": "trig"
+        },
+        "step": 1,
+        "hint": "take the green cable  \u00b7  patch GATE to TRIG"
+      },
+      {
+        "color": "rust",
+        "from": {
+          "place": "vco",
+          "port": "out"
+        },
+        "to": {
+          "place": "volume",
+          "port": "in"
+        },
+        "step": 2,
+        "hint": "take the red cable  \u00b7  patch OUT to IN"
+      }
+    ],
+    "patched_hint": "patched  \u00b7  the burbler plays on every beat",
+    "sound": "starts only when every cable here is patched; the stream's notes start with it"
+  },
+  "lights": {
+    "Burbler_Glow": {
+      "rest": 0.15,
+      "peak": 1.0,
+      "attack_s": 0.04,
+      "decay_s": 0.45
+    },
+    "Burbler_WispBell": {
+      "rest": 0.0,
+      "peak": 1.0,
+      "attack_s": 0.1,
+      "decay_s": 1.8
+    },
+    "Burbler_WispCore": {
+      "rest": 0.0,
+      "peak": 1.0,
+      "attack_s": 0.05,
+      "decay_s": 1.6
+    },
+    "Burbler_Mote": {
+      "rest": 0.35,
+      "peak": 1.0,
+      "attack_s": 0.2,
+      "decay_s": 0.8
+    },
+    "Burbler_OutletHalo": {
+      "rest": 0.0,
+      "peak": 1.0,
+      "attack_s": 0.05,
+      "decay_s": 0.5,
+      "note": "hidden (scale 0) except while a connection is attempted here, when it lights at peak"
+    }
+  },
+  "nodes": [
+    "Bubble_0",
+    "Bubble_1",
+    "Bubble_2",
+    "Bubble_3",
+    "Bubble_4",
+    "Burbler_Root",
+    "Interact",
+    "Mote_0",
+    "Mote_1",
+    "Mote_2",
+    "Mote_3",
+    "Mote_4",
+    "Mote_5",
+    "Mote_6",
+    "Mote_7",
+    "Outlet_0",
+    "Outlet_0_Halo",
+    "Steam_0",
+    "Steam_1",
+    "Wisp_0",
+    "Wisp_1",
+    "Wisp_2"
+  ],
+  "animations": {
+    "Bubble_0_Burble": {
+      "seconds": 1.0,
+      "loop": true,
+      "burst_at_seconds": 0.0,
+      "speed": "bpm / 60 / division (the bubble node's extras)"
+    },
+    "Bubble_1_Burble": {
+      "seconds": 1.0,
+      "loop": true,
+      "burst_at_seconds": 0.0,
+      "speed": "bpm / 60 / division (the bubble node's extras)"
+    },
+    "Bubble_2_Burble": {
+      "seconds": 1.0,
+      "loop": true,
+      "burst_at_seconds": 0.0,
+      "speed": "bpm / 60 / division (the bubble node's extras)"
+    },
+    "Bubble_3_Burble": {
+      "seconds": 1.0,
+      "loop": true,
+      "burst_at_seconds": 0.0,
+      "speed": "bpm / 60 / division (the bubble node's extras)"
+    },
+    "Bubble_4_Burble": {
+      "seconds": 1.0,
+      "loop": true,
+      "burst_at_seconds": 0.0,
+      "speed": "bpm / 60 / division (the bubble node's extras)"
+    }
+  }
+}
