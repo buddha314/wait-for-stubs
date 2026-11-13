@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/lightning_bug/lightning_bug.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://assets/models/creatures/lightning_bug.glb" id="2_model"]
+[ext_resource type="Script" path="res://common/resource_node.gd" id="3_pickup"]
+
+[node name="LightningBug" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Body" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+
+[node name="Model" parent="Body" instance=ExtResource("2_model")]
+
+[node name="Flash" type="OmniLight3D" parent="Body"]
+light_energy = 0.0
+omni_range = 3.0
+
+[node name="Click" type="AudioStreamPlayer3D" parent="Body"]
+unit_size = 1.0
+max_distance = 3.0
+
+[node name="Pickup" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+script = ExtResource("3_pickup")
+resource_id = "lightning_bug"

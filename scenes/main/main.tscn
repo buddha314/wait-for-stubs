@@ -1,29 +1,113 @@
-[gd_scene load_steps=8 format=3 uid="uid://c7x8qjjf7hqqm"]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/main/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/hud/hud.tscn" id="20_hud"]
+[ext_resource type="PackedScene" path="res://scenes/rack_screen/rack_screen.tscn" id="21_rack"]
+[ext_resource type="Shader" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="2_th5th"]
+[ext_resource type="Texture2D" path="res://addons/sky_3d/assets/resources/SNoise.tres" id="3_7smn1"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/mudpit_burbler/mudpit_burbler.tscn" id="4_burbler"]
+[ext_resource type="Texture2D" path="res://addons/sky_3d/assets/textures/noiseClouds.png" id="4_raeie"]
+[ext_resource type="PackedScene" path="res://scenes/lightning_bug/lightning_bug.tscn" id="5_bug"]
+[ext_resource type="Texture2D" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="5_hxu8e"]
+[ext_resource type="Texture2D" path="res://addons/sky_3d/assets/textures/noise.jpg" id="6_nvumn"]
+[ext_resource type="PackedScene" path="res://scenes/reed_bed/reed_bed.tscn" id="6_reeds"]
+[ext_resource type="Texture2D" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="7_ou6is"]
+[ext_resource type="Texture2D" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/Milkyway.jpg" id="8_necax"]
+[ext_resource type="Script" path="res://addons/sky_3d/src/Sky3D.gd" id="9_r4lks"]
+[ext_resource type="Script" path="res://addons/sky_3d/src/SkyDome.gd" id="10_raeie"]
+[ext_resource type="Script" path="res://addons/sky_3d/src/TimeOfDay.gd" id="11_hxu8e"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_desert"]
-sky_top_color = Color(0.32, 0.36, 0.42, 1)
-sky_horizon_color = Color(0.72, 0.62, 0.5, 1)
-ground_bottom_color = Color(0.25, 0.21, 0.17, 1)
-ground_horizon_color = Color(0.72, 0.62, 0.5, 1)
-sun_angle_max = 20.0
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pg34l"]
+shader = ExtResource("2_th5th")
+shader_parameter/sky_visible = null
+shader_parameter/color_correction = Vector2(0, 1)
+shader_parameter/ground_color = Color(0.3, 0.3, 0.3, 1)
+shader_parameter/horizon_offset = 0.0
+shader_parameter/atm_darkness = 0.5
+shader_parameter/atm_sun_intensity = 18.0
+shader_parameter/atm_day_tint = Color(0.807843, 0.909804, 1, 1)
+shader_parameter/atm_horizon_light_tint = Color(0.980392, 0.635294, 0.462745, 1)
+shader_parameter/atm_night_tint = Color(0.168627, 0.2, 0.25098, 1)
+shader_parameter/atm_level_params = Vector3(1, 0, 0)
+shader_parameter/atm_thickness = 0.7
+shader_parameter/atm_beta_ray = Vector3(5.804544e-06, 1.3562913e-05, 3.311258e-05)
+shader_parameter/atm_beta_mie = Vector3(3.038e-08, 3.038e-08, 3.038e-08)
+shader_parameter/sun_light_color = Color(0.98, 0.523, 0.294, 1)
+shader_parameter/sun_disk_color = Color(0.996094, 0.541334, 0.140076, 1)
+shader_parameter/sun_disk_intensity = 30.0
+shader_parameter/sun_disk_size = 0.02
+shader_parameter/atm_sun_mie_tint = Color(1, 1, 1, 1)
+shader_parameter/atm_sun_mie_intensity = 1.0
+shader_parameter/atm_sun_partial_mie_phase = Vector3(0.36, 1.64, 1.6)
+shader_parameter/moon_color = Color(1, 1, 1, 1)
+shader_parameter/moon_texture = ExtResource("5_hxu8e")
+shader_parameter/moon_texture_alignment = Vector3(7, 1.4, 4.8)
+shader_parameter/moon_texture_flip_u = false
+shader_parameter/moon_texture_flip_v = false
+shader_parameter/moon_size = 0.07
+shader_parameter/atm_moon_mie_tint = Color(0.137255, 0.184314, 0.292196, 1)
+shader_parameter/atm_moon_mie_intensity = 0.0
+shader_parameter/atm_moon_partial_mie_phase = Vector3(0.36, 1.64, 1.6)
+shader_parameter/starmap_color = Color(0.709804, 0.709804, 0.709804, 0.854902)
+shader_parameter/starmap_texture = ExtResource("8_necax")
+shader_parameter/starmap_flip_u = false
+shader_parameter/starmap_flip_v = false
+shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
+shader_parameter/star_rotation_offset = 9.38899
+shader_parameter/star_rotation = -9.386121697658515
+shader_parameter/star_tilt = -0.9250245035569946
+shader_parameter/star_field_color = Color(1, 1, 1, 1)
+shader_parameter/star_field_texture = ExtResource("7_ou6is")
+shader_parameter/star_scintillation = 0.75
+shader_parameter/star_scintillation_speed = 0.01
+shader_parameter/noise_tex = ExtResource("6_nvumn")
+shader_parameter/clouds_night_color = Color(0.090196, 0.094118, 0.129412, 1)
+shader_parameter/cirrus_visible = true
+shader_parameter/cirrus_intensity = 2.0
+shader_parameter/cirrus_coverage = 0.5
+shader_parameter/cirrus_thickness = 1.7
+shader_parameter/cirrus_absorption = 2.0
+shader_parameter/cirrus_sky_tint_fade = 0.5
+shader_parameter/cirrus_size = 1.0
+shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
+shader_parameter/cirrus_position1 = Vector2(0.00018856183, 0.00018856183)
+shader_parameter/cirrus_position2 = Vector2(0.00018856183, 0.00018856183)
+shader_parameter/cirrus_texture = ExtResource("3_7smn1")
+shader_parameter/cumulus_visible = true
+shader_parameter/cumulus_intensity = 0.6
+shader_parameter/cumulus_coverage = 0.55
+shader_parameter/cumulus_thickness = 0.0243
+shader_parameter/cumulus_absorption = 2.0
+shader_parameter/cumulus_noise_freq = 2.7
+shader_parameter/cumulus_sky_tint_fade = null
+shader_parameter/cumulus_size = 0.5
+shader_parameter/cumulus_position = Vector2(0.00094280904, 0.00094280904)
+shader_parameter/cumulus_texture = ExtResource("4_raeie")
+shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.042436, 0.412)
+shader_parameter/cumulus_mie_intensity = 1.0
+shader_parameter/show_azimuthal_grid = false
+shader_parameter/azimuthal_grid_color = Color(0.87058824, 0.72156864, 0.5294118, 1)
+shader_parameter/azimuthal_grid_rotation_offset = 0.03
+shader_parameter/show_equatorial_grid = false
+shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
+shader_parameter/equatorial_grid_rotation_offset = 0.03
+shader_parameter/moon_matrix = Basis(0.4723798, -0.70391345, -0.53043693, 0.37631246, 0.70527744, -0.60081017, 0.7970235, 0.08420051, 0.5980502)
 
-[sub_resource type="Sky" id="Sky_desert"]
-sky_material = SubResource("ProceduralSkyMaterial_desert")
+[sub_resource type="Sky" id="Sky_m4h2d"]
+sky_material = SubResource("ShaderMaterial_pg34l")
 
-[sub_resource type="Environment" id="Environment_desert"]
+[sub_resource type="Environment" id="Environment_p8abn"]
 background_mode = 2
-sky = SubResource("Sky_desert")
+sky = SubResource("Sky_m4h2d")
 ambient_light_source = 3
+ambient_light_color = Color(0.23515604, 0.27890667, 0.35, 1)
+ambient_light_sky_contribution = 0.7008333
 reflected_light_source = 2
-tonemap_mode = 4
-fog_enabled = true
-fog_light_color = Color(0.62, 0.55, 0.46, 1)
-fog_density = 0.02
-fog_sky_affect = 0.6
-adjustment_enabled = true
-adjustment_saturation = 0.7
+tonemap_mode = 3
+tonemap_white = 6.0
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_s17dp"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mud"]
 albedo_color = Color(0.42, 0.36, 0.3, 1)
@@ -35,26 +119,113 @@ size = Vector2(216, 216)
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_ground"]
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=1603682324]
 script = ExtResource("1_main")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_desert")
+[node name="Sky3D" type="WorldEnvironment" parent="." unique_id=1092019167]
+environment = SubResource("Environment_p8abn")
+camera_attributes = SubResource("CameraAttributesPractical_s17dp")
+script = ExtResource("9_r4lks")
+editor_time_enabled = false
+game_time_enabled = false
+current_time = 0.0
+wind_direction = 2.35619451204804
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866025, -0.12941, 0.482963, 0, 0.965926, 0.258819, -0.5, 0.224144, -0.836516, 0, 10, 0)
-light_color = Color(1, 0.82, 0.6, 1)
+[node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=555226257]
+transform = Transform3D(-0.9985011, -0.043770205, -0.032860458, 0, 0.6003836, -0.7997122, 0.054732446, -0.79851353, -0.5994836, -0.032860458, -0.7997122, -0.5994836)
+light_color = Color(0.98, 0.523, 0.294, 1)
+light_energy = 0.0
+
+[node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1569375250]
+transform = Transform3D(0, -0.60394835, 0.7970234, 0.9902338, 0.11111844, 0.084200546, -0.13941678, 0.7892395, 0.5980501, 0.7970234, 0.084200546, 0.5980501)
+light_color = Color(0.572549, 0.776471, 0.956863, 1)
+light_energy = 0.025260163
 shadow_enabled = true
-directional_shadow_max_distance = 150.0
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="SkyDome" type="Node" parent="Sky3D" unique_id=1551758474]
+script = ExtResource("10_raeie")
+sun_azimuth = -6.2284255
+sun_altitude = -2.497612
+moon_azimuth = -2.6179939
+moon_altitude = 1.2217305
+wind_direction = 2.35619451204804
 
-[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+[node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=434318560]
+script = ExtResource("11_hxu8e")
+editor_time_enabled = false
+game_time_enabled = false
+dome_path = NodePath("../SkyDome")
+compute_moon_coords = false
+current_time = 0.0
+day = 20
+month = 3
+latitude = 0.6457718232379019
+longitude = 0.0
+utc = 0.0
+
+[node name="Ground" type="StaticBody3D" parent="." unique_id=350599079]
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground" unique_id=732778445]
 mesh = SubResource("PlaneMesh_ground")
 
-[node name="Collision" type="CollisionShape3D" parent="Ground"]
+[node name="Collision" type="CollisionShape3D" parent="Ground" unique_id=585849395]
 shape = SubResource("WorldBoundaryShape3D_ground")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
-current = true
+[node name="Player" parent="." unique_id=933777680 instance=ExtResource("3_player")]
+
+[node name="MudpitBurbler" parent="." unique_id=492250762 instance=ExtResource("4_burbler")]
+transform = Transform3D(-0.46270576, 0, 0.8865119, 0, 1, 0, -0.8865119, 0, -0.46270576, -1.459, 0, -35.11)
+
+[node name="LightningBugs" type="Node3D" parent="." unique_id=561398352]
+
+[node name="LightningBug1" parent="LightningBugs" unique_id=591662837 instance=ExtResource("5_bug")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.35, 0, -17.415)
+instance_id = "lightning_bug-1"
+
+[node name="LightningBug2" parent="LightningBugs" unique_id=673082227 instance=ExtResource("5_bug")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.836, 0, -7.379)
+instance_id = "lightning_bug-2"
+
+[node name="LightningBug3" parent="LightningBugs" unique_id=2023567785 instance=ExtResource("5_bug")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.249, 0, -16.885)
+instance_id = "lightning_bug-3"
+
+[node name="LightningBug4" parent="LightningBugs" unique_id=1626921103 instance=ExtResource("5_bug")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.032, 0, -11.765)
+instance_id = "lightning_bug-4"
+
+[node name="LightningBug5" parent="LightningBugs" unique_id=1072509583 instance=ExtResource("5_bug")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.03, 0, 7.991)
+instance_id = "lightning_bug-5"
+
+[node name="LightningBug6" parent="LightningBugs" unique_id=772942298 instance=ExtResource("5_bug")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.613, 0, 3.405)
+instance_id = "lightning_bug-6"
+
+[node name="LightningBug7" parent="LightningBugs" unique_id=884145166 instance=ExtResource("5_bug")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.984, 0, 16.019)
+instance_id = "lightning_bug-7"
+
+[node name="Reeds" type="Node3D" parent="." unique_id=2046209369]
+
+[node name="ReedBedWest" parent="Reeds" unique_id=1776079098 instance=ExtResource("6_reeds")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0, -32)
+bed_id = "reed_bed-west"
+count = 12
+
+[node name="ReedBedEast" parent="Reeds" unique_id=552493312 instance=ExtResource("6_reeds")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, -39)
+bed_id = "reed_bed-east"
+count = 9
+radius = 3.0
+
+[node name="ReedBedPath" parent="Reeds" unique_id=2052112121 instance=ExtResource("6_reeds")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -24)
+bed_id = "reed_bed-path"
+count = 5
+radius = 2.0
+
+[node name="HUD" parent="." node_paths=PackedStringArray("player") instance=ExtResource("20_hud")]
+player = NodePath("../Player")
+
+[node name="RackScreen" parent="." instance=ExtResource("21_rack")]
