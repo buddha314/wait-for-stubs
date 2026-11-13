@@ -4,7 +4,7 @@ extends SceneTree
 ## drag, completion, the BPM knob, and removing the VCO.
 ##   godot --headless --path . -s tests/test_rack_screen.gd
 
-const BURBLER := "res://scenes/mudpit_burbler/mudpit_burbler.tscn"
+const BURBLER := "res://assets/machines/mudpit_burbler/mudpit_burbler.tscn"
 const SCREEN := "res://scenes/rack_screen/rack_screen.tscn"
 
 var _failures: PackedStringArray = []

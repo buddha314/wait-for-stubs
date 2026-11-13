@@ -37,7 +37,7 @@ static func _far_lod_for(source: String) -> float:
 		if profile.has("model"):
 			models.append(profile.model)
 		for model: String in models:
-			if ASSETS + model.trim_suffix("#Scene0") == source:
+			if ASSETS + model == source:
 				return far
 	return 0.0
 

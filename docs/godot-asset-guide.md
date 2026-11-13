@@ -24,7 +24,7 @@ You never pick an LOD by hand, and scene scripts never set visibility ranges.
 ## Importing
 
 - **Paths:** profiles use Bevy-style paths relative to `assets/`:
-  `"models/flora/scrub_oak/scrub_oak_0.glb#Scene0"` → `res://assets/models/flora/scrub_oak/scrub_oak_0.glb`.
+  `"models/flora/scrub_oak/scrub_oak_0.glb#Scene0"` → `res://assets/flora/scrub_oak/scrub_oak_0/scrub_oak_0.glb`.
   Drop the `#Scene0`.
 - **Don't edit an imported model.** Godot can't save back into the `.glb`, and a
   re-sync or reimport discards edits. Wrap it in an asset scene (below), or use an

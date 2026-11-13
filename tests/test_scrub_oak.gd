@@ -4,7 +4,7 @@ extends SceneTree
 ## from the profile, and have a collider; the opening has three.
 ##   godot --headless --path . -s tests/test_scrub_oak.gd
 
-const OAK := "res://scenes/scrub_oak/scrub_oak.tscn"
+const OAK := "res://assets/flora/scrub_oak/scrub_oak.tscn"
 
 var _failures: PackedStringArray = []
 
@@ -15,8 +15,8 @@ func _initialize() -> void:
 
 func _run() -> void:
 	# LODs come with the import: a raw .glb instance already swaps by distance.
-	for check: Array in [["res://assets/models/flora/scrub_oak/scrub_oak_3.glb", 45.0],
-			["res://assets/models/flora/reeds/reed_clump_1.glb", 30.0]]:
+	for check: Array in [["res://assets/flora/scrub_oak/scrub_oak_3/scrub_oak_3.glb", 45.0],
+			["res://assets/flora/reeds/reed_clump_1/reed_clump_1.glb", 30.0]]:
 		var raw := (load(check[0]) as PackedScene).instantiate()
 		var near := raw.find_child("*_LOD0", true, false).find_children("*", "GeometryInstance3D", true, false)
 		var far := raw.find_child("*_LOD1", true, false).find_children("*", "GeometryInstance3D", true, false)

@@ -1,11 +1,11 @@
 {
   "about": "Static collider shapes for the prefabs; see tools/collider_shapes.py. Each shape is an AvianCollider(ColliderConstructor) on a child entity at `translation`, model coordinates (Bevy: Y up), metres.",
   "models": {
-    "models/modules/burbler_clock.glb": {
+    "modules/burbler_clock/burbler_clock.glb": {
       "walk_through": true,
       "why": "a rack (HUD) module only, never placed in the world"
     },
-    "models/modules/clock_lamp.glb": {
+    "modules/clock_lamp/clock_lamp.glb": {
       "colliders": [
         {
           "shape": "Cuboid",
@@ -21,7 +21,7 @@
       ],
       "rigid_body": "none (static)"
     },
-    "models/modules/saw_vco.glb": {
+    "modules/saw_vco/saw_vco.glb": {
       "colliders": [
         {
           "shape": "Cuboid",
@@ -37,7 +37,7 @@
       ],
       "rigid_body": "none (static)"
     },
-    "models/modules/sine_vco.glb": {
+    "modules/sine_vco/sine_vco.glb": {
       "colliders": [
         {
           "shape": "Cuboid",
@@ -53,7 +53,7 @@
       ],
       "rigid_body": "none (static)"
     },
-    "models/modules/square_vco.glb": {
+    "modules/square_vco/square_vco.glb": {
       "colliders": [
         {
           "shape": "Cuboid",
@@ -69,7 +69,7 @@
       ],
       "rigid_body": "none (static)"
     },
-    "models/modules/triangle_vco.glb": {
+    "modules/triangle_vco/triangle_vco.glb": {
       "colliders": [
         {
           "shape": "Cuboid",
@@ -85,7 +85,7 @@
       ],
       "rigid_body": "none (static)"
     },
-    "models/modules/volume.glb": {
+    "modules/volume/volume.glb": {
       "walk_through": true,
       "why": "a rack (HUD) module only, never placed in the world"
     }

@@ -224,7 +224,7 @@ from the built game.
 
 JSON model paths are Bevy-style and relative to `assets/`, e.g.
 `"models/creatures/lightning_bug.glb#Scene0"` → load
-`res://assets/models/creatures/lightning_bug.glb` (drop `#Scene0`).
+`res://assets/creatures/lightning_bug/lightning_bug.glb` (drop `#Scene0`).
 
 Binary assets (glb, png, wav, blend, fonts, ...) are stored in **Git LFS**; the
 patterns live in `.gitattributes`. A new binary type needs a line there before it

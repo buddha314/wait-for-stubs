@@ -6,9 +6,9 @@
 [ext_resource type="Shader" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="2_th5th"]
 [ext_resource type="Texture2D" path="res://addons/sky_3d/assets/resources/SNoise.tres" id="3_7smn1"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
-[ext_resource type="PackedScene" path="res://scenes/mudpit_burbler/mudpit_burbler.tscn" id="4_burbler"]
+[ext_resource type="PackedScene" path="res://assets/machines/mudpit_burbler/mudpit_burbler.tscn" id="4_burbler"]
 [ext_resource type="Texture2D" path="res://addons/sky_3d/assets/textures/noiseClouds.png" id="4_raeie"]
-[ext_resource type="PackedScene" path="res://scenes/lightning_bug/lightning_bug.tscn" id="5_bug"]
+[ext_resource type="PackedScene" path="res://assets/creatures/lightning_bug/lightning_bug.tscn" id="5_bug"]
 [ext_resource type="Texture2D" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="5_hxu8e"]
 [ext_resource type="Texture2D" path="res://addons/sky_3d/assets/textures/noise.jpg" id="6_nvumn"]
 [ext_resource type="PackedScene" path="res://scenes/reed_bed/reed_bed.tscn" id="6_reeds"]
@@ -19,7 +19,7 @@
 [ext_resource type="Script" path="res://addons/sky_3d/src/TimeOfDay.gd" id="11_hxu8e"]
 [ext_resource type="PackedScene" path="res://scenes/mountains/mountain_rings.tscn" id="22_mountains"]
 [ext_resource type="Script" path="res://scenes/sky/moon_path.gd" id="23_moon"]
-[ext_resource type="PackedScene" path="res://scenes/scrub_oak/scrub_oak.tscn" id="24_oak"]
+[ext_resource type="PackedScene" path="res://assets/flora/scrub_oak/scrub_oak.tscn" id="24_oak"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pg34l"]
 shader = ExtResource("2_th5th")
