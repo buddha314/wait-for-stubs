@@ -24,6 +24,9 @@ var configure: Dictionary
 var sounding := false
 
 var _bpm_range: Dictionary
+var _hearing_radius := 30.0
+## STAND-IN voice until stubby-rack plays (BurblerVoice).
+var _voice: BurblerVoice
 
 @onready var _model: Node3D = $Model
 
@@ -32,6 +35,7 @@ func _ready() -> void:
 	var profile := AssetProfile.load_json(PROFILE_PATH)
 	configure = profile.get("configure", {})
 	_bpm_range = profile.get("params", {}).get("bpm", {"min": 40.0, "max": 180.0})
+	_hearing_radius = profile.get("hearing_radius_metres", 30.0)
 	rack_state = RackState.new()
 	rack_state.setup(configure, {
 		BPM_KNOB: seeded_bpm(),
@@ -40,6 +44,7 @@ func _ready() -> void:
 	})
 	rack_state.changed.connect(_on_rack_changed)
 	_add_interact_point()
+	_add_voice()
 
 
 ## The starting tempo: master BPM × a seeded whole multiple from tempo.json.
@@ -81,6 +86,20 @@ func _on_rack_changed() -> void:
 	if now != sounding:
 		sounding = now
 		sounding_changed.emit(sounding)
+
+
+## Phase within the beat as heard (0..1) while the voice plays, else −1. The rack
+## lamp's placeholder flash follows it, so light and sound agree.
+func beat_phase() -> float:
+	return _voice.heard_phase() if _voice else -1.0
+
+
+## STAND-IN: a pre-rendered looping voice at the outlet (BurblerVoice).
+func _add_voice() -> void:
+	_voice = BurblerVoice.new()
+	var outlet: Node3D = _model.find_child("Outlet_0", true, false)
+	(outlet if outlet else _model).add_child(_voice)
+	_voice.setup(self, _hearing_radius)
 
 
 func _add_interact_point() -> void:

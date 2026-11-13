@@ -62,6 +62,8 @@ func _run() -> void:
 	_expect(state.cables.size() == 1 and state.joins({"place": "clock", "port": "gate"},
 			{"place": "volume", "port": "trig"}), "GATE → TRIG patched")
 	_expect(_configured == 0 and not burbler.sounding, "half patched is not configured")
+	var voice: BurblerVoice = burbler.find_child("BurblerVoice", true, false)
+	_expect(voice != null and not voice.playing, "half patched burbler is silent")
 
 	# Rust comb cable by drag: comb → OUT, then drag to IN.
 	await process_frame
@@ -77,6 +79,13 @@ func _run() -> void:
 	_expect(inventory.quantity("patch_cable") == cables_before, "comb cables are free")
 	_expect(state.cables[1].from.port == "out", "cable stored output first")
 	_expect(burbler.outlet_carries_voice(), "volume OUT normalled to the outlet")
+	_expect(voice.playing, "STAND-IN voice plays once fully patched")
+	var wav := voice.stream as AudioStreamWAV
+	var frames := roundi(48000.0 * 60.0 / burbler.bpm())
+	_expect(wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and wav.loop_end == frames,
+			"voice loops exactly one beat (%d frames)" % frames)
+	_expect(wav.data.decode_s16(2 * (frames / 2 + 10)) == 0 and absi(wav.data.decode_s16(20)) > 0,
+			"gate high for the first half beat, silent for the second")
 
 	# An occupied input refuses a second cable.
 	_expect(not screen.can_plug({"place": "clock", "port": "gate"}, {"place": "volume", "port": "in"}),
@@ -85,6 +94,8 @@ func _run() -> void:
 	# BPM knob: one scroll notch up is one whole BPM.
 	screen.turn_knob("clock", "bpm", screen.KNOB_SCROLL_STEP)
 	_expect(burbler.bpm() == bpm + 1.0, "scroll steps the bpm by 1")
+	_expect((voice.stream as AudioStreamWAV).loop_end == roundi(48000.0 * 60.0 / (bpm + 1.0)),
+			"voice re-renders at the new tempo")
 	_expect(screen._header.text.begins_with("%d BPM" % (bpm + 1.0)), "header follows the knob")
 	for i in 400:
 		screen.turn_knob("clock", "bpm", 1.0)
@@ -98,11 +109,32 @@ func _run() -> void:
 	_mouse(screen, knob_pixel + Vector2(0, -120), false)
 	_expect(absf(state.knob("volume/gain") - 0.5) < 0.01, "120 px drag sets gain 0.5 (got %s)" % state.knob("volume/gain"))
 
+	# Right-click a plug: the hint says so, and the cable unplugs and goes home.
+	_expect(screen.hint_at(_jack(view, "volume", "in")).contains("[RMB] unplug"), "hint over a plug offers unplug")
+	_expect(screen.hint_at(_jack(view, "vco", "voct")).contains("patch"), "hint over a free jack offers patching")
+	var right_in := InputEventMouseButton.new()
+	right_in.button_index = MOUSE_BUTTON_RIGHT
+	right_in.pressed = true
+	right_in.position = _jack(view, "volume", "in")
+	screen._on_rack_input(right_in)
+	_expect(state.cables.size() == 1 and not state.comb_in_use(1), "right-click unplugs; rust back on the comb")
+	_expect(state.mounted.has("vco"), "right-click on a plug doesn't remove the module")
+	_expect(not voice.playing, "unplugging by right-click silences the voice")
+	# Re-patch OUT → IN for the drag-off check below.
+	_mouse(screen, view.to_screen(view._comb_points[1][12]), true)
+	_motion(screen, _jack(view, "vco", "out"))
+	_mouse(screen, _jack(view, "vco", "out"), false)
+	_motion(screen, _jack(view, "volume", "in"))
+	_mouse(screen, _jack(view, "volume", "in"), true)
+	_mouse(screen, _jack(view, "volume", "in"), false)
+	_expect(state.cables.size() == 2 and voice.playing, "re-patched and sounding again")
+
 	# Unplug by dragging the TRIG end off into empty space: the comb cable goes home.
 	_mouse(screen, _jack(view, "volume", "trig"), true)
 	_motion(screen, Vector2(5, 5))
 	_mouse(screen, Vector2(5, 5), false)
 	_expect(state.cables.size() == 1 and not burbler.sounding, "unplugged; no longer sounding")
+	_expect(not voice.playing, "unplugging silences the voice")
 	_expect(not state.comb_in_use(0), "verdigris back on the comb")
 
 	# Right-click the VCO: its cable unplugs and the square wave comes back.

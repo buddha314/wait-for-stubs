@@ -39,6 +39,12 @@ font_color = Color(0.678, 0.722, 0.831, 1)
 font_size = 16
 font_color = Color(0.678, 0.722, 0.831, 1)
 
+[sub_resource type="LabelSettings" id="LabelSettings_hint"]
+font_size = 16
+font_color = Color(0.906, 0.898, 0.867, 1)
+outline_size = 5
+outline_color = Color(0, 0, 0, 0.85)
+
 [sub_resource type="LabelSettings" id="LabelSettings_notice"]
 font_size = 24
 font_color = Color(1, 0.45, 0.3, 1)
@@ -92,21 +98,32 @@ label_settings = SubResource("LabelSettings_section")
 [node name="Relevant" type="GridContainer" parent="Window/Rows/Body/Left"]
 columns = 2
 
-[node name="Centre" type="SubViewportContainer" parent="Window/Rows/Body"]
+[node name="Rack" type="Control" parent="Window/Rows/Body"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.4
+
+[node name="Centre" type="SubViewportContainer" parent="Window/Rows/Body/Rack"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
 stretch = true
 
-[node name="Viewport" type="SubViewport" parent="Window/Rows/Body/Centre"]
+[node name="Viewport" type="SubViewport" parent="Window/Rows/Body/Rack/Centre"]
 own_world_3d = true
 transparent_bg = true
 handle_input_locally = false
 msaa_3d = 2
 size = Vector2i(2, 2)
 
-[node name="RackView" type="Node3D" parent="Window/Rows/Body/Centre/Viewport"]
+[node name="RackView" type="Node3D" parent="Window/Rows/Body/Rack/Centre/Viewport"]
 script = ExtResource("3_view")
+
+[node name="Input" type="Control" parent="Window/Rows/Body/Rack"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 
 [node name="Right" type="VBoxContainer" parent="Window/Rows/Body"]
 size_flags_horizontal = 3
@@ -120,7 +137,7 @@ label_settings = SubResource("LabelSettings_section")
 columns = 4
 
 [node name="Prompts" type="Label" parent="Window/Rows"]
-text = "drag an item into its slot · [1]–[0] insert · drag between jacks to patch · drag or scroll a knob · [RMB] remove · [E] / [Esc] close"
+text = "drag an item into its slot · [1]–[0] insert · drag between jacks to patch · [RMB] a plug to unplug · drag or scroll a knob · [RMB] a module to remove · [E] / [Esc] close"
 label_settings = SubResource("LabelSettings_hints")
 horizontal_alignment = 1
 
@@ -132,5 +149,10 @@ anchor_bottom = 0.12
 grow_horizontal = 2
 label_settings = SubResource("LabelSettings_notice")
 horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="."]
+visible = false
+mouse_filter = 2
+label_settings = SubResource("LabelSettings_hint")
 
 [node name="Snap" type="AudioStreamPlayer" parent="."]

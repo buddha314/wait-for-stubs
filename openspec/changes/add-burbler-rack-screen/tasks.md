@@ -48,3 +48,11 @@
 - [x] 8.1 Headless test: open the burbler rack, mount a square wave, patch both cables by simulated input; assert `RackState` and a single `configured`
 - [x] 8.2 Run the game and screenshot the empty, ready and patched states against the stubby-music mocks
 - [x] 8.3 Update CLAUDE.md (rack screen layout, stand-ins, `RackState`) and `openspec validate --strict add-burbler-rack-screen`
+
+## 9. Stand-in voice (added after play-test)
+
+- [x] 9.1 `BurblerVoice`: one looped pre-rendered beat at the outlet; re-render on tempo, freq or gain; silent unless patched and normalled; lamp follows its heard phase (design D9b); tests in `test_rack_screen.gd`, plus a master-bus recording check (2200 Hz, half-beat gate, 60/58 s period)
+
+## 10. Unplugging (added after play-test)
+
+- [x] 10.1 Right-click a plugged jack unplugs its cable (comb cable home, own cable to the inventory); right-click a module still removes it; a hint beside the pointer for plugs, jacks, knobs, comb cables and modules; prompts list it. Tested headless (`test_rack_screen.gd`) and through the GUI (`test_rack_drag.gd`, which now warps the real pointer because Godot's drag-and-drop reads it)

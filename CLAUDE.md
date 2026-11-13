@@ -89,8 +89,11 @@ scenes/<feature>/       a scene, its script and its feature-only resources toget
   lightning_bug/        seeded random-clock flash + square click
   reed_clump/           @tool; seeded variant/yaw/scale/sway, LOD0/LOD1 by range
   reed_bed/             @tool; deterministic scatter of reed clumps in a disc
+  mountains/            @tool; seeded echo ridge rings at 480/590/700 m
+  sky/                  moon_path.gd: drives Sky3D's moon along a star-fixed path
 assets/                 runtime assets copied from stubby-music/assets (see below)
-tests/                  headless checks: godot --headless --path . -s tests/<file>.gd
+tests/                  checks: godot --headless --path . -s tests/<file>.gd
+                        (test_rack_drag.gd drives the real GUI and needs a window)
 ```
 
 Placements in `main.tscn` for the burbler and 7 lightning bugs are copied from
@@ -111,11 +114,24 @@ into `.tscn` files. Keep it that way. Saving them would freeze the seeded output
 opening is at night). `main.gd` writes `Calendar.solar_hour()` into
 `Sky3D.current_time` every frame, and Sky3D's own game and editor time are off.
 TimeOfDay is set to latitude 37°, longitude 0, UTC 0 and the equinox, so the sun
-rises at +X, crosses south (+Z) and sets at −X, the same as Bevy. The **moon is
-pinned**: `compute_moon_coords = false`, with SkyDome `moon_azimuth = -150°` and
-`moon_altitude = 70°`. Sky3D measures "altitude" down from the zenith, so this
-puts the moon 20° above the horizon, 30° left of the spawn view (−Z), visible at
-start. It doesn't move.
+rises at +X, crosses south (+Z) and sets at −X, the same as Bevy. Stars rotate
+with sidereal time and clouds drift with Sky3D's wind on their own. The **moon
+travels**: `compute_moon_coords = false`, and `MoonPath` (in `main.tscn`) writes
+SkyDome's `moon_azimuth`/`moon_altitude` each frame. Sky3D measures "altitude"
+down from the zenith, with direction (sin θ sin az, cos θ, sin θ cos az). The moon
+is fixed among the stars: its start bearing and altitude (330°, 20° up, 30° left of
+the spawn view along −Z) give a declination and hour angle, then it turns 15° of
+hour angle per simulated hour. That start needs a declination of about 59°, so it's
+circumpolar and never sets, which is unrealistic but keeps the opening view. Change
+the two exports for a real path (`add-sky-motion-and-mountains` D3).
+
+**Horizon:** `MountainRings` builds three seeded ridge rings (480, 590 and 700 m).
+Ring 0's skyline is a waveform made of whole-cycle harmonics plus roughness. Each
+farther ring echoes it: shifted round the circle, a smaller angular amplitude,
+higher in the view, and hazier. They're real reflectors with echo delays of 2R/c
+(2.80, 3.44 and 4.08 s). Their `acoustics.json` waits for the acoustic profile
+format. A 1600 m dark `OuterGround` plane fills the gap from the 216 m mudflat
+out to the mountains.
 
 To build or modify Sky3D nodes from a script, wait a frame after `add_child`.
 Sky3D creates its children (SunLight, MoonLight, SkyDome, TimeOfDay) on enter-tree,
@@ -143,7 +159,9 @@ resource: mounted modules, knob values as `"place/param"`, cables with
 every edit and `configured` once per completion. It never talks to audio: the
 engine turns it into a `RackPatch` later (`add-rack-audio-engine` 9.2). `RackView`
 draws the real glTFs in its own `World3D`, picks by `Camera3D.unproject_position`
-(no physics), and caches its materials (freeing a mesh together with the only
+(no physics), and takes mouse input and item drops on a transparent `Input` layer
+over it (a `SubViewportContainer` forwards drag-and-drop into its SubViewport, so
+drops on the container itself never land). It caches its materials (freeing a mesh together with the only
 reference to its material errors in the 4.8 beta). Module data comes from
 `assets/modules/<id>/asset.json` via `RackModules`; cable geometry from
 `PatchCable`. The burbler's tempo is a seeded whole multiple of the 1 BPM master
@@ -222,10 +240,21 @@ local edits, so check `git status` first.
   (`RackView._update_lamps`, replace with `clock_ticked`, task 9.2), and the plug-in
   snap plays through a plain `AudioStreamPlayer` (`RackScreen._play_snap`, replace
   with the rack sampler on the UI stem, task 5.5). Neither times anything musical.
+- **Burbler voice stand-in** (`scenes/mudpit_burbler/burbler_voice.gd`): a patched
+  burbler loops one pre-rendered beat of stubby-music's voice (the square at FREQ ×
+  GAIN, gated for the first half beat) from `Outlet_0`, within 30 m. The mixer loops
+  it, so nothing is frame-timed, but it isn't locked to the master clock. The rack
+  lamp follows its heard phase. Replace it with the engine (task 9.2).
 - Audio timing is the musical source of truth. **The rack's sample counter is the
   master clock for all game audio** (design D5). Godot exposes no mix counter or
   callback to extensions, and `AudioStreamGenerator` is fed from the main thread, so
   neither can be the clock. Never time music from `_process` delta or wall time.
+- **Weather is on the clock too** (decided 2026-11-13). Lightning and most weather
+  events, rain patter included, land on grids at whole multiples of the master.
+  Thunder lands on the grid because the strike distance is chosen as a whole number
+  of ticks × 343 m. Event visuals (flash, splash) appear at the event's audible
+  instant. Wind, storm intensity and rain rate are smooth parameters, never timing
+  (`add-weather-and-dust-storm`).
 
 ## Audio occlusion (researched 2026-11-13, not used yet)
 
@@ -259,11 +288,22 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    level meter, sound gating) and `add-stream-building` (streams of reeds as the
    conveyor from the burbler's outlet; reads the burbler's `sounding`). The game will vendor stubby-rack's built addon into
    `addons/stubby_rack/` via `tools/sync_stubby_rack.sh` (design D11, task 2.6).
-3. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
+3. **Proposed:** `add-weather-and-dust-storm` (clock-aligned weather events, the
+   dust storm, one wind; a request hook for later weather recipes) and
+   `add-air-quality-field` (10 m cells of air quality, 0 polluted to 1 clean, raised
+   by living plants. The game opens in polluted air that clears cell by cell as
+   plants regrow; one camera-local 3D texture feeds the haze, ground tint, flora
+   glow and the mood blend). **To propose later:** weather recipes, such as a rain
+   song or dance the player builds to call rain or calm a storm (user notes,
+   2026-11-13). The form is **sacred sites**: like Satisfactory's resource nodes,
+   they're discovered in the world and then configured, with a rack built like the
+   mudpit burbler's and tied to the local weather. They need their own world asset.
+   The rain grid (master or a site's clock) is decided by play-testing.
+4. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
    audit); time-speed controls (Bevy had ¼×–64×; without them, reaching day takes
    about 9 minutes); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
    amber haze.
-4. **Upstream:** report the Godot 4.8 beta abort on a clean headless `--import` with
+5. **Upstream:** report the Godot 4.8 beta abort on a clean headless `--import` with
    any GDExtension (exit 134; it reproduces with godot-cpp's own test extension;
    task 2.5). Once the game loads stubby-rack, its first clean import will hit it too:
    run the import again.

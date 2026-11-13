@@ -36,6 +36,8 @@ var overrides: Dictionary
 var held: Dictionary = {}
 ## Returns the machine's BPM, for the placeholder lamp tick (_update_lamps).
 var bpm_source: Callable
+## Returns the heard beat phase (0..1) of the machine's voice, or −1 when silent.
+var phase_source: Callable
 
 var _frame: Dictionary
 var _camera: Camera3D
@@ -369,20 +371,22 @@ func _update_halos() -> void:
 ## nothing musical is timed from it.
 func _update_lamps() -> void:
 	var bpm := float(bpm_source.call()) if bpm_source.is_valid() else 0.0
+	var phase := float(phase_source.call()) if phase_source.is_valid() else -1.0
 	for place: String in _glow:
 		for glow: Dictionary in _glow[place]:
 			var level := 0.0
 			if bpm > 0.0 and glow.light in ["lamp", "gate"]:
-				level = _placeholder_envelope(bpm)
+				level = _placeholder_envelope(bpm, phase)
 			var strength: float = lerpf(glow.rest, glow.peak, level)
 			(glow.material as StandardMaterial3D).emission_energy_multiplier = \
 					glow.base * strength / maxf(glow.peak, 0.0001)
 
 
-## STAND-IN: 0..1 flash envelope (15 ms attack, 250 ms decay) on wall-time beats.
-static func _placeholder_envelope(bpm: float) -> float:
+## STAND-IN: 0..1 flash envelope (15 ms attack, 250 ms decay) on the beat: from
+## the voice's heard phase when it plays, else from wall time.
+static func _placeholder_envelope(bpm: float, phase: float = -1.0) -> float:
 	var beat := 60.0 / bpm
-	var since := fmod(Time.get_ticks_usec() / 1e6, beat)
+	var since := phase * beat if phase >= 0.0 else fmod(Time.get_ticks_usec() / 1e6, beat)
 	if since < 0.015:
 		return since / 0.015
 	return maxf(0.0, 1.0 - (since - 0.015) / 0.25)
