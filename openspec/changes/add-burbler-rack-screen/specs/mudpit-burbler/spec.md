@@ -72,8 +72,9 @@ ticks at their sample times instead.
 - **THEN** the clock lamp flashes about once a second, and the code marks it as a stand-in for the engine's ticks
 
 ### Requirement: A stand-in voice until the engine plays
-Until the audio engine plays the rack, a fully patched burbler whose output is
-normalled to its outlet SHALL sound a stand-in of stubby-music's voice:
+A fully patched burbler SHALL sound a stand-in voice until the audio engine plays
+its rack, when its output is normalled to its outlet. The stand-in reproduces
+stubby-music's voice:
 - the Square VCO at its FREQ knob;
 - gated for the first half of each beat at the burbler's tempo;
 - scaled by the volume's GAIN knob;

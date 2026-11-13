@@ -120,8 +120,15 @@ stubby-music overwrites it.
 
 - ~~The opening~~: decided 2026-11-13, it starts in polluted air that clears locally
   as plants regrow (10 m cells, `add-air-quality-field`).
-- Should patter follow the master grid (default) or the nearest sounding burbler?
-- **Weather recipes** (user note, 2026-11-13): a rain song or dance and similar
-  recipes that control weather, through the D4 request hook. These need a
-  proposal: what the player builds, what it costs, and how strongly and how long
-  it holds.
+- Should patter follow the master grid (default) or a local clock? To be play-tested
+  (user, 2026-11-13). The likely answer is an invocation point: the sacred site
+  whose rack called the rain sets its grid.
+- **Weather recipes** (user notes, 2026-11-13): a rain song or dance and similar
+  recipes that control weather, through the D4 request hook. The form is **sacred
+  sites**. Like Satisfactory's resource nodes, and like the mudpit burbler, a site
+  is discovered in the world and then configured on a rack (a `configure` block,
+  places, cables) tied to the local weather. Playing its patch requests weather
+  around the site, and may set the rain grid from its own clock. Sites need a new
+  world asset (model, profile, acoustic profile) and their own change covering:
+  discovery, what's in the rack, cost, and how strongly, how far and how long the
+  weather holds.

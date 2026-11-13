@@ -240,6 +240,11 @@ local edits, so check `git status` first.
   (`RackView._update_lamps`, replace with `clock_ticked`, task 9.2), and the plug-in
   snap plays through a plain `AudioStreamPlayer` (`RackScreen._play_snap`, replace
   with the rack sampler on the UI stem, task 5.5). Neither times anything musical.
+- **Burbler voice stand-in** (`scenes/mudpit_burbler/burbler_voice.gd`): a patched
+  burbler loops one pre-rendered beat of stubby-music's voice (the square at FREQ ×
+  GAIN, gated for the first half beat) from `Outlet_0`, within 30 m. The mixer loops
+  it, so nothing is frame-timed, but it isn't locked to the master clock. The rack
+  lamp follows its heard phase. Replace it with the engine (task 9.2).
 - Audio timing is the musical source of truth. **The rack's sample counter is the
   master clock for all game audio** (design D5). Godot exposes no mix counter or
   callback to extensions, and `AudioStreamGenerator` is fed from the main thread, so
@@ -288,9 +293,12 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    `add-air-quality-field` (10 m cells of air quality, 0 polluted to 1 clean, raised
    by living plants. The game opens in polluted air that clears cell by cell as
    plants regrow; one camera-local 3D texture feeds the haze, ground tint, flora
-   glow and the mood blend). **To propose
-   later:** weather recipes, such as a rain song or dance the player builds to call
-   rain or calm a storm (user note, 2026-11-13).
+   glow and the mood blend). **To propose later:** weather recipes, such as a rain
+   song or dance the player builds to call rain or calm a storm (user notes,
+   2026-11-13). The form is **sacred sites**: like Satisfactory's resource nodes,
+   they're discovered in the world and then configured, with a rack built like the
+   mudpit burbler's and tied to the local weather. They need their own world asset.
+   The rain grid (master or a site's clock) is decided by play-testing.
 4. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
    audit); time-speed controls (Bevy had ¼×–64×; without them, reaching day takes
    about 9 minutes); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
