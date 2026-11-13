@@ -9,10 +9,8 @@ extends Node3D
 ## the import script gives the model its visibility ranges, so nothing here sets
 ## them. Children are generated, never saved into scenes.
 ##
-## Known upstream issue (docs/upstream/zero-scale-exports.md): the models ship their
-## growth parts at scale 0, and Blender's exporter loses the transforms of the
-## meshes inside them. Until stubby-music re-exports, the dormant state is right,
-## but leaves and blooms can't be shown.
+## Hidden parts ship at scale 0 (restored at import from the `start_scale` extra);
+## growth scales only the named parts, never the meshes inside them.
 
 const PROFILE_PATH := "res://assets/flora/scrub_oak/asset.json"
 const COLLIDERS_PATH := "res://assets/flora/scrub_oak/colliders.json"

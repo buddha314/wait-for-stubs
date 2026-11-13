@@ -5,7 +5,7 @@
 - [x] 1.3 Three oaks in `main.tscn` (D4)
 - [x] 1.4 Headless test (`tests/test_scrub_oak.gd`): raw imported models carry LOD ranges; same seed same tree; growth 0 vs 1 node states; collider; three oaks in the opening
 - [x] 1.5 Screenshots: dormant oaks in the opening (correct)
-- [ ] 1.6 Full bloom on screen: blocked on stubby-music re-exporting growth parts at full scale (`docs/upstream/zero-scale-exports.md`); then re-run the skip in `test_scrub_oak.gd`
+- [x] 1.6 Full bloom on screen: the export now keeps hidden parts' children (`start_scale`, `docs/upstream/zero-scale-exports.md`); `test_scrub_oak.gd` checks leaves and catkins strictly
 
 ## 2. Docs
 

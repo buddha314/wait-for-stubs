@@ -1,5 +1,5 @@
 {
-  "about": "Static collider shapes for the prefabs; see tools/collider_shapes.py. Each shape is an AvianCollider(ColliderConstructor) on a child entity at `translation`, model coordinates (Bevy: Y up), metres.",
+  "about": "Static collider shapes per model; see tools/collider_shapes.py. Each shape is a primitive (Godot: a CollisionShape3D on the asset's StaticBody3D) at `translation`, model coordinates (Y up), metres.",
   "models": {
     "props/desert/desert_brush_0/desert_brush_0.glb": {
       "walk_through": true,

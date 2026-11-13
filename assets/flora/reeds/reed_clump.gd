@@ -99,7 +99,7 @@ func _build() -> void:
 ## Harvested: cut to stubble (the far billboard hides), then regrow in _process.
 func _on_collected_changed(collected: bool) -> void:
 	_standing.scale = Vector3(1.0, _regrow_from, 1.0) if collected else Vector3.ONE
-	for node: Node3D in [_stubble] + _stubble.find_children("*", "Node3D", true, false):
-		node.scale = Vector3.ONE if collected else Vector3.ZERO
+	# Only the Stubble node: its children keep their exported transforms.
+	_stubble.scale = Vector3.ONE if collected else Vector3.ZERO
 	if _far:
 		_far.visible = not collected

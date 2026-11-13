@@ -1,9 +1,16 @@
-# Upstream issue: parts exported at scale 0 lose their meshes' transforms
+# Resolved: parts exported at scale 0 lost their meshes' transforms
 
 *Found 2026-11-13 while porting the scrub oak (`add-scrub-oak`). The generators have
 since moved into this repo (`tools/blender/`), so the fix is ours to make.*
 
-## What happens
+**Resolved 2026-11-13.** `tools/blender/export_gltf.py` now exports any object posed
+at scale 0 at scale 1, tagged with the glTF extra `start_scale: 0`.
+`tools/import/asset_lod_import.gd` puts those parts back to scale 0 at import, so
+models still ship posed (dormant, closed, hidden) with correct children.
+`tools/collider_shapes.py` honours the tag too. Every model was re-exported, and
+`tests/test_scrub_oak.gd` checks it: leaves and catkins show at full bloom.
+
+## What happened
 
 Several Blender generators export "growth" or "state" parts at their starting scale,
 0. Examples: the scrub oak's `Foliage_<n>` and `Bloom_<k>`, the reeds' `Stubble`,

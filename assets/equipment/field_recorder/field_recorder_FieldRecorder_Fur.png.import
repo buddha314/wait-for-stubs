@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://by81dtb1jyxka"
-path="res://.godot/imported/field_recorder_FieldRecorder_Fur.png-22a76e35a28b15f3260cf183100c2fa0.ctex"
+path.s3tc="res://.godot/imported/field_recorder_FieldRecorder_Fur.png-22a76e35a28b15f3260cf183100c2fa0.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2ed95621a465c3acbf2f11746bb29a12"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/equipment/field_recorder/field_recorder_FieldRecorder_Fur.png"
-dest_files=["res://.godot/imported/field_recorder_FieldRecorder_Fur.png-22a76e35a28b15f3260cf183100c2fa0.ctex"]
+dest_files=["res://.godot/imported/field_recorder_FieldRecorder_Fur.png-22a76e35a28b15f3260cf183100c2fa0.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/high_quality_mode=0
 compress/lossy_quality=0.7
@@ -43,4 +44,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
