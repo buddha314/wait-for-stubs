@@ -17,6 +17,8 @@
 [ext_resource type="Script" path="res://addons/sky_3d/src/Sky3D.gd" id="9_r4lks"]
 [ext_resource type="Script" path="res://addons/sky_3d/src/SkyDome.gd" id="10_raeie"]
 [ext_resource type="Script" path="res://addons/sky_3d/src/TimeOfDay.gd" id="11_hxu8e"]
+[ext_resource type="PackedScene" path="res://scenes/mountains/mountain_rings.tscn" id="22_mountains"]
+[ext_resource type="Script" path="res://scenes/sky/moon_path.gd" id="23_moon"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pg34l"]
 shader = ExtResource("2_th5th")
@@ -119,6 +121,14 @@ size = Vector2(216, 216)
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_ground"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_outer"]
+albedo_color = Color(0.19, 0.13, 0.085, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_outer"]
+material = SubResource("StandardMaterial3D_outer")
+size = Vector2(1600, 1600)
+
 [node name="Main" type="Node3D" unique_id=1603682324]
 script = ExtResource("1_main")
 
@@ -170,6 +180,15 @@ mesh = SubResource("PlaneMesh_ground")
 
 [node name="Collision" type="CollisionShape3D" parent="Ground" unique_id=585849395]
 shape = SubResource("WorldBoundaryShape3D_ground")
+
+[node name="OuterGround" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
+mesh = SubResource("PlaneMesh_outer")
+
+[node name="MountainRings" parent="." instance=ExtResource("22_mountains")]
+
+[node name="MoonPath" type="Node" parent="."]
+script = ExtResource("23_moon")
 
 [node name="Player" parent="." unique_id=933777680 instance=ExtResource("3_player")]
 
