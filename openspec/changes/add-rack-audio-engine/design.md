@@ -323,40 +323,34 @@ work (4.6).
 - Editor hot reload: not verifiable headless (Godot checks on editor focus); check it
   manually.
 
-**1.9 HRTF (D8): good candidate, but the shipped binary fails in our 4.8 beta.**
-Nexus Resonance (undomick/godot-nexus-resonance, MIT, last push 2026-10-06, v1.1.0,
-built for Godot 4.6) bundles Steam Audio 4.8.1 (Apache-2.0, MIT-compatible with a
-NOTICE). Its `ResonancePlayer` extends `AudioStreamPlayer3D` and wraps the assigned
-stream, with HRTF binaural (`use_binaural`, SOFA files), occlusion, transmission,
-material absorption, baked reflections and pathing.
+**1.9 HRTF (D8): Nexus Resonance works, with two workarounds.** Nexus Resonance
+(undomick/godot-nexus-resonance, MIT, v1.1.0) bundles Steam Audio 4.8.1 (Apache-2.0,
+MIT-compatible with a NOTICE). Its `ResonancePlayer` extends `AudioStreamPlayer3D`
+and wraps the assigned stream, so `RackStemStream` plugs in.
 
-Live test (16 stems, PulseAudio; user-approved download):
-- **Without a `ResonancePlayerConfig`:** it plays our `RackStemStream` directly,
-  like a plain `AudioStreamPlayer3D`. Every stem is read every step, aligned, with 0
-  skips, and sound comes out.
-- **With a config** (Steam Audio on): it replaces the player's stream with its own
-  `ResonanceStream`, but **never pulls our stream** (only the driver reads, and the
-  output is silent).
-- In 4.8 its class registration fails for overrides its parent already has
-  (`ResonancePlayer already has member set_stream / get_stream / play / stop /
-  ATTENUATION_DISABLED`). The likely cause is that the 4.6 binary's player overrides
-  don't register in 4.8, so its wrapped playback never starts our stream. Its "silent
-  until the Steam scene is ready" gate may also apply; that can't be told apart from
-  outside.
+In our 4.8 beta it needs two workarounds:
+- start players with **`play_stream()`**, because 4.8 rejects its re-bound
+  `play`/`stop`/`set_stream`;
+- have at least one `ResonanceGeometry` in the scene, or its spatial-output gate never
+  opens.
 
-Next options, in order:
-1. Build Nexus from source (MIT C++, godot-cpp, with the Steam Audio SDK) against our
-   dumped 4.8 API, and retest. Report the registration errors upstream.
-2. Try it on stock Godot 4.6 to separate "4.8 incompatibility" from "our stream type".
-3. Fall back to in-core binaural rendering (an MIT/BSD HRTF set and convolution) at
-   16 emitters.
+With them, the **release binary** works:
+- **16 stems:** each read exactly once per mix step, 0 skips, Steam ready.
+- **Cost:** 0.42 ms per step against 0.14 ms plain, about 17 µs per HRTF emitter, so
+  a top-16 tier takes about 4% of a block.
+- **Binaural:** one emitter on the right gives +10.9 dB right over left, against
+  +6.0 dB from Godot's panning (head shadow).
+
+Nexus also builds from source against our 4.8 API with three small patches. Details,
+the errors and the patches are in `docs/upstream/nexus-resonance-godot-4.8.md`.
+Options 2 (stock 4.6) and 3 (in-core binaural) aren't needed.
 
 **1.10 Verdict:**
 - The driver-player approach holds. D1 and D4 stand, with the step-detection change
   above.
 - No engine-module fallback is needed.
-- D8's first option fits on licence and design, but the shipped binary doesn't run
-  in our 4.8 beta. Rebuild it against 4.8 next, with in-core binaural as the fallback.
+- D8's first option works: Nexus Resonance is the HRTF tier (`play_stream()`, plus
+  scene geometry).
 
 ## Risks / Trade-offs
 
