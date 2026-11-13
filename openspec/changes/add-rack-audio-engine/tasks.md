@@ -44,18 +44,18 @@
 - [x] 4.2 Scheduler: absolute-sample and quantized (beat, bar, division) actions at exact in-block offsets; late notices
 - [x] 4.3 Clock modes: tempo clocks at a whole multiple of the master, ticks derived from master phase; seeded random clocks run free
 - [x] 4.4 Sync point per block (sample, mix instant, output latency) published atomically
-- [ ] 4.5 Read the default tempo and meter from project settings `audio/master_clock/tempo_bpm` and `beats_per_bar` (core takes them via `EngineConfig`; reading the settings lands with the Godot classes, group 5)
-- [ ] 4.6 Pause: driver and stem players use `process_mode = ALWAYS`; an in-core mute gain on world and music stems, faded over 20–50 ms; the UI stem is unaffected (core mute and fade done, tested; `process_mode` lands with the driver, group 5)
+- [x] 4.5 Read the default tempo and meter from project settings `audio/master_clock/tempo_bpm` and `beats_per_bar`
+- [x] 4.6 Pause: driver and stem players use `process_mode = ALWAYS`; an in-core mute gain on world and music stems, faded over 20–50 ms; the UI stem is unaffected
 - [x] 4.7 Sample-rate change keeps tempo and musical position; underrun keeps relative timing
 - [x] 4.8 Offline tests for every master-clock scenario, including pause and the configured default
 
 ## 5. Godot-facing classes (`src/godot`)
 
-- [ ] 5.1 `RackServer` engine singleton: `commit()` once per frame, signals with sample times, time reads
-- [ ] 5.2 `RackModuleDefinition` and `RackPatch` Resources (`.tres`), with inspector editing
-- [ ] 5.3 `Rack` node (instantiates a patch; cables, params, schedule) and `RackEmitter` (AudioStreamPlayer3D subclass bound to a stem, doppler off)
-- [ ] 5.4 Driver and stem playbacks (no Godot objects and no locks in `_mix`)
-- [ ] 5.5 Sampler for one-shot sounds; port `assets/audio/sfx/patch_snap`; no timed sound bypasses the rack
+- [x] 5.1 `RackServer` engine singleton: `commit()` once per frame, signals with sample times, time reads
+- [x] 5.2 `RackModuleDefinition` and `RackPatch` Resources (`.tres`), with inspector editing
+- [x] 5.3 `Rack` node (instantiates a patch; cables, params, schedule) and `RackEmitter` (AudioStreamPlayer3D subclass bound to a stem, doppler off)
+- [x] 5.4 Driver and stem playbacks (no Godot objects and no locks in `_mix`)
+- [ ] 5.5 Sampler for one-shot sounds; port `assets/audio/sfx/patch_snap`; no timed sound bypasses the rack (sampler done in stubby-rack, `RackServer.play_sample`; the patch_snap port waits for the game to vendor the addon, 2.6)
 - [x] 5.6 Project setting `audio/driver/mix_rate` = 48000 (set in project.godot with the master-clock settings)
 
 ## 6. Modules
