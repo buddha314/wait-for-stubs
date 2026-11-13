@@ -40,6 +40,7 @@ var _relevant_items: Array[Dictionary] = []
 var _knob_drag: Dictionary = {}
 var _press_at := Vector2.ZERO
 var _snap_index := 0
+var _snap_ids: Array[int] = []  # sampler ids of SNAP_CLIPS, loaded on first use
 var _notice_left := 0.0
 
 @onready var _backdrop: ColorRect = $Backdrop
@@ -56,7 +57,6 @@ var _notice_left := 0.0
 @onready var _notice: Label = $Notice
 ## A helper line beside the pointer saying what the mouse would do here.
 @onready var _hint: Label = $Hint
-@onready var _snap: AudioStreamPlayer = $Snap
 
 
 func _ready() -> void:
@@ -490,12 +490,14 @@ func _jack_radius_px() -> float:
 	return maxf(10.0, 0.04 * _view.pixels_per_metre())
 
 
+## The plug-in snap: one of the CC0 clips through the rack's sampler on the UI stem,
+## so it shares the master clock and stays audible while paused (add-rack-audio-engine 5.5).
 func _play_snap() -> void:
-	## STAND-IN (add-burbler-rack-screen D9): a non-spatial player for the CC0 snap
-	## clips. Replace with the rack sampler on the UI stem (add-rack-audio-engine 5.5).
-	_snap.stream = load(SNAP_CLIPS[_snap_index % SNAP_CLIPS.size()])
+	if _snap_ids.is_empty():
+		for path: String in SNAP_CLIPS:
+			_snap_ids.append(RackServer.load_sample(load(path)))
+	RackServer.play_sample(_snap_ids[_snap_index % _snap_ids.size()])
 	_snap_index += 1
-	_snap.play()
 
 
 # ------------------------------------------------------------------ knobs

@@ -25,7 +25,7 @@
 - [x] 2.2 `thirdparty/`: DaisySP MIT core (no `DaisySP-LGPL`), Mutable Instruments STM32 dsp and stmlib (MIT), CHOC subset (ISC), Signalsmith DSP (MIT), doctest; `tools/check_licences.py` passes
 - [x] 2.3 `tests/` with doctest for `src/core`, running with no Godot (`scons tests`: VCV voltage scenarios pass); build documented in stubby-rack's README and CLAUDE.md
 - [x] 2.4 Decide how wait-for-stubs consumes the addon: vendored copy in `res://addons/stubby_rack/`, as Godot's version-control guidance and the Asset Library expect (design D11)
-- [ ] 2.6 `tools/sync_stubby_rack.sh` in wait-for-stubs: build stubby-rack (or fetch its CI artifact for other platforms), copy `demo/addons/stubby_rack/` to `addons/stubby_rack/`, write `VERSION` with the stubby-rack commit, run `--import` twice (task 2.5); add `*.so`, `*.dll`, `*.dylib` to `.gitattributes` before the first commit; `.gdextension` sets `compatibility_minimum` and `reloadable = true`
+- [x] 2.6 `tools/sync_stubby_rack.sh` in wait-for-stubs: build stubby-rack (or fetch its CI artifact for other platforms), copy `demo/addons/stubby_rack/` to `addons/stubby_rack/`, write `VERSION` with the stubby-rack commit, run `--import` twice (task 2.5); add `*.so`, `*.dll`, `*.dylib` to `.gitattributes` before the first commit; `.gdextension` sets `compatibility_minimum` and `reloadable = true`
 - [ ] 2.5 Report the Godot 4.8 beta clean-import abort with GDExtensions upstream (it reproduces with godot-cpp's own test extension)
 
 ## 3. Engine core (`src/core`, plain C++17)
@@ -55,7 +55,7 @@
 - [x] 5.2 `RackModuleDefinition` and `RackPatch` Resources (`.tres`), with inspector editing
 - [x] 5.3 `Rack` node (instantiates a patch; cables, params, schedule) and `RackEmitter` (AudioStreamPlayer3D subclass bound to a stem, doppler off)
 - [x] 5.4 Driver and stem playbacks (no Godot objects and no locks in `_mix`)
-- [ ] 5.5 Sampler for one-shot sounds; port `assets/audio/sfx/patch_snap`; no timed sound bypasses the rack (sampler done in stubby-rack, `RackServer.play_sample`; the patch_snap port waits for the game to vendor the addon, 2.6)
+- [x] 5.5 Sampler for one-shot sounds; port `assets/audio/sfx/patch_snap`; no timed sound bypasses the rack
 - [x] 5.6 Project setting `audio/driver/mix_rate` = 48000 (set in project.godot with the master-clock settings)
 
 ## 6. Modules

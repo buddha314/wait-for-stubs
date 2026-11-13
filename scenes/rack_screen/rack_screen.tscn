@@ -155,4 +155,3 @@ visible = false
 mouse_filter = 2
 label_settings = SubResource("LabelSettings_hint")
 
-[node name="Snap" type="AudioStreamPlayer" parent="."]

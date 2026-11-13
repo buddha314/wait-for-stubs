@@ -76,6 +76,7 @@ music and world stems with a short fade, and the UI stem stays audible.
 ```
 project.godot
 addons/sky_3d/          Sky3D v2.1.0 (TokisanGames, MIT), vendored; don't edit
+addons/stubby_rack/     the audio engine, vendored by tools/sync_stubby_rack.sh; don't edit
 autoload/               Rules (assets/recipes JSON), Inventory, Calendar
 common/                 classes with no scene: WorldSeed, AssetProfile,
                         Interactable (E target), ResourceNode (finite pickup)
@@ -267,9 +268,9 @@ policy (`asset_dir`, `model_path`, `source_path`, `model_ref`).
   `RackServer` clock ticks once stubby-rack can play (task 9.1).
 - **Rack screen stand-ins** (marked `STAND-IN` in code): the clock lamp and gate
   lights flash on a wall-time placeholder tick at the burbler's BPM
-  (`RackView._update_lamps`, replace with `clock_ticked`, task 9.2), and the plug-in
-  snap plays through a plain `AudioStreamPlayer` (`RackScreen._play_snap`, replace
-  with the rack sampler on the UI stem, task 5.5). Neither times anything musical.
+  (`RackView._update_lamps`, replace with `clock_ticked`, task 9.2). It times nothing
+  musical. The plug-in snap already plays through the rack's sampler on the UI stem
+  (`RackScreen._play_snap` → `RackServer.play_sample`).
 - **Burbler voice stand-in** (`assets/machines/mudpit_burbler/burbler_voice.gd`): a patched
   burbler loops one pre-rendered beat of stubby-music's voice (the square at FREQ ×
   GAIN, gated for the first half beat) from `Outlet_0`, within 30 m. The mixer loops
@@ -302,12 +303,50 @@ stems need (they play through AudioStreamPlayer3D):
 FMOD and Wwise replace Godot's mixer, so Godot-generated synth audio wouldn't reach
 them. Avoid both unless synthesis moves into the middleware.
 
+## Long-term architecture: VR and multiplayer (noted 2026-11-13, not proposed)
+
+Both are wanted eventually. Neither is being built yet; playability comes first.
+Until each has a proposal, keep new work from closing them off:
+
+**VR** (Godot's built-in OpenXR; Godot XR Tools, MIT, for hands and locomotion):
+- Interaction is a ray or hand pointer, not the mouse. The rack screen is a 2D
+  overlay with a cursor today; in VR the rack must be a world-space panel touched by
+  controllers. Keep rack logic picking by "pointer → jack/knob", and keep mouse code
+  out of `RackState`.
+- The HUD becomes diegetic (the field recorder in hand already is). Input stays on
+  action names, so controller bindings can be added.
+- The listener is the headset (`AudioListener3D` on the XR camera). The HRTF tier
+  (Nexus Resonance) matters more here.
+- Frame budget: 72–90 Hz in stereo, and the Mobile renderer for standalone headsets.
+  Sky3D, haze and LOD ranges will need a VR profile.
+
+**Multiplayer** (Godot high-level multiplayer: `MultiplayerSpawner` and
+`MultiplayerSynchronizer` over ENet or WebRTC):
+- Audio is rendered on each client. Replicate patch state (rack edits, knob values,
+  cables as `RackPatch`/`RackState` commands), never audio. The engine is seeded and
+  sample-exact, so the same patch on the same clock sounds the same everywhere.
+- One master clock for the session: the server owns the transport, and clients
+  align their sample counters to server time. Schedule shared events by musical
+  position (`WHEN_NEXT_BEAT`/`BAR`) rather than by local sample, which tolerates each
+  client's latency.
+- The world is seeded (`WorldSeed`): replicate the seed plus changes (harvests,
+  builds). `Calendar` and weather are server-authoritative.
+- Pause is per-player UI, not a world pause (the engine already mutes without
+  stopping the clock).
+- Seeded random clocks (lightning bugs) count local samples from when they were
+  built; for agreement they'll need a master-referenced start.
+
 ## Status and next steps (2026-11-13)
+
+**Priority (user, 2026-11-13): back to playability.** Engine work serves what the
+player can do next; VR, multiplayer and the module library wait their turn.
 
 **Playable now:** night opening (Sky3D, moon in view at spawn, day after ~7.5 min);
 walking; E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
 regrow in 60 s); the burbler's rack: mount the square VCO, patch with comb or own
-cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
+cables, turn the BPM/freq/level knobs. The burbler's voice is still the stand-in
+loop; stubby-rack is vendored (`addons/stubby_rack/`) and loads, with the plug-in
+snap on its sampler.
 
 **Open threads, roughly in order:**
 1. **stubby-rack spike done** (`add-rack-audio-engine` group 1; results in its design.md,
@@ -323,14 +362,20 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    (`docs/upstream/nexus-resonance-godot-4.8.md`). Open: editor hot-reload (a manual
    check). **Engine core started** (stubby-rack `engine-core`): group 3 done except the
    Rust parity fixtures (3.6). It has the rack, the lock-free command boundary, an
-   allocation guard, and 200 modules at about 0.6 ms per block. Next: the master clock
-   (group 4), then the Godot classes (group 5).
+   allocation guard, and 200 modules at about 0.6 ms per block. **Master clock (group 4)
+   and Godot classes (group 5) done**: `RackServer`, `Rack`, `RackEmitter`,
+   `RackPatch`, `RackModuleDefinition`, the sampler. **Vendored** into
+   `addons/stubby_rack/` by `tools/sync_stubby_rack.sh` (pinned in its `VERSION`;
+   rerun the script after stubby-rack changes). Next for playability: the burbler and
+   the bugs on the engine (tasks 9.1, 9.2), which needs group 6's first modules.
 2. **Archived (2026-11-13), specs in `openspec/specs/`:** `add-burbler-rack-screen`,
    `add-scrub-oak`, `add-sky-motion-and-mountains`, `migrate-off-stubby-music`.
    **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,
    level meter, sound gating) and `add-stream-building` (streams of reeds as the
-   conveyor from the burbler's outlet; reads the burbler's `sounding`). The game will vendor stubby-rack's built addon into
-   `addons/stubby_rack/` via `tools/sync_stubby_rack.sh` (design D11, task 2.6).
+   conveyor from the burbler's outlet; reads the burbler's `sounding`).
+   **Proposed:** `add-module-library` (about 90 east- and west-coast modules, effects,
+   15 pre-baked voices, generated panels; research in
+   `docs/research/module-library.md`; no plugin hosting).
 3. **Proposed:** `add-weather-and-dust-storm` (clock-aligned weather events, the
    dust storm, one wind; a request hook for later weather recipes) and
    `add-air-quality-field` (10 m cells of air quality, 0 polluted to 1 clean, raised
@@ -348,5 +393,5 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    amber haze.
 5. **Upstream:** report the Godot 4.8 beta abort on a clean headless `--import` with
    any GDExtension (exit 134; it reproduces with godot-cpp's own test extension;
-   task 2.5). Once the game loads stubby-rack, its first clean import will hit it too:
-   run the import again.
+   task 2.5). The game now loads stubby-rack, so its first clean import hits it too:
+   run the import again (`tools/sync_stubby_rack.sh` does).
