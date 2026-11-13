@@ -10,7 +10,7 @@ extends SceneTree
 ## SubViewportContainer forwards drag-and-drop into its SubViewport; the screen now
 ## takes drops and clicks on a transparent Input layer over the view.
 
-const BURBLER := "res://scenes/mudpit_burbler/mudpit_burbler.tscn"
+const BURBLER := "res://assets/machines/mudpit_burbler/mudpit_burbler.tscn"
 const SCREEN := "res://scenes/rack_screen/rack_screen.tscn"
 
 var _failures: PackedStringArray = []

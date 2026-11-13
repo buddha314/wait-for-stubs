@@ -5,7 +5,7 @@ before anything on top). Every module comes from a generator script in
 `tools/blender/`, which is the source of truth. The scripts share
 `tools/blender/module_kit.py` (materials, case, knobs, jacks, labels, glyph strokes,
 preview and export). It writes the `.blend` to
-`assets-src/blender/modules/`, the `.glb` to `assets/models/modules/`, and `asset.json`,
+`assets-src/modules/`, and the `.glb`, `asset.json`,
 `preview.png` and `preview_far.png` (the same view from about 12 m) here.
 
 ## Clock (`tools/blender/create_clock_lamp.py`)
@@ -79,7 +79,7 @@ Named empties carry glTF extras the game reads (`<Prefix>` is `SquareVco`, `SawV
 
 Origin at the base centre; the faceplate faces glTF +Z. Tilting a module or sinking it
 into the mud happens at placement (`placement` in `asset.json`), so one asset serves
-every pose. `crates/stubby_game/tests/module_assets.rs` checks these nodes in every
+every pose. `tests/test_rack_assets.gd` checks these nodes in every
 exported module. The Clock's equivalents are `Port_gate`, `Port_phase`, `Knob_bpm`,
 `Light_gate` and `Light_phase`.
 

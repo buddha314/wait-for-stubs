@@ -78,7 +78,7 @@ Out of scope, each a later change under the same clock rule:
 ## Impact
 
 - **New:** a `Weather` autoload; `scenes/weather/` (storm fog, sand particles,
-  presets local to this repo, never in `assets/`, which rsync overwrites); a
+  presets with the weather scene, as they aren't one asset's data); a
   `wind` global shader uniform in `project.godot`.
 - **Changed:**
   - `scenes/reed_clump/` sway follows wind;

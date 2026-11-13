@@ -8,10 +8,10 @@ extends Node3D
 ## Faceplates face +Z; the camera looks along −Z.
 
 const FRAME_PATH := "res://assets/hud/rack_frame/asset.json"
-const FRAME_MODEL := "res://assets/models/hud/rack_frame.glb"
-const LABELS_MODEL := "res://assets/models/hud/slot_labels.glb"
-const PLUG_MODEL := "res://assets/models/cables/patch_plug.glb"
-const OUTLINE_MODEL := "res://assets/models/hud/slot_outline_%dhp.glb"
+const FRAME_MODEL := "res://assets/hud/rack_frame/rack_frame.glb"
+const LABELS_MODEL := "res://assets/hud/slot_labels/slot_labels.glb"
+const PLUG_MODEL := "res://assets/cables/patch_plug/patch_plug.glb"
+const OUTLINE_MODEL := "res://assets/hud/slot_outline_{hp}hp/slot_outline_{hp}hp.glb"
 ## A module's height (3U at ×10, before its crown), for slot hit-testing.
 const MODULE_HEIGHT := 1.285
 ## Distance from the camera to the faceplates, and the plane a cable in hand rides on.
@@ -277,7 +277,7 @@ func _own_materials(node: Node, light: String, spec: Dictionary) -> Array:
 
 
 func _outline(entry: Dictionary) -> Node3D:
-	var path := OUTLINE_MODEL % entry.hp
+	var path := OUTLINE_MODEL.format({"hp": entry.hp})
 	if not ResourceLoader.exists(path):
 		return null
 	var outline := (load(path) as PackedScene).instantiate() as Node3D

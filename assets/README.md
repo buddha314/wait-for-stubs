@@ -1,17 +1,35 @@
-# Runtime assets
+# Assets
 
-The initial desert scene generates its meshes, mud albedo/normal textures and
-half-float HDR cubemap in Rust at startup. No stock reference image is loaded.
-Exported models live in `models/<category>/` (`creatures`, `flora/<family>`,
-`machines`, `modules`, `props/<family>`, `streams`); a model's levels of detail are
-`_LOD<n>` nodes inside it, with Jackdaw's import settings in `<id>.glb.meta` beside it.
-Profiles and previews live under the same
-category folder at the top level (`flora/scrub_oak/`, `modules/square_vco/`, ...), and
-Blender sources under the same folder in `assets-src/blender/`.
+One folder per asset: `assets/<category>/<id>/`. Everything about an asset is there.
 
-Creature profiles and previews live under `creatures/`. The first is [the lightning bug](creatures/lightning_bug/README.md),
-which stays invisible between sample-clock-driven white flashes. Desert props (dead brush, stumps, mud debris) live under
-`props/` ([README](props/README.md)). Flora lives under
-`flora/`: [the scrub oak](flora/README.md), dormant until clean water brings it to
-bloom. Editable Blender
-sources live in `assets-src/blender/` and builders in `tools/blender/`.
+| File | What it is |
+| --- | --- |
+| `<id>.tscn` + `<id>.gd` | **The master scene.** Instance this in levels (world assets only: scrub oak, reed clump, lightning bug, mudpit burbler) |
+| `<id>.glb` (or `<variant>/<variant>.glb`) | The model. Never edit it in Godot: regenerate it with its Blender tool |
+| `asset.json` | The profile the game reads: per-instance ranges, nodes, growth, LOD distance, … |
+| `colliders.json` | Primitive collider shapes per model (`tools/collider_shapes.py`) |
+| `preview.png`, `preview_far.png`, … | Renders from the Blender tool |
+| `README.md` | What the asset is for |
+
+Variant families (`flora/scrub_oak`, `flora/reeds`, `props/desert`) keep the family
+profile and master scene at the top, and each variant's model, profile and previews in
+`<variant>/`.
+
+- **Levels of detail** are `<id>_LOD0`/`_LOD1` nodes inside the model. They become
+  visibility ranges at import (`tools/import/asset_lod_import.gd`), so you never pick
+  one. See `docs/godot-asset-guide.md`.
+- **Paths in profiles** are relative to `res://assets/`, for example
+  `flora/scrub_oak/scrub_oak_0/scrub_oak_0.glb`.
+- **Sources:** the `.blend` for each model is in `assets-src/<category>/` (ignored by
+  Godot). The generators are in `tools/blender/` and write straight into these
+  folders.
+- **Shared data** that isn't one asset: `recipes/` (rules), `lighting/`, `ui/`,
+  `audio/`.
+
+Categories: `actors/`, `cables/`, `creatures/` ([lightning bug](creatures/lightning_bug/README.md)),
+`equipment/`, `flora/` ([reeds and scrub oak](flora/README.md)), `hud/`, `machines/`,
+`modules/` ([README](modules/README.md)), `props/` ([README](props/README.md)), `streams/`
+([README](streams/README.md)).
+
+These assets were first made for stubby-music (Bevy), now a frozen archive. They're
+maintained here.

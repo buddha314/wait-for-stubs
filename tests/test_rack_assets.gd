@@ -73,7 +73,8 @@ func _check_rack_frame() -> void:
 
 
 func _check(model: String, nodes: Array) -> void:
-	var path := "res://assets/models/%s.glb" % model
+	# "modules/volume" → res://assets/modules/volume/volume.glb (one folder per asset).
+	var path := "res://assets/%s/%s.glb" % [model, model.get_file()]
 	var scene := load(path) as PackedScene
 	if scene == null:
 		_failures.append("%s does not load" % path)

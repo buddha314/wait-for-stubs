@@ -14,7 +14,7 @@ static func profile(module: String) -> Dictionary:
 
 
 static func model_path(module: String) -> String:
-	return "res://assets/models/modules/%s.glb" % module
+	return "res://assets/modules/%s/%s.glb" % [module, module]
 
 
 ## The port entry ({node, port, direction}) or {}.

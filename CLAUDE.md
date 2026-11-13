@@ -1,9 +1,10 @@
 # CLAUDE.md — wait-for-stubs
 
-A **Godot 4 port of `/home/buddha/src/stubby-music`** (Rust/Bevy). That repo is the
-design reference: read its `AGENTS.md` for the game's vision, controls, theme and
-rules before porting a feature, and its `openspec/` for requirements. Do not edit
-stubby-music from here.
+A Godot 4 game, ported from `/home/buddha/src/stubby-music` (Rust/Bevy). **stubby-music
+is a frozen archive** (2026-11-13): it won't be updated, and nothing syncs from it.
+Everything now lives here: assets, their Blender generators, art docs and specs. Its
+`AGENTS.md` (vision, controls, theme, rules) and `openspec/` remain the design
+record to read before porting a feature. Don't edit it.
 
 The game: modular synthesis (Eurorack patching) fused with a factory builder
 (Satisfactory-style). The factory *is* the patch. It opens silent on a hazy,
@@ -19,7 +20,7 @@ start a feature without a change proposal.**
 - Use `/opsx:propose` → `/opsx:apply` → `/opsx:archive`, or the CLI: `openspec list`,
   `openspec show <change>`, `openspec validate --strict <change>`.
 - `openspec/config.yaml` gives every artifact the project context and rules. Port
-  from stubby-music's spec where one exists, and use existing tools first. Every
+  from stubby-music's (archived) spec where one exists, and use existing tools first. Every
   design decision that builds instead of reusing names the options it rejected.
 - Requirements use SHALL/MUST in the first sentence (the validator checks), plus
   `#### Scenario:` blocks written as WHEN/THEN.
@@ -43,8 +44,8 @@ engine.
 
 **Acoustic ecology** shapes asset work (`docs/design/acoustic-ecology-brief.md`;
 `openspec/changes/add-acoustic-asset-profiles`). Every world asset gets an
-`acoustics.json` beside its `asset.json`, never inside it, because re-syncing from
-stubby-music would overwrite it. A profile lists emission, transmission, reflection,
+`acoustics.json` beside its `asset.json`, never inside it, because the Blender
+generators rewrite `asset.json`. A profile lists emission, transmission, reflection,
 absorption and resonance separately. Each entry has a DSP approximation and a
 confidence label, and its parameters come from geometry by formula (quarter-wave,
 Helmholtz, Minnaert, two-path comb). Every sound file needs a provenance record; the
@@ -85,13 +86,23 @@ scenes/<feature>/       a scene, its script and its feature-only resources toget
   hud/                  reticle, "[E] Collect ..." prompt, status/inventory lines
   rack_screen/          the common rack screen: window + RackView (3D rack in an
                         own-world SubViewport), mounting, cables, knobs
-  mudpit_burbler/       clock mine: seeded tempo, owns its RackState, collider
-  lightning_bug/        seeded random-clock flash + square click
-  reed_clump/           @tool; seeded variant/yaw/scale/sway, LOD0/LOD1 by range
   reed_bed/             @tool; deterministic scatter of reed clumps in a disc
   mountains/            @tool; seeded echo ridge rings at 480/590/700 m
   sky/                  moon_path.gd: drives Sky3D's moon along a star-fixed path
-assets/                 runtime assets copied from stubby-music/assets (see below)
+assets/<category>/<id>/ ONE FOLDER PER ASSET: master scene <id>.tscn (+ .gd), models,
+                        asset.json, colliders.json, previews, README (see below)
+  flora/scrub_oak/      scrub_oak.tscn: seeded oak, growth display, collider
+  flora/reeds/          reed_clump.tscn: seeded clump, harvest and regrow
+  creatures/lightning_bug/  lightning_bug.tscn: seeded random-clock flash + click
+  machines/mudpit_burbler/  mudpit_burbler.tscn: clock mine, RackState, voice stand-in
+assets/recipes|lighting|ui|audio   shared data
+assets-src/<category>/  Blender sources (.blend, LFS; .gdignore keeps Godot out)
+tools/blender/          the asset generators (module_kit.py holds the path policy)
+tools/collider_shapes.py, tools/icons/, tools/assets/   colliders, item icons, reticle
+tools/import/           asset_lod_import.gd: default scene import script; sets
+                        authored LODs (_LOD0/_LOD1) as visibility ranges at import
+docs/                   research, design, art (style guide, keys), godot-asset-guide.md
+                        (.gdignore)
 tests/                  checks: godot --headless --path . -s tests/<file>.gd
                         (test_rack_drag.gd drives the real GUI and needs a window)
 ```
@@ -104,7 +115,7 @@ reeds placed.
 Override the seed at launch with `godot --path . -- --seed=7`. Give every new
 instance a unique `instance_id`/`bed_id`. Changing an id changes that instance.
 
-**Generated children:** `ReedBed` and `ReedClump` build their children in `_ready`
+**Generated children:** `ReedBed`, `ReedClump` and `ScrubOak` build their children in `_ready`
 without setting `owner`, so the children appear in the editor but are never saved
 into `.tscn` files. Keep it that way. Saving them would freeze the seeded output.
 
@@ -165,7 +176,8 @@ drops on the container itself never land). It caches its materials (freeing a me
 reference to its material errors in the 4.8 beta). Module data comes from
 `assets/modules/<id>/asset.json` via `RackModules`; cable geometry from
 `PatchCable`. The burbler's tempo is a seeded whole multiple of the 1 BPM master
-from `assets/machines/mudpit_burbler/tempo.json` (56–64, local, not upstream); its
+from `assets/machines/mudpit_burbler/tempo.json` (56–64, outside `asset.json`, which
+`tools/blender/create_burbler.py` rewrites); its
 BPM knob covers `params.bpm` (40–180) in whole steps. `sounding` /
 `sounding_changed` mean "fully patched".
 Owners react to `collected_changed`: a bug goes dark, and reeds cut
@@ -181,8 +193,10 @@ an `InputEventAction`. `Input.action_press` doesn't reach `_unhandled_input`.
 (keys 1–0, insert from the rack's Relevant strip). Use action names, not raw
 keycodes.
 
-Add new gameplay as `scenes/<feature>/<feature>.tscn` + `.gd` beside it (e.g.
-`scenes/player/`, `scenes/lightning_bug/`), instanced into `main.tscn`. Put
+Add a new world asset as `assets/<category>/<id>/<id>.tscn` + `.gd` beside its models
+and profile (e.g. `assets/flora/scrub_oak/`). Add other gameplay as
+`scenes/<feature>/<feature>.tscn` + `.gd` (e.g. `scenes/player/`). Instance both
+into `main.tscn`. Put
 cross-cutting singletons in `autoload/` and register them in `project.godot`.
 
 ## Naming (Godot style guide)
@@ -197,33 +211,49 @@ cross-cutting singletons in `autoload/` and register them in `project.godot`.
 
 ## Assets
 
-`assets/` mirrors stubby-music's `assets/` tree unchanged (Jackdaw `.meta` files
-excluded), so its JSON paths still resolve:
+**One folder per asset** (`assets/README.md`; Godot's guidance is to keep assets
+close to the scenes that use them): `assets/<category>/<id>/` holds:
+- the master scene `<id>.tscn` + `.gd` (world assets), which levels instance;
+- the model `<id>.glb` (variants in `<variant>/` beside their previews);
+- `asset.json` (the profile the game reads), `colliders.json`, previews and a README.
 
-- `models/<category>/*.glb` — exported models; LODs are `_LOD<n>` nodes inside.
-- `<category>/<id>/asset.json` + previews — per-asset profiles (e.g.
-  `creatures/lightning_bug/asset.json`: flash timing, click synth params, hover).
-- `recipes/*.json` (+ `schema/`) — data-driven items, resources, recipes, goals,
-  buildables. Keep game rules data-driven; load these, don't hardcode them.
-- `lighting/lighting_keys.json`, `ui/`, `audio/sfx/`.
+`recipes/*.json` (+ `schema/`) holds data-driven items, resources, recipes, goals and
+buildables. Keep game rules data-driven; load these, don't hardcode them. Also
+`lighting/lighting_keys.json`, `ui/` and `audio/sfx/`.
+
+**Placing assets:** see `docs/godot-asset-guide.md`. In short: instance the master
+scene, give it a unique `instance_id`, and never pick an LOD. LODs are set at import,
+never in scenes. **Known issue:** parts exported at scale 0 (oak leaves and blooms,
+reed stubble, halos) have broken child transforms until the models are re-exported
+at full scale (`docs/upstream/zero-scale-exports.md`). The generators are ours now,
+so that's a follow-up change here.
 
 Load profiles with `AssetProfile.load_json(path)`. When exports are set up, add
 `*.json` to the export's non-resource include filter, or profiles will be missing
 from the built game.
 
-JSON model paths are Bevy-style and relative to `assets/`, e.g.
-`"models/creatures/lightning_bug.glb#Scene0"` → load
-`res://assets/models/creatures/lightning_bug.glb` (drop `#Scene0`).
+Profile model paths are relative to `res://assets/`, e.g.
+`"creatures/lightning_bug/lightning_bug.glb"` → `res://assets/creatures/lightning_bug/lightning_bug.glb`.
 
 Binary assets (glb, png, wav, blend, fonts, ...) are stored in **Git LFS**; the
 patterns live in `.gitattributes`. A new binary type needs a line there before it
 is first committed, or it lands in plain git history for good. Check with
 `git lfs ls-files`. Fresh clones need `git lfs install` first.
 
-Commit `*.import` and `*.uid` files; never commit `.godot/`. Blender sources stay in
-stubby-music's `assets-src/`; re-copy exported `.glb`s from there when they change
-(`rsync -a --exclude '*.meta' ../stubby-music/assets/ assets/`). This overwrites
-local edits, so check `git status` first.
+Commit `*.import` and `*.uid` files; never commit `.godot/`.
+
+**Making and changing assets** (Blender 5.3 at `~/.local/bin/blender`): each
+generator in `tools/blender/` builds its asset from code and writes the `.blend` to
+`assets-src/<category>/` and the model, `asset.json` and previews into the asset's
+folder. For example:
+```bash
+~/.local/bin/blender -b --factory-startup -P tools/blender/create_scrub_oak.py
+python3 tools/collider_shapes.py        # rewrite colliders.json from the models
+godot --headless --path . --import      # reimport (LOD ranges are set here)
+```
+Edit the generator, not the `.glb` or the generated `asset.json`. Data the game adds
+lives beside them (`tempo.json`, `acoustics.json`). `module_kit.py` holds the path
+policy (`asset_dir`, `model_path`, `source_path`, `model_ref`).
 
 ## Porting notes
 
@@ -240,7 +270,7 @@ local edits, so check `git status` first.
   (`RackView._update_lamps`, replace with `clock_ticked`, task 9.2), and the plug-in
   snap plays through a plain `AudioStreamPlayer` (`RackScreen._play_snap`, replace
   with the rack sampler on the UI stem, task 5.5). Neither times anything musical.
-- **Burbler voice stand-in** (`scenes/mudpit_burbler/burbler_voice.gd`): a patched
+- **Burbler voice stand-in** (`assets/machines/mudpit_burbler/burbler_voice.gd`): a patched
   burbler loops one pre-rendered beat of stubby-music's voice (the square at FREQ ×
   GAIN, gated for the first half beat) from `Outlet_0`, within 30 m. The mixer loops
   it, so nothing is frame-timed, but it isn't locked to the master clock. The rack
@@ -299,7 +329,10 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    they're discovered in the world and then configured, with a rack built like the
    mudpit burbler's and tied to the local weather. They need their own world asset.
    The rain grid (master or a site's clock) is decided by play-testing.
-4. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
+4. **In progress:** `migrate-off-stubby-music` (one folder per asset, the generators
+   and sources moved here). **Next:** re-export the models with state parts at full
+   scale (`docs/upstream/zero-scale-exports.md`), so oak leaves, blooms and reed
+   stubble show. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
    audit); time-speed controls (Bevy had ¼×–64×; without them, reaching day takes
    about 9 minutes); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
    amber haze.

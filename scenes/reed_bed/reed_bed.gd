@@ -5,7 +5,7 @@ extends Node3D
 ## (world seed, bed_id). Runs in the editor too, so beds are visible while
 ## laying out a level. The clumps are generated, not saved into the scene.
 
-const REED_CLUMP := preload("res://scenes/reed_clump/reed_clump.tscn")
+const REED_CLUMP := preload("res://assets/flora/reeds/reed_clump.tscn")
 const MAX_TRIES_PER_CLUMP := 30
 
 @export var bed_id: String = "reed_bed-0":

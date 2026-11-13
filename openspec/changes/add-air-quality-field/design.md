@@ -39,8 +39,8 @@ with target 0 is removed.
 - Each living thing registers a weight at a position: a reed clump is 1, a future
   tree more.
 - target = clamp(Σ weights in the cell / capacity, 0, 1). The capacity (for
-  example 6, about one reed bed) lives in a local `scenes/air_quality/` preset, not
-  in `assets/`, which rsync overwrites.
+  example 6, about one reed bed) lives in a `scenes/air_quality/` preset, with the
+  field: it isn't one asset's data.
 - Cutting a reed clump removes its weight until it regrows.
 - Vertically, life counts in its own cell and in the cell above it, so air clears
   overhead too. More layers can be added later.
