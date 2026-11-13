@@ -46,8 +46,12 @@ var _notice_left := 0.0
 @onready var _header: Label = $Window/Rows/TitleBar/Header
 @onready var _relevant: GridContainer = $Window/Rows/Body/Left/Relevant
 @onready var _grid: GridContainer = $Window/Rows/Body/Right/Grid
-@onready var _centre: SubViewportContainer = $Window/Rows/Body/Centre
-@onready var _view: RackView = $Window/Rows/Body/Centre/Viewport/RackView
+@onready var _centre: SubViewportContainer = $Window/Rows/Body/Rack/Centre
+@onready var _view: RackView = $Window/Rows/Body/Rack/Centre/Viewport/RackView
+## A transparent layer over the rack view that takes its mouse input and item drops.
+## A SubViewportContainer forwards drag-and-drop into its SubViewport, so its own
+## drop callbacks never run.
+@onready var _input_layer: Control = $Window/Rows/Body/Rack/Input
 @onready var _notice: Label = $Notice
 @onready var _snap: AudioStreamPlayer = $Snap
 
@@ -60,10 +64,9 @@ func _ready() -> void:
 	material.set_shader_parameter("lod", log(float(backdrop.get("blur_px", 14.0))) / log(2.0))
 	material.set_shader_parameter("dim_color", Color.html(backdrop.get("dim_color", "#0b0c10")))
 	material.set_shader_parameter("dim", float(backdrop.get("dim", 0.55)))
-	_centre.gui_input.connect(_on_rack_input)
+	_input_layer.gui_input.connect(_on_rack_input)
+	_input_layer.set_drag_forwarding(Callable(), _can_drop_item, _drop_item)
 	_centre.resized.connect(_view.fit)
-	_centre.set_drag_forwarding(Callable(), _can_drop_item, _drop_item)
-	_centre.mouse_filter = Control.MOUSE_FILTER_STOP
 	Inventory.changed.connect(_refresh_items)
 
 
@@ -309,7 +312,7 @@ func _on_rack_input(event: InputEvent) -> void:
 			if not knob.is_empty():
 				var direction := 1.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1.0
 				turn_knob(knob.place, knob.param, direction * KNOB_SCROLL_STEP)
-		_centre.accept_event()
+		_input_layer.accept_event()
 	elif event is InputEventMouseMotion:
 		var pixel := _to_viewport(event.position)
 		if not _knob_drag.is_empty():
@@ -318,7 +321,7 @@ func _on_rack_input(event: InputEvent) -> void:
 		if not _view.held.is_empty():
 			_view.held.pointer = pixel
 			_view.held.snap = _snap_target(pixel)
-		_centre.accept_event()
+		_input_layer.accept_event()
 
 
 func _press(pixel: Vector2) -> void:
