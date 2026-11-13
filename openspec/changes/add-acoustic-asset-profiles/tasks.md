@@ -16,6 +16,7 @@
 - [ ] 3.3 Burbler: bubble radius range → Minnaert pitch; mark simplified for mud
 - [ ] 3.4 Brush, debris, scrub oak, mudflat ground, stream segment, lightning bug: profiles per the table
 - [ ] 3.5 Machines and modules: `kind: processor` profiles that point at their rack definitions
+- [ ] 3.6 Mountain rings (from `add-sky-motion-and-mountains` 3.3): reflectors with echo delays 2R/c = 2.80, 3.44 and 4.08 s (established physics, delay-line DSP); silent until excited
 
 ## 4. Previews and experiments
 

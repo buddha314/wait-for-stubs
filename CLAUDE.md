@@ -313,7 +313,8 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
 1. **stubby-rack spike** (`add-rack-audio-engine` task group 1): fan one tone to 48
    AudioStreamPlayer3D, then measure drift, cost per player, a 200-module rack in
    `_mix`, and clock-to-light jitter. Work happens in `/home/buddha/src/stubby-rack`.
-2. **Built:** `add-burbler-rack-screen` (all tasks; archive once played by hand).
+2. **Archived (2026-11-13), specs in `openspec/specs/`:** `add-burbler-rack-screen`,
+   `add-scrub-oak`, `add-sky-motion-and-mountains`, `migrate-off-stubby-music`.
    **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,
    level meter, sound gating) and `add-stream-building` (streams of reeds as the
    conveyor from the burbler's outlet; reads the burbler's `sounding`). The game will vendor stubby-rack's built addon into
@@ -329,9 +330,7 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    they're discovered in the world and then configured, with a rack built like the
    mudpit burbler's and tied to the local weather. They need their own world asset.
    The rain grid (master or a site's clock) is decided by play-testing.
-4. **Done (to archive):** `migrate-off-stubby-music` and the re-export with
-   `start_scale` (oak leaves and blooms, reed stubble and halos show correctly).
-   **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
+4. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
    audit); time-speed controls (Bevy had ¼×–64×; without them, reaching day takes
    about 9 minutes); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
    amber haze.
