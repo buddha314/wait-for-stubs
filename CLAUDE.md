@@ -317,10 +317,11 @@ cables, turn the BPM/freq/level knobs (silent until stubby-rack plays).
    - the sync point is accurate to 0.4 ms;
    - the driver must be `PROCESS_MODE_ALWAYS` or pause stops the clock.
 
-   Open: editor hot-reload (a manual check), and HRTF. Nexus Resonance (MIT plus
-   Steam Audio, Apache-2.0) wraps our stems, but its 4.6 binary fails in our 4.8 beta
-   (registration errors, silent with Steam Audio on). Next: rebuild it against 4.8,
-   or fall back to in-core binaural. After that: engine core (groups 3 to 5).
+   HRTF: Nexus Resonance (MIT plus Steam Audio, Apache-2.0) works as the HRTF tier.
+   In our 4.8 beta, start players with `play_stream()` (4.8 rejects its re-bound
+   `play`) and keep at least one `ResonanceGeometry` in the scene
+   (`docs/upstream/nexus-resonance-godot-4.8.md`). Open: editor hot-reload (a manual
+   check). Next: engine core (groups 3 to 5).
 2. **Archived (2026-11-13), specs in `openspec/specs/`:** `add-burbler-rack-screen`,
    `add-scrub-oak`, `add-sky-motion-and-mountains`, `migrate-off-stubby-music`.
    **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,

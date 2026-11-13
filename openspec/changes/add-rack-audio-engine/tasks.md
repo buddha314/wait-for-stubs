@@ -16,7 +16,7 @@
 - [x] 1.6 Clock-to-light jitter: publish the sync point, flash a light on ticks, measure the error against the predicted audible instant
 - [x] 1.7 Pause with `process_mode = ALWAYS` players: the rack keeps rendering, and the in-core mute fades cleanly
 - [ ] 1.8 Scene reload and editor hot-reload of the extension (scene reload passes: 20 cycles × 32 players, 0 skips; editor hot reload needs a manual check in the editor)
-- [ ] 1.9 HRTF: check whether the Steam Audio fork or Nexus Resonance accepts a custom stream; otherwise measure in-core binaural rendering at 16 emitters (tested: Nexus v1.1.0 wraps our stream but its 4.6 binary fails in 4.8: registration errors, silent with Steam Audio on. Next: rebuild it against 4.8, or in-core binaural; see design.md)
+- [x] 1.9 HRTF: check whether the Steam Audio fork or Nexus Resonance accepts a custom stream; otherwise measure in-core binaural rendering at 16 emitters (Nexus Resonance works with `play_stream()` and scene geometry: aligned, about 17 µs per HRTF emitter per step, +10.9 dB right/left; see docs/upstream/nexus-resonance-godot-4.8.md)
 - [ ] 1.10 Record results in design.md (D1, D4, D8); if the driver-player approach fails, evaluate the engine-module fallback
 
 ## 2. Repository and build
