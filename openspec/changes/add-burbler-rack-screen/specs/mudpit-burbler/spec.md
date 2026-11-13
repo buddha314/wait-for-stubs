@@ -70,3 +70,24 @@ ticks at their sample times instead.
 #### Scenario: Stand-in flash
 - **WHEN** a ×60 burbler's rack is open before stubby-rack can play
 - **THEN** the clock lamp flashes about once a second, and the code marks it as a stand-in for the engine's ticks
+
+### Requirement: A stand-in voice until the engine plays
+Until the audio engine plays the rack, a fully patched burbler whose output is
+normalled to its outlet SHALL sound a stand-in of stubby-music's voice:
+- the Square VCO at its FREQ knob;
+- gated for the first half of each beat at the burbler's tempo;
+- scaled by the volume's GAIN knob;
+- heard from the outlet within the profile's hearing radius.
+
+The stand-in SHALL be one pre-rendered beat looped by the mixer, never timed from
+frame time. It SHALL re-render when the tempo, frequency or gain changes, and fall
+silent when the patch is broken. The clock lamp SHALL follow its heard phase. It
+SHALL be named as a stand-in and removed when the engine lands.
+
+#### Scenario: Hearing the patch
+- **WHEN** the player completes both patches on a 58 BPM burbler and stands 4 m away
+- **THEN** a 2200 Hz square sounds for half of each beat, once every 60/58 s
+
+#### Scenario: Breaking the patch
+- **WHEN** a patch cable is unplugged
+- **THEN** the voice stops

@@ -78,6 +78,7 @@ func open_rack(point: MachineInteract) -> void:
 	var state: RackState = machine.rack_state
 	_title.text = machine.configure.get("title", "MACHINE")
 	_view.bpm_source = machine.bpm
+	_view.phase_source = machine.beat_phase if machine.has_method("beat_phase") else Callable()
 	_view.build(state, machine.configure, machine.knob_overrides())
 	if not state.changed.is_connected(_on_state_changed):
 		state.changed.connect(_on_state_changed)

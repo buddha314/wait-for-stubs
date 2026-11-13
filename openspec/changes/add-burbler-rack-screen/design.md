@@ -150,6 +150,18 @@ Rejected: a UI addon. Nothing here exceeds core `Control`s.
 Both carry a `## STAND-IN:` doc comment and are listed in CLAUDE.md, as the bug's
 frame-timed flash is.
 
+**D9b. A stand-in voice (added 2026-11-13, after play-testing found the patched
+burbler silent).** `BurblerVoice` is an `AudioStreamPlayer3D` at `Outlet_0`. It
+loops one pre-rendered beat of stubby-music's voice:
+- the gate is high for the first half beat (`PeriodicClock.gate_high`);
+- the gate opens the VCA directly (no envelope);
+- the VCA passes the square at FREQ × GAIN.
+
+The mixer loops it sample-accurately, so nothing is timed from frame time. It isn't
+phase-locked to the master clock. The rack lamp's placeholder flash follows its
+heard phase (playback position plus time since the last mix, minus output latency).
+It is removed by `add-rack-audio-engine` 9.2.
+
 **D10. Asset-contract test first.** `tests/test_rack_assets.gd` (`godot --headless -s`)
 loads every module, `rack_frame`, `slot_labels` and `patch_plug`, and asserts that each
 node their profiles name exists. It ports `module_assets.rs`. The screen depends on
