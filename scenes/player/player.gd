@@ -63,6 +63,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("interact", false):
 		_fresh_press = true
+	# Simulation speed (add-time-speed-controls): the player itself never speeds up.
+	if event.is_action_pressed("time_faster", false):
+		Calendar.faster()
+	elif event.is_action_pressed("time_slower", false):
+		Calendar.slower()
+	elif event.is_action_pressed("time_reset", false):
+		Calendar.reset_speed()
 	if event.is_action_pressed("release_cursor"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	elif event is InputEventMouseButton and event.pressed \

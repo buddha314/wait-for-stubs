@@ -23,6 +23,7 @@ func _ready() -> void:
 	PlayerInventory.refused.connect(_show_full)
 	_build_notice()
 	_build_build_hud()
+	_build_time()
 	_on_target_changed(null)
 
 
@@ -36,6 +37,7 @@ const COST_WARN := Color(1.0, 0.35, 0.27)
 
 func _process(delta: float) -> void:
 	_update_build()
+	_update_time()
 	if _notice_left > 0.0:
 		_notice_left -= delta
 		_notice.visible = _notice_left > 0.0
@@ -139,3 +141,32 @@ func _update_build() -> void:
 ## The cost readout's text and whether it warns (for tests).
 func cost_readout() -> Array:
 	return [_cost.visible, _cost_text.text, _cost_text.get_theme_color("font_color") == COST_WARN]
+
+
+## The time readout, top left (add-time-speed-controls D5): phase, solar time, speed.
+var _time: Label
+
+
+func _build_time() -> void:
+	_time = Label.new()
+	_time.name = "TimeReadout"
+	_time.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_time.position = Vector2(20, 16)
+	add_child(_time)
+
+
+static func time_text(night: bool, hour: float, speed: float) -> String:
+	var minutes := int(hour * 60.0) % (24 * 60)
+	return "%s %02d:%02d · %s" % ["NIGHT" if night else "DAY", int(minutes / 60.0), minutes % 60,
+			Calendar.speed_text(speed)]
+
+
+func _update_time() -> void:
+	var text := time_text(Calendar.is_night(), Calendar.solar_hour(), Calendar.speed)
+	if _time.text != text:
+		_time.text = text
+
+
+## The readout's text (for tests).
+func time_readout() -> String:
+	return _time.text

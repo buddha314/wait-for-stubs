@@ -67,7 +67,10 @@ func _process(delta: float) -> void:
 	if Engine.is_editor_hint() or _limbs.is_empty():
 		return
 	_time += delta
-	_water(delta)
+	# Growth follows simulation time (add-time-speed-controls D2); sway doesn't. The
+	# calendar is found by path: naming the autoload would stop `-s` tests compiling.
+	var calendar := get_node_or_null(^"/root/Calendar")
+	_water(delta, calendar.delta(delta) if calendar else delta)
 	for i in _limbs.size():
 		var angle := TAU * (_time * SWAY_RATE + _phase) + i
 		var tilt := Vector3(sin(angle), 0.0, cos(angle * 0.7)) * _sway_max
@@ -219,7 +222,8 @@ static func _res_path(model: String) -> String:
 
 
 ## Looks for water now and then, and grows toward what it allows.
-func _water(delta: float) -> void:
+## `grow_seconds`: simulation seconds to grow by (default: `delta`).
+func _water(delta: float, grow_seconds: float = -1.0) -> void:
 	_water_left -= delta
 	if _water_left <= 0.0:
 		_water_left = WATER_CHECK
@@ -228,7 +232,7 @@ func _water(delta: float) -> void:
 		if now != watered:
 			watered = now
 			watered_changed.emit(watered)
-	var next := levels.step(growth, water_clarity, delta)
+	var next := levels.step(growth, water_clarity, delta if grow_seconds < 0.0 else grow_seconds)
 	if not is_equal_approx(next, growth):
 		growth = next
 
