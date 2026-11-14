@@ -272,6 +272,11 @@ voice comes from the nearest point of it or its streams. Laid streams aren't sav
 is the lowest. A flowing stream within 3 m waters a scrub oak: mud wakes it to budding
 (0.3); silty and clear water (later, with cleaning) reach leafed (0.7) and full bloom.
 
+**Modules follow real Eurorack interactions** (user, 2026-11-13): when a rack control's
+behaviour is in doubt, do what the hardware does (e.g. Intellijel Steppy and KORG SQ-1
+for step sequencers: clock in, push a lit button per step, one LED per step shows its
+state and the playhead).
+
 **Input actions** live in `project.godot` under `[input]`: `move_*`, `jump`,
 `crouch`, `sprint`, `interact` (E), `release_cursor` (Esc), `inventory` (Tab),
 `build` (Q), `dismantle` (F), `field_recorder` (H), `time_slower`/`time_faster`/`time_reset`
