@@ -112,6 +112,12 @@ a template) and the draft list.
 README's rule). No saves exist, and goal ids don't change, so `migrations.json` gets
 no rows. `ids.lock` gains the new ids.
 
+**D9. Tests never depend on goal content.** Goals are written and rewritten while
+playing (user, 2026-11-13), so a content edit must never break a test. `Goals.load(rows)`
+takes any goal list; tests load fixtures (`tests/fixtures/goals.json`) that exercise
+every condition kind and rule. The shipped `goals.json` is only checked to load without
+errors, never for its names, step counts or order.
+
 ## Risks / Trade-offs
 
 - [No saving: progress resets each launch] → acceptable while there's no save at all.
