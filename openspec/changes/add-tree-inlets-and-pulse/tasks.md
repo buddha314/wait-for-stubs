@@ -1,7 +1,7 @@
 ## 1. Model
 
-- [ ] 1.1 `create_scrub_oak.py`: `Inlet_<n>` empties (three, at the root flare, facing the trunk, angles from the variant), extras `stream: inlet`, and `Inlet_<n>_Halo` rings with `start_scale: 0` (the burbler's outlet halo pattern); regenerate, reimport
-- [ ] 1.2 Headless check of the regenerated glb: three inlets per variant, halos at scale 0 after import, positions differ between variants
+- [ ] 1.1 `create_scrub_oak.py`: `Inlet_<n>` empties (`INLET_COUNT`, three for now; the count goes into `asset.json` as `inlets`; at the root flare, facing the trunk, angles from the variant), extras `stream: inlet`, and `Inlet_<n>_Halo` rings with `start_scale: 0` (the burbler's outlet halo pattern); regenerate, reimport
+- [ ] 1.2 Headless check of the regenerated glb: each variant's inlet count matches `asset.json`'s `inlets` (never a fixed number), halos at scale 0 after import, positions differ between variants
 
 ## 2. Inlets and connection
 
@@ -16,8 +16,8 @@
 
 - [ ] 3.1 `knock.json` (c, envelope, gain, hearing radius) and the pitch from the instance's trunk height (D6)
 - [ ] 3.2 The oak's rack: `tempo_clock` at the source's multiple → `envelope` → `vca` ← `vco_sine`, a `RackEmitter` at the trunk on the World bus, paused unless watered by a sounding source; the multiple follows the source's BPM
-- [ ] 3.3 Pulse on the source's heard ticks (D4): envelope on canopy scale and bark/bud emission (per-instance materials)
-- [ ] 3.4 Headless test: knock ticks on the same samples as the source's clock; pulse count follows ticks while watered and stops when the source stops; silent with no connection; pitch from trunk height
+- [ ] 3.3 Pulse and knock wait for the water (D4): start on the first beat at or after `ceil(path length / spacing)` beats of flow, stop as long after it stops; between, pulse on the source's heard ticks: envelope on canopy scale and bark/bud emission (per-instance materials)
+- [ ] 3.4 Headless test: the first pulse waits `ceil(length / spacing)` beats and the last comes as long after the source stops; knock ticks on the same samples as the source's clock; pulse count follows ticks while watered and stops when the source stops; silent with no connection; pitch from trunk height
 - [ ] 3.5 `assets/flora/scrub_oak/acoustics.json` (D7)
 
 ## 4. Wrap-up

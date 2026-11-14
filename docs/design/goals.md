@@ -91,6 +91,14 @@ condition kind. The fire is a sound source too (a crackle from the audio engine)
 it carries an acoustic profile. Until it lands, the bar shows Build a camp at 5 / 6
 with "Build a campfire" as the next step.
 
+**Lighting the fire (idea, user 2026-11-13):** the fire is lit by a flint strike on
+beats 2 and 4, like a hi-hat on the backbeat. That needs a basic step sequencer and a
+flint voice; the metaphor is open. Candidates (see the campfire proposal when written):
+a ring of stones around the fire pit as a 4-step sequencer, with the caught spark
+running round it once a bar and striking where the player sets flint; a flint wheel
+turned by the stream, notched like a music box; or a small rack module with four step
+buttons.
+
 Step 1 comes first because the spark lights the fire at the end; steps 3 and 6 both
 use reeds (a stream segment costs 6).
 

@@ -2,21 +2,28 @@
 
 ### Requirement: A watered tree pulses on its source's beat
 A tree watered by a stream from a sounding source SHALL pulse on each beat of that
-source's clock, at the instant the beat is heard: a brief swell and glow that rises and
-falls with attack and decay times. It SHALL NOT pulse when it isn't watered, when its
-source is silent, or at any rate of its own.
+source's clock once the water has reached it, at the instant the beat is heard: a brief
+swell and glow that rises and falls with attack and decay times. The water SHALL take
+the stream's path length divided by the note spacing, in beats, rounded up to a whole
+beat, to reach the tree, and as long again to stop after the source stops. The tree
+SHALL NOT pulse when it isn't watered, before the water arrives, or at any rate of its
+own.
 
 #### Scenario: Watered by a sounding burbler
 - **WHEN** an oak is connected to a stream from the burbler, which sounds at 60 BPM
 - **THEN** the oak pulses once per second, each pulse at the moment the burbler's beat is heard
 
+#### Scenario: Waiting for the water
+- **WHEN** a 12 m stream (1 m note spacing) is connected and the burbler starts sounding
+- **THEN** the oak's first pulse and knock come on the burbler's 12th beat after the water starts flowing, not before
+
 #### Scenario: Source silenced
 - **WHEN** the player unplugs a cable so the burbler stops sounding
-- **THEN** the oak stops pulsing
+- **THEN** the oak pulses for as many beats as the water takes to arrive, then stops
 
 ### Requirement: The trunk knocks on the beat
 A watered tree with a sounding source SHALL sound a short knock from its trunk on each
-of the source's beats, played by the audio engine on the same whole multiple of the
+of the source's beats while it pulses (the same beats, once the water has arrived), played by the audio engine on the same whole multiple of the
 master clock as the source, so the knock and the source's beat land on the same sample.
 Its pitch SHALL come from the trunk's height by the quarter-wave formula f = c / (4 · L),
 with c and other constants in data. The tree SHALL make no sound when it isn't watered

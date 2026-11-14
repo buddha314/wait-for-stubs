@@ -1,7 +1,8 @@
 ## ADDED Requirements
 
 ### Requirement: Trees have root inlets
-Each scrub oak SHALL have inlets at its roots where a stream can connect, each shown
+Each scrub oak SHALL have one or more inlets at its roots where a stream can connect
+(the number is a model setting), each shown
 with a halo while it is the build candidate. Inlets SHALL be part of the tree's model,
 and their positions SHALL vary between instances with the tree's seeded variant.
 
