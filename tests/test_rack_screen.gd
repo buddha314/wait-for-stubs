@@ -37,7 +37,8 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	_expect(screen.is_open(), "rack opens")
-	_expect(screen.relevant_items().size() == 1, "square wave is relevant")
+	var relevant: Array = screen.relevant_items().map(func(r: Dictionary) -> String: return r.item)
+	_expect(relevant == ["square_wave", "patch_cable"], "square wave relevant, then the player's patch cables (%s)" % [relevant])
 	var waiting: Dictionary = screen._view.waiting_jacks()
 	_expect(waiting.has("clock/gate") and waiting.has("volume/trig"), "GATE → TRIG invited before the VCO")
 	_expect(not waiting.has("vco/out") and not waiting.has("volume/in"), "no guidance on the VCO's patch until it's in")
@@ -167,7 +168,7 @@ func _run() -> void:
 	# Drag-and-drop: a square wave dropped on the empty VCO slot mounts it.
 	var slot_pixel := view.place_centre("vco")
 	_expect(view.place_at(slot_pixel) == "vco", "slot under the pointer is the VCO place")
-	_expect(not screen._can_drop_item(slot_pixel, ItemDrag.new("patch_cable")), "a patch cable can't mount")
+	_expect(not screen.insert("patch_cable"), "a patch cable never mounts")
 	_expect(screen._can_drop_item(slot_pixel, ItemDrag.new("square_wave")), "square wave can drop on its slot")
 	screen._drop_item(slot_pixel, ItemDrag.new("square_wave"))
 	_expect(state.mounted.get("vco", "") == "square_vco" and inventory.quantity("square_wave") == 1,
@@ -185,6 +186,29 @@ func _run() -> void:
 	_mouse(screen, Vector2(5, 5), false)
 	_expect(state.cables.is_empty() and inventory.quantity("patch_cable") == cables_before,
 			"unplugged own cable returns to the inventory")
+
+	# A patch cable dragged from the inventory onto PHASE plugs that end; V/OCT takes the other.
+	var drop := ItemDrag.new("patch_cable")
+	_expect(screen._can_drop_item(_jack(view, "clock", "phase"), drop), "a patch cable can drop on a free jack")
+	_expect(not screen._can_drop_item(Vector2(5, 5), drop), "but not on empty space")
+	screen._drop_item(_jack(view, "clock", "phase"), drop)
+	_expect(view.held.get("anchor", {}).get("port", "") == "phase" and view.held.source == "inventory",
+			"dropped: the PHASE end is plugged, the other in hand")
+	_release_at(screen, _jack(view, "vco", "voct"))
+	_expect(state.cables.size() == 1 and state.cables[0].source == "inventory"
+			and inventory.quantity("patch_cable") == cables_before - 1, "inventory cable patched, one used")
+	screen.unplug({"place": "vco", "port": "voct"})
+	_expect(state.cables.is_empty() and inventory.quantity("patch_cable") == cables_before, "and returned on unplug")
+
+	# The Relevant strip's patch cable (or its number) puts a free cable in hand.
+	var cable_key: int = screen.relevant_items().map(func(r: Dictionary) -> String: return r.item).find("patch_cable")
+	_expect(cable_key >= 0, "patch cables are in the Relevant strip")
+	_action(screen.ITEM_ACTIONS[cable_key])
+	_expect(view.held.get("source", "") == "inventory" and view.held.anchor.is_empty(), "its key takes a free cable")
+	_release_at(screen, _jack(view, "clock", "phase"))
+	_release_at(screen, _jack(view, "vco", "voct"))
+	_expect(state.cables.size() == 1 and inventory.quantity("patch_cable") == cables_before - 1, "and patches with it")
+	screen.unplug({"place": "vco", "port": "voct"})
 
 	# Esc closes and returns control.
 	_action("release_cursor")

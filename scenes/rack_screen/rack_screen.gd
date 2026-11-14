@@ -10,6 +10,8 @@ extends CanvasLayer
 ## click it to carry it; a cable in hand snaps to a jack within SNAP_PX; drag a
 ## plugged end to move it, or off any jack to unplug; right-click a plug to unplug it;
 ## drag or scroll a knob; drag an item onto its slot, click it, or press its number;
+## take one of your own patch cables by clicking an empty jack, by dragging it from
+## the inventory onto a jack, or by clicking it (or its number) in the Relevant strip;
 ## right-click a module to remove it. A hint beside the pointer says what applies.
 ##
 ## A machine that opens a rack provides: rack_state, configure, knob_overrides(),
@@ -124,7 +126,7 @@ func _input(event: InputEvent) -> void:
 		if event.is_action_pressed(ITEM_ACTIONS[i], false):
 			get_viewport().set_input_as_handled()
 			if i < _relevant_items.size():
-				insert(_relevant_items[i].item)
+				use_item(_relevant_items[i].item)
 
 
 func _process(delta: float) -> void:
@@ -165,7 +167,31 @@ func relevant_items() -> Array[Dictionary]:
 		for accept: Dictionary in place.get("accepts", []):
 			if PlayerInventory.quantity(accept.item) > 0 and out.all(func(r: Dictionary) -> bool: return r.item != accept.item):
 				out.append({"item": accept.item, "place": place.place, "module": accept.module})
+	# The player's own patch cables, last (rack-screen: "with a patch_cable from the inventory").
+	if PlayerInventory.quantity(PATCH_CABLE) > 0:
+		out.append({"item": PATCH_CABLE, "place": "", "module": ""})
 	return out
+
+
+## The Relevant strip's action for `item`: a patch cable goes into the hand, free,
+## ready to plug; a module mounts in the first open place that takes it.
+func use_item(item: String) -> bool:
+	if item == PATCH_CABLE:
+		return take_cable()
+	return insert(item)
+
+
+## Takes one of the player's patch cables into the hand, both ends free, at the
+## pointer. The cable leaves the inventory only when it's plugged at both ends.
+func take_cable() -> bool:
+	if not is_open() or not _view.held.is_empty():
+		return false
+	if PlayerInventory.quantity(PATCH_CABLE) <= 0:
+		show_notice("No patch cables")
+		return false
+	var pixel := _to_viewport(_input_layer.get_local_mouse_position())
+	_hold({"color": OWN_CABLE_COLOR, "source": "inventory", "anchor": {}, "new": true}, pixel)
+	return true
 
 
 ## Mounts one `item` into the first open place that accepts it. True if mounted.
@@ -232,7 +258,7 @@ func _refresh_items() -> void:
 		var button := Button.new()
 		button.flat = true
 		button.set_anchors_preset(Control.PRESET_FULL_RECT)
-		button.pressed.connect(insert.bind(item))
+		button.pressed.connect(use_item.bind(item))
 		button.set_drag_forwarding(_drag_item.bind(item), Callable(), Callable())
 		box.add_child(button)
 		_relevant.add_child(box)
@@ -297,6 +323,9 @@ func _drag_item(_at: Vector2, item: String) -> Variant:
 func _can_drop_item(at: Vector2, data: Variant) -> bool:
 	if data is not ItemDrag:
 		return false
+	if data.item == PATCH_CABLE:
+		return _view.held.is_empty() and PlayerInventory.quantity(PATCH_CABLE) > 0 \
+				and not _cable_drop_jack(_to_viewport(at)).is_empty()
 	var place := _view.place_at(_to_viewport(at))
 	if place == "" or _state().mounted.has(place):
 		return false
@@ -307,7 +336,20 @@ func _can_drop_item(at: Vector2, data: Variant) -> bool:
 
 
 func _drop_item(at: Vector2, data: Variant) -> void:
-	insert(data.item, _view.place_at(_to_viewport(at)))
+	var pixel := _to_viewport(at)
+	if data.item == PATCH_CABLE:
+		# Dropped on a jack: that end plugs in, the other follows the pointer.
+		var jack := _cable_drop_jack(pixel)
+		if not jack.is_empty():
+			_hold({"color": OWN_CABLE_COLOR, "source": "inventory", "anchor": jack, "new": true}, pixel)
+			_play_snap()
+		return
+	insert(data.item, _view.place_at(pixel))
+
+
+## The jack a patch cable dropped at `pixel` would plug into, or {}.
+func _cable_drop_jack(pixel: Vector2) -> Dictionary:
+	return _view.jack_at(pixel, SNAP_PX, func(jack: Dictionary) -> bool: return can_plug({}, jack))
 
 
 # ------------------------------------------------------------------ rack input
@@ -360,7 +402,9 @@ func hint_at(pixel: Vector2) -> String:
 	if not jack.is_empty():
 		if _state().is_patched(jack):
 			return "[RMB] unplug  ·  drag to move the plug"
-		return "drag to another jack to patch"
+		var own := PlayerInventory.quantity(PATCH_CABLE)
+		return "drag to another jack to patch  ·  uses a patch cable (%d left)" % own if own > 0 \
+				else "no patch cables: take one from the comb"
 	if not _view.knob_at(pixel).is_empty():
 		return "drag up/down or scroll to turn"
 	if _view.comb_cable_at(pixel, 12.0) >= 0:
