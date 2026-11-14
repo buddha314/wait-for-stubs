@@ -86,6 +86,8 @@ scenes/<feature>/       a scene, its script and its feature-only resources toget
   main/                 the opening: Sky3D, ground, and instances below
   player/               first-person CharacterBody3D (stubby-music's speeds/keys)
                         + Head/Reach area that picks the E target
+  hand/                 Head/Hand: one-item hand; HandItem children posed in the
+                        editor, one action each (H: the field recorder)
   hud/                  reticle, "[E] Collect ..." prompt, status/inventory lines
   inventory_screen/     Tab: the 16 boxes (GLoot CtrlInventoryGrid), name/description
   stream/               StreamPath (Bezier in Curve3D), StreamBender (CPU bend keeping
@@ -102,6 +104,7 @@ assets/<category>/<id>/ ONE FOLDER PER ASSET: master scene <id>.tscn (+ .gd), mo
   flora/reeds/          reed_clump.tscn: seeded clump, harvest and regrow
   creatures/lightning_bug/  lightning_bug.tscn: seeded random-clock flash + click
   machines/mudpit_burbler/  mudpit_burbler.tscn: clock mine, RackState, voice stand-in
+  equipment/field_recorder/ field_recorder.tscn: held recorder, record light, level meter
 assets/recipes|lighting|ui|audio   shared data
 assets-src/<category>/  Blender sources (.blend, LFS; .gdignore keeps Godot out)
 tools/blender/          the asset generators (module_kit.py holds the path policy)
@@ -209,6 +212,23 @@ are a GLoot `Inventory` (`PlayerInventory.boxes`) whose prototypes are built fro
 `items.json` at start, so `Rules` still owns item data. Tab opens the screen; item
 counts are no longer in the text HUD.
 
+**Field recorder** (`add-field-recorder`): `Player/Head/Hand` holds at most one item;
+a new game starts with the recorder in hand and H puts it away or brings it up (not
+while a screen has the controls). **Sounds need it:** a pickup whose yields include an
+item with a `waveform` or `sample` (`Rules.yields_sound`) is refused empty-handed, with
+the tip "Hold the field recorder to collect sounds · [H]" (key read from the input
+map); reeds need no recorder. The record light rises (0.05 s) and decays (0.4 s) on
+`Player.pickup_collected`, never on its own rhythm. The level meter reads the
+**World** bus peak (bar n at −48 + 6·n dBFS, peak-hold falling 24 dB/s): it shows the
+total level, not yet the direction (task 4.4 waits on per-emitter levels).
+
+**Audio buses** (`default_bus_layout.tres`, names in `common/audio_buses.gd`): every
+`RackEmitter` plays on **World**; the engine's UI stem plays on **UI** (project setting
+`audio/stubby_rack/ui_bus`); both send to Master. Put new world emitters on
+`AudioBuses.WORLD`, or the recorder's meter won't hear them. The engine creates its
+driver when the first `Rack` enters the tree; a test that needs the UI stem before
+then calls `RackServer.ensure_driver()`.
+
 **Streams** (`add-stream-building`): Q enters build mode (E does nothing meanwhile).
 The free port nearest the aim point within 3 m (the burbler's mouth at `Outlet_0`, or
 a laid stream's end) shows its halo; left click anchors, the hologram curves to the
@@ -226,7 +246,7 @@ is the lowest. A flowing stream within 3 m waters a scrub oak: mud wakes it to b
 
 **Input actions** live in `project.godot` under `[input]`: `move_*`, `jump`,
 `crouch`, `sprint`, `interact` (E), `release_cursor` (Esc), `inventory` (Tab),
-`build` (Q), `dismantle` (F), `build_place` (LMB), `build_cancel` (RMB), `item_1`…`item_10`
+`build` (Q), `dismantle` (F), `field_recorder` (H), `build_place` (LMB), `build_cancel` (RMB), `item_1`…`item_10`
 (keys 1–0, insert from the rack's Relevant strip). Use action names, not raw
 keycodes.
 
@@ -395,7 +415,8 @@ What the game itself must still decide (design, not new networking code):
 player can do next; VR, multiplayer and the module library wait their turn.
 
 **Playable now:** night opening (Sky3D, moon in view at spawn, day after ~7.5 min);
-walking; E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
+walking; the field recorder in hand (H; needed to collect sounds; record light; level
+meter on the World bus); E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
 regrow in 60 s); Tab inventory (16 boxes of 100); Q lays streams from the burbler
 (F dismantles), which carry its beat as notes and water scrub oaks to budding; the burbler's rack: mount the square VCO, patch with comb or own
 cables, turn the BPM/freq/level knobs. The burbler and the lightning bugs sound from
@@ -426,9 +447,8 @@ plays on its sampler.
    sound 7.3, reed growth levels 8.3, the goal hook 8.4).
 2. **Archived (2026-11-13), specs in `openspec/specs/`:** `add-burbler-rack-screen`,
    `add-scrub-oak`, `add-sky-motion-and-mountains`, `migrate-off-stubby-music`.
-   **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,
-   level meter, sound gating) and `add-stream-building` (streams of reeds as the
-   conveyor from the burbler's outlet; reads the burbler's `sounding`).
+   **Applied:** `add-field-recorder` (open: 4.4, the meter's direction, waits on
+   `add-rack-audio-engine` 8.2) and `add-stream-building` (open tasks listed above).
    **Proposed:** `add-module-library` (about 90 east- and west-coast modules, effects,
    15 pre-baked voices, generated panels; research in
    `docs/research/module-library.md`; no plugin hosting).

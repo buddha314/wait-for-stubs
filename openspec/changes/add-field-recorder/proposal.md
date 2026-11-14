@@ -12,7 +12,8 @@ player.
 
 - **H brings up the field recorder** and puts it away (new input action
   `field_recorder`). The hand holds at most one item; the recorder is the first, and
-  every later hand item gets its own action. The hand starts empty, and H does nothing
+  every later hand item gets its own action. A new game starts with the recorder in
+  hand (decided 2026-11-13; sounds are collected only with it), and H does nothing
   while a screen (rack, inventory) has the controls.
 - **Held in first person** at real size in the lower right of the view, windguard
   forward, at stubby-music's pose. The windguard's fur shells cast no shadows (the
@@ -59,7 +60,10 @@ meter ballistics). See design.md for what was considered instead.
 ## Impact
 
 - `project.godot`: input action `field_recorder` (H).
-- New `scenes/hand/` (hand scene and script), attached under `Player/Head`.
+- New `scenes/hand/` (hand scene and script), attached under `Player/Head`, and the
+  recorder's master scene `assets/equipment/field_recorder/field_recorder.tscn` + `.gd`.
+- New `default_bus_layout.tres` (World and UI buses) and the project setting
+  `audio/stubby_rack/ui_bus="UI"`; every `RackEmitter` plays on World.
 - `scenes/player/player.gd`: exposes whether E collected a pickup this tick, for the
   record light.
 - New `assets/equipment/field_recorder/acoustics.json` (beside, not inside, the

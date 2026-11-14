@@ -17,10 +17,11 @@ In this repo the asset is already copied. The glTF carries the nodes the game ne
 pivot) and `Head/Reach`; E calls `Interactable.interact()` every physics tick on a
 `hold_repeats` pickup. Screens disable the player with `controls_enabled = false`.
 
-Audio: stubby-rack (`add-rack-audio-engine`) will own all game audio and time it with
-its sample counter (master clock 1 BPM, tempo clocks at whole multiples). Today the
-only sound is the lightning bugs' pre-rendered click on `AudioStreamPlayer3D` on the
-Master bus. There is no custom bus layout yet.
+Audio: stubby-rack (`add-rack-audio-engine`) owns all game audio and times it with
+its sample counter (master clock 1 BPM, tempo clocks at whole multiples). When this
+change was applied, the bugs and the burbler already sounded through `RackEmitter`s
+(AudioStreamPlayer3D) and the plug-in snap through the engine's UI stem, all on
+Master; this change adds the World and UI buses.
 
 ## Goals / Non-Goals
 
@@ -87,10 +88,14 @@ carries them.
 **D5 — The meter reads Godot's bus peak, not the engine.** Each frame the recorder
 takes `max(AudioServer.get_bus_peak_volume_left_db, ..._right_db)` of the bus that
 carries world and music audio, applies peak-hold with a fixed fall rate (24 dB/s), and
-lights `Level_n` when the level is at or above `−48 + 6·n` dBFS (n = 0…7), by toggling
-the visibility (or emission) of each `Level_n`'s meshes. Today that bus is Master,
-where the bug clicks play. When stubby-rack adds its stems, the meter moves to their
-world/music bus so the UI stem is excluded.
+lights `Level_n` when the level is at or above `−48 + 6·n` dBFS (n = 0…7), by swapping
+each `Level_n` mesh between the model's two screen materials (`FieldRecorder_Display`,
+lit; `FieldRecorder_DisplayDim`, unlit; the glb is authored with bars 0–4 lit). The bus
+is **World** (`default_bus_layout.tres`): every `RackEmitter` plays there, and the
+engine's UI stem plays on **UI** (`audio/stubby_rack/ui_bus`), so UI sounds never move
+the meter. Measured headless: a bug's click 2 m away peaks near −45 dBFS on World,
+one bar. A bus peak covers only the latest mix block, so a click of a few
+milliseconds can fall between frame-rate reads; the bug's 0.3 s click does not.
 - Rejected: an engine meter from stubby-rack (`rack-control` "Lights, meters and
   scopes"): those are per module, and the mix the listener hears is only formed after
   Godot spatialises the stems, so Godot's bus meter is the right point, and it exists
@@ -119,8 +124,8 @@ schema task upgrades it.
   fine for a display; peak-hold hides missed blocks.
 - [Until stubby-rack splits buses, any future UI sound on Master would move the
   meter] → no UI sounds exist today; the engine's UI stem gets its own bus.
-- [The `Level_n` nodes may be empties over bar meshes rather than meshes] → the task
-  checks the glb and lights all mesh descendants of each `Level_n`.
+- [The `Level_n` nodes may be empties over bar meshes rather than meshes] → checked
+  (task 1.1): each `Level_n` is a `MeshInstance3D`.
 
 ## Migration Plan
 
