@@ -101,6 +101,31 @@ sheltered surface: a desert-native honeycomb, made of the mudflat itself.
 - **Playhead:** the wasp.
 - **Where it lives:** under the oak's shelter or on the burbler, once there's shade.
 
+**Seashells, plugged into a rack (user, 2026-11-13).** Shells are segmented, and the
+segments come in counts that suit a sequencer: 4, 8 or 16.
+- **In this world:** fossil shells in the dried lakebed. The mudflat was once water,
+  so shells turn up in the mud, found by eye or uncovered by wind and rain.
+- **Kinds, by step count:** a small cockle with 4 ribs, a young ammonite with 8
+  chambers, an adult ammonite or a scallop with 16. Which shell you find decides the
+  length of the sequence.
+- **Into the rack:** a shell is an item that mounts as a module, as a square wave
+  mounts as the VCO today (inventory → the rack's Relevant strip → a place in the
+  rack). Its panel is drawn from the shell: each rib or chamber is a step with a gate
+  button and a light, plus clock in, reset, gate out and CV out jacks.
+- **Step CV:** a small knob per segment, shown as the rib's height on the panel.
+- **Playhead:** the light walks the segments. On an ammonite it spirals: inside out is
+  forward, outside in is reverse, which gives the direction modes a shape.
+- **Patching:** the burbler's clock (or the master grid) into clock in. Gate out to an
+  envelope, a flint strike, or the campfire. CV out to a VCO's pitch for a 4-, 8- or
+  16-note line.
+- **Its own sound, later:** a shell's cavity resonates (the "sea in a shell" is a
+  cavity filtering the air around it; Helmholtz formula from its opening and volume),
+  so held up to the field recorder, or as a filter module, it colours what passes
+  through.
+- **Why it works:** it's a collected, physical thing that becomes a real module, which
+  matches how the rack already works, and the step counts map straight onto hardware
+  sequencers (4, 8, 16).
+
 **Others to remember:**
 - **Columnar basalt** (hexagonal columns, Giant's Causeway): column height as step CV,
   stepping-stone steps. Needs rock the mudflat doesn't have.
