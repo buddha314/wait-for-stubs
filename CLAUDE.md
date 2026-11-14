@@ -493,7 +493,7 @@ plays on its sampler.
    only in shelter; the `built` goal condition; the fire's crackle from the engine and
    its acoustic profile. Ideas for later, undecided, live on the **wall of bad ideas**
    (`docs/design/wall-of-bad-ideas.md`): natural step sequencers (ring of stones,
-   honeycomb, mud cracks, mud dauber tubes, reed pipes). **To propose later:** a **compass bar** across the top of
+   honeycomb, mud cracks, mud dauber tubes, seashells as rack modules, reed pipes). **To propose later:** a **compass bar** across the top of
    the screen, as in Satisfactory, to help navigation (user, 2026-11-13; backlog):
    bearings and cardinal points that turn with the view, later markers for discovered
    sites and machines. Mind the top-centre build-mode label and the top-left time
