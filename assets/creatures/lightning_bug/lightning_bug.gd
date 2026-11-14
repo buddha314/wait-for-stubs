@@ -27,6 +27,11 @@ var _flash_elapsed := -1.0
 var _pending: Array[int] = []
 var _clock_id := 0
 var _voice: RackEmitter
+## The envelope level last shown.
+var _level := 0.0
+## The dark body shown between flashes while targeted (palette: Silhouette #100b19).
+## Per bug, not static: a static Resource outlives the renderer at exit (4.8 beta).
+var _silhouette_material: StandardMaterial3D = _silhouette()
 ## Flashes shown so far (for tests).
 var flashes := 0
 
@@ -46,7 +51,9 @@ func _ready() -> void:
 	_light.omni_range = profile.get("light_range_metres", 3.0)
 
 	_pickup.instance_id = instance_id
+	_pickup.outline_root = _model
 	_pickup.collected_changed.connect(_on_collected_changed)
+	_pickup.outline_changed.connect(func(_shown: bool) -> void: _set_envelope(_level))
 	_rng = WorldSeed.rng(instance_id)
 	_set_envelope(0.0)
 	_build_rack(clock, click)
@@ -133,9 +140,23 @@ func _envelope(t: float) -> float:
 	return clampf(1.0 - (t - _attack) / (_flash - _attack), 0.0, 1.0)
 
 
+static func _silhouette() -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color("#100b19")
+	m.roughness = 1.0
+	return m
+
+
+## Targeted (add-collectible-outline): the body stays at full size so the outline
+## has a shape, a dark silhouette between flashes and white while flashing.
 func _set_envelope(level: float) -> void:
-	_body.visible = level > 0.0
-	_model.scale = Vector3.ONE * level
+	_level = level
+	var outlined := _pickup.outline_shown
+	_body.visible = level > 0.0 or outlined
+	_model.scale = Vector3.ONE * (1.0 if outlined else level)
+	var dark := outlined and level <= 0.0
+	for mesh in _model.find_children("*", "MeshInstance3D", true, false):
+		(mesh as MeshInstance3D).material_override = _silhouette_material if dark else null
 	_light.light_energy = PEAK_LIGHT_ENERGY * level
 
 

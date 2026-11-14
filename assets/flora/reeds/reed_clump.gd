@@ -90,6 +90,7 @@ func _build() -> void:
 	_pickup.name = "Pickup"
 	_pickup.resource_id = RESOURCE_ID
 	_pickup.instance_id = instance_id
+	_pickup.outline_root = _standing
 	var interact: Node3D = _model.find_child("Interact", true, false)
 	_pickup.position = interact.position * _model.scale if interact else Vector3.UP * 0.7
 	_pickup.collected_changed.connect(_on_collected_changed)
