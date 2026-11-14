@@ -491,7 +491,9 @@ plays on its sampler.
    step of the first major goal "Build a camp" (user, 2026-11-13; `docs/design/goals.md`):
    a budding oak casts a lee downwind; a campfire (reeds + 1 square wave) can be built
    only in shelter; the `built` goal condition; the fire's crackle from the engine and
-   its acoustic profile. **To propose later:** a **compass bar** across the top of
+   its acoustic profile. Ideas for later, undecided, live on the **wall of bad ideas**
+   (`docs/design/wall-of-bad-ideas.md`): natural step sequencers (ring of stones,
+   honeycomb, mud cracks, mud dauber tubes, reed pipes). **To propose later:** a **compass bar** across the top of
    the screen, as in Satisfactory, to help navigation (user, 2026-11-13; backlog):
    bearings and cardinal points that turn with the view, later markers for discovered
    sites and machines. Mind the top-centre build-mode label and the top-left time
