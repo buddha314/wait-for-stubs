@@ -150,6 +150,21 @@ hour angle per simulated hour. That start needs a declination of about 59°, so 
 circumpolar and never sets, which is unrealistic but keeps the opening view. Change
 the two exports for a real path (`add-sky-motion-and-mountains` D3).
 
+**Goals** (`add-goals-hub`): major goals made of minor goals (steps, in file order),
+in `assets/recipes/goals.json` (format 2; writing guide and draft list in
+`docs/design/goals.md`). `Rules.check_goals(rows)` validates them; the `Goals` autoload
+tracks progress: a step completes the first time its condition holds while it is
+active, and stays complete; a major goal completes with its last step. Conditions are
+state, reported by the world: `Goals.report(kind, args, instance_id, holds)` (the
+burbler reports `machine_configured`, the scrub oak `tree_watered` and `tree_grown`;
+`item_held` reads `PlayerInventory`). Scripts that `-s` tests compile reach it as
+`/root/Goals`. The goal bar (`scenes/goal_bar/`, upper right) shows the major goal,
+its steps done of total, and the active step; it hides behind screens. Progress isn't
+saved yet. **Goal content iterates: tests load `tests/fixtures/goals.json`, and the
+shipped file is only checked to load clean; never assert on its names, counts or
+order.** A new condition kind needs the schema, a check in `Rules._condition_problem`,
+and a reporter.
+
 **Simulation speed** (`add-time-speed-controls`): `[` `]` `\` step `Calendar.speed`
 through ¼×, ½×, 1×, 2×, 4×, 8×, 16×, 64× (reset 1×; ignored while a screen has the
 controls); the HUD's top-left readout shows "NIGHT 03:12 · 64×". **Only simulation
@@ -429,7 +444,8 @@ What the game itself must still decide (design, not new networking code):
 player can do next; VR, multiplayer and the module library wait their turn.
 
 **Playable now:** night opening (Sky3D, moon in view at spawn, day after ~7.5 min);
-walking; the field recorder in hand (H; needed to collect sounds; record light; level
+walking; goals (upper right: "Build a camp", steps 1–5 of 6; the campfire step comes
+with its change); the field recorder in hand (H; needed to collect sounds; record light; level
 meter on the World bus); E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
 regrow in 60 s); Tab inventory (16 boxes of 100); Q lays streams from the burbler
 (F dismantles), which carry its beat as notes and water scrub oaks to budding; the burbler's rack: mount the square VCO, patch with comb or own

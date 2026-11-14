@@ -42,7 +42,7 @@
 - [x] 8.1 `GrowthLevels` (`common/growth_levels.gd`): levels from a growing asset's `growth.json`, cap by clarity, rise and ease
 - [x] 8.2 Scrub oak levels (`assets/flora/scrub_oak/growth.json`: budding 0.3 muddy, leafed 0.7 silty, full bloom 1.0 clear); watered by a flowing stream within 3 m; `watered_changed`
 - [ ] 8.3 Reed clumps (and later growing assets) get their own levels
-- [ ] 8.4 Goal hook: "Water the tree" completes on `watered_changed` once goals exist
+- [x] 8.4 Goal hook: "Water the tree" completes on `watered_changed` once goals exist
 
 ## 6. Acoustics
 

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/hud/hud.tscn" id="20_hud"]
+[ext_resource type="PackedScene" path="res://scenes/goal_bar/goal_bar.tscn" id="21_goal_bar"]
 [ext_resource type="PackedScene" path="res://scenes/rack_screen/rack_screen.tscn" id="21_rack"]
 [ext_resource type="PackedScene" path="res://scenes/inventory_screen/inventory_screen.tscn" id="30_inventory"]
 [ext_resource type="Script" path="res://scenes/stream_builder/stream_builder.gd" id="31_builder"]
@@ -264,6 +265,8 @@ radius = 2.0
 
 [node name="HUD" parent="." node_paths=PackedStringArray("player") instance=ExtResource("20_hud")]
 player = NodePath("../Player")
+
+[node name="GoalBar" parent="." instance=ExtResource("21_goal_bar")]
 
 [node name="RackScreen" parent="." instance=ExtResource("21_rack")]
 

@@ -78,6 +78,8 @@ func _run() -> void:
 	_mouse(screen, _jack(view, "volume", "in"), false)
 	_expect(state.cables.size() == 2, "OUT → IN patched")
 	_expect(_configured == 1 and burbler.sounding, "configured once, burbler sounding")
+	var goals := root.get_node("Goals")
+	_expect(goals.holds("machine_configured", {"machine": "mudpit_burbler"}), "a sounding burbler reports machine_configured")
 	_expect(inventory.quantity("patch_cable") == cables_before, "comb cables are free")
 	_expect(state.cables[1].from.port == "out", "cable stored output first")
 	_expect(burbler.outlet_carries_voice(), "volume OUT normalled to the outlet")
@@ -147,6 +149,7 @@ func _run() -> void:
 	_motion(screen, Vector2(5, 5))
 	_mouse(screen, Vector2(5, 5), false)
 	_expect(state.cables.size() == 1 and not burbler.sounding, "unplugged; no longer sounding")
+	_expect(not root.get_node("Goals").holds("machine_configured", {"machine": "mudpit_burbler"}), "unplugged: machine_configured stops holding")
 	_expect(link.to_patch().cables.size() < 2, "unplugging silences the voice")
 	_expect(not state.comb_in_use(0), "verdigris back on the comb")
 

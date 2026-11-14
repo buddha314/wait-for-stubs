@@ -27,6 +27,7 @@ stubby_rack/ui_bus="UI"
 Rules="*res://autoload/rules.gd"
 PlayerInventory="*res://autoload/inventory.gd"
 Calendar="*res://autoload/calendar.gd"
+Goals="*res://autoload/goals.gd"
 
 [display]
 

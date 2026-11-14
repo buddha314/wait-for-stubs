@@ -91,7 +91,7 @@ goals. It hides while a screen has the controls, and it updates on the tracker's
 signals, not every frame. Top centre stays free for the compass bar.
 
 **D6. Validation in `Rules`.** Checked on load, in the existing error format: duplicate
-ids; `scale` missing or unknown; a minor goal without `part_of`, or whose `part_of`
+ids; `scale` missing or unknown; a major goal with no steps; a minor goal without `part_of`, or whose `part_of`
 isn't a major goal; a major goal with `part_of`, `condition` or `requires`; a minor
 goal with both or neither of `condition` and `requires`; an unknown condition kind,
 item, machine, mine or bloom level; an unknown `after` id; a cycle. A goal with errors
