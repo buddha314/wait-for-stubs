@@ -150,6 +150,15 @@ hour angle per simulated hour. That start needs a declination of about 59°, so 
 circumpolar and never sets, which is unrealistic but keeps the opening view. Change
 the two exports for a real path (`add-sky-motion-and-mountains` D3).
 
+**Simulation speed** (`add-time-speed-controls`): `[` `]` `\` step `Calendar.speed`
+through ¼×, ½×, 1×, 2×, 4×, 8×, 16×, 64× (reset 1×; ignored while a screen has the
+controls); the HUD's top-left readout shows "NIGHT 03:12 · 64×". **Only simulation
+time follows it:** the sky, day/night, replenishment and plant growth. The player,
+physics, sway, UI and all audio (master clock, tempo clocks, bug flashes, stream notes)
+never do; `Engine.time_scale` is not used. A world process that should speed up reads
+`Calendar.delta(frame_delta)` (frame capped at 0.1 s × speed, so a hitch can't skip a
+night); scripts that `-s` tests compile reach it as `/root/Calendar`, not by name.
+
 **Horizon:** `MountainRings` builds three seeded ridge rings (480, 590 and 700 m).
 Ring 0's skyline is a waveform made of whole-cycle harmonics plus roughness. Each
 farther ring echoes it: shifted round the circle, a smaller angular amplitude,
@@ -250,7 +259,8 @@ is the lowest. A flowing stream within 3 m waters a scrub oak: mud wakes it to b
 
 **Input actions** live in `project.godot` under `[input]`: `move_*`, `jump`,
 `crouch`, `sprint`, `interact` (E), `release_cursor` (Esc), `inventory` (Tab),
-`build` (Q), `dismantle` (F), `field_recorder` (H), `build_place` (LMB), `build_cancel` (RMB), `item_1`…`item_10`
+`build` (Q), `dismantle` (F), `field_recorder` (H), `time_slower`/`time_faster`/`time_reset`
+(`[`/`]`/`\`), `build_place` (LMB), `build_cancel` (RMB), `item_1`…`item_10`
 (keys 1–0, insert from the rack's Relevant strip). Use action names, not raw
 keycodes.
 
@@ -461,15 +471,18 @@ plays on its sampler.
    `add-air-quality-field` (10 m cells of air quality, 0 polluted to 1 clean, raised
    by living plants. The game opens in polluted air that clears cell by cell as
    plants regrow; one camera-local 3D texture feeds the haze, ground tint, flora
-   glow and the mood blend). **To propose later:** weather recipes, such as a rain
+   glow and the mood blend). **To propose later:** a **compass bar** across the top of
+   the screen, as in Satisfactory, to help navigation (user, 2026-11-13; backlog):
+   bearings and cardinal points that turn with the view, later markers for discovered
+   sites and machines. Mind the top-centre build-mode label and the top-left time
+   readout. Also weather recipes, such as a rain
    song or dance the player builds to call rain or calm a storm (user notes,
    2026-11-13). The form is **sacred sites**: like Satisfactory's resource nodes,
    they're discovered in the world and then configured, with a rack built like the
    mudpit burbler's and tied to the local weather. They need their own world asset.
    The rain grid (master or a site's clock) is decided by play-testing.
 4. **Not started:** `add-acoustic-asset-profiles` (acoustics.json, provenance
-   audit); time-speed controls (Bevy had ¼×–64×; without them, reaching day takes
-   about 9 minutes); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
+   audit); terrain (still a flat plane); tuning Sky3D toward Bevy's bleak
    amber haze.
 5. **Upstream:** report the Godot 4.8 beta abort on a clean headless `--import` with
    any GDExtension (exit 134; it reproduces with godot-cpp's own test extension;
