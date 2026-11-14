@@ -16,15 +16,15 @@
 
 ## 3. Module and rack
 
-- [ ] 3.1 Panel generator (module kit): `Knob_cv_<n>`, `Button_<n>` each with its one light (no separate step lights), `Port_clock`, `Port_reset`, `Port_gate`, `Port_cv`; spiral motif; `assets/modules/snail_sequencer/` with `asset.json` (`buttons` listed) and `engine.json` (`step_sequencer`)
-- [ ] 3.2 `RackState`: optional places; buttons as params (`"place/gate_n"`); path-based completion (D7) with loop protection
-- [ ] 3.3 Rack screen: button picking and toggling; each button's light steady when on, inverted while the playhead passes, from the sequencer's `clock_ticked` at the heard instant (D4)
-- [ ] 3.4 `RackLink`: buttons → engine params; step events to the view
-- [ ] 3.5 `create_burbler.py`: the optional `seq` place (D6); widen the rack frame if needed; regenerate
-- [ ] 3.6 Headless tests: mount from a shell (all steps dark); toggle a button (state and engine); completion through the sequencer; optional place not required; a loop doesn't hang completion
-- [ ] 3.7 Windowed check: patch clock → sequencer → volume, steps 2 and 4 on, hear the backbeat; CV → V/OCT plays a line; screenshot of the panel
+- [x] 3.1 Panel generator (module kit): `Knob_cv_<n>`, `Button_<n>` each with its one light (no separate step lights), `Port_clock`, `Port_reset`, `Port_gate`, `Port_cv`; spiral motif; `assets/modules/snail_sequencer/` with `asset.json` (`buttons` listed) and `engine.json` (`step_sequencer`)
+- [x] 3.2 `RackState`: optional places; buttons as params (`"place/gate_n"`); path-based completion (D7) with loop protection
+- [x] 3.3 Rack screen: button picking and toggling; each button's light steady when on, inverted while the playhead passes, from the sequencer's `clock_ticked` at the heard instant (D4)
+- [x] 3.4 `RackLink`: buttons → engine params; step events to the view
+- [x] 3.5 `create_burbler.py`: the optional `seq` place (D6); widen the rack frame if needed; regenerate
+- [x] 3.6 Headless tests: mount from a shell (all steps dark); toggle a button (state and engine); completion through the sequencer; optional place not required; a loop doesn't hang completion
+- [ ] 3.7 Windowed check: patch clock → sequencer → volume, steps 2 and 4 on, hear the backbeat; CV → V/OCT plays a line; screenshot of the panel (screenshot done: lights and patch correct; listening is the user's check)
 
 ## 4. Wrap-up
 
-- [ ] 4.1 Move the snail-shell entry on the wall of bad ideas to "proposed"; CLAUDE.md (shells, the sequencer, buttons, path-based completion)
-- [ ] 4.2 `openspec validate --strict add-snail-shell-sequencer`
+- [x] 4.1 Move the snail-shell entry on the wall of bad ideas to "proposed"; CLAUDE.md (shells, the sequencer, buttons, path-based completion)
+- [x] 4.2 `openspec validate --strict add-snail-shell-sequencer`

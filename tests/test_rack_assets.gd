@@ -5,10 +5,10 @@ extends SceneTree
 ##   godot --headless --path . -s tests/test_rack_assets.gd
 
 const MODULES := ["burbler_clock", "volume", "square_vco", "sine_vco", "saw_vco",
-		"triangle_vco", "clock_lamp"]
+		"triangle_vco", "clock_lamp", "snail_sequencer"]
 ## Modules shown on a HUD rack: their jacks need a halo for patch guidance.
-const HUD_MODULES := ["burbler_clock", "volume", "square_vco"]
-const SLOT_KINDS := ["clock", "vco", "vcf", "vca"]
+const HUD_MODULES := ["burbler_clock", "volume", "square_vco", "snail_sequencer"]
+const SLOT_KINDS := ["clock", "vco", "vcf", "vca", "seq"]
 const SLOT_HPS := [4, 6, 8, 10, 12, 14, 16]
 
 var _failures: PackedStringArray = []
@@ -43,7 +43,7 @@ func _initialize() -> void:
 func _check_module(id: String) -> void:
 	var profile := AssetProfile.load_json("res://assets/modules/%s/asset.json" % id)
 	var nodes: Array[String] = []
-	for key: String in ["ports", "params", "lights"]:
+	for key: String in ["ports", "params", "lights", "buttons"]:
 		for entry: Dictionary in profile.get(key, []):
 			nodes.append(entry.node)
 	if id in HUD_MODULES:

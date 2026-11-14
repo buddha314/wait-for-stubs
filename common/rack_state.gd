@@ -112,17 +112,38 @@ func remove_cable(cable: Dictionary) -> void:
 		_changed()
 
 
-## Every place filled and every suggested patch made, by any cables.
+## Every required place filled and every suggested patch made, directly or through
+## patched modules (add-snail-shell-sequencer D7): clock GATE → sequencer → volume TRIG
+## counts as GATE → TRIG. Optional places (`optional: true`) needn't be filled.
 func is_complete() -> bool:
 	if configure.is_empty():
 		return false
 	for place: Dictionary in configure.get("places", []):
-		if not mounted.has(place.place):
+		if not place.get("optional", false) and not mounted.has(place.place):
 			return false
 	for suggested: Dictionary in configure.get("cables", []):
-		if not joins(suggested.from, suggested.to):
+		if not feeds(suggested.from, suggested.to):
 			return false
 	return true
+
+
+## True when output jack `from` reaches input jack `to`: by a cable, or by a cable from
+## a module whose inputs are (recursively) fed from `from`. Each place is visited once,
+## so a patch loop can't hang the search.
+func feeds(from: Dictionary, to: Dictionary, visited: Dictionary = {}) -> bool:
+	for cable in cables:
+		if not _same(cable.to, to):
+			continue
+		if _same(cable.from, from):
+			return true
+		var through: String = cable.from.place
+		if visited.has(through) or not mounted.has(through):
+			continue
+		visited[through] = true
+		for port: Dictionary in RackModules.profile(mounted[through]).get("ports", []):
+			if port.get("direction", "") == "in" and feeds(from, {"place": through, "port": port.port}, visited):
+				return true
+	return false
 
 
 func _changed() -> void:

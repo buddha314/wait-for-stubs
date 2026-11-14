@@ -69,12 +69,15 @@ INTERACT = {
     "prompt": "Configure burbler",   # the action; the shared prompt adds "[E]"
     "priority": "when a pickup is also in reach, the nearer target wins"
 }
-RACK_HP = {"clock": 8, "vco": 8, "volume": 4}
-RACK_KIND = {"clock": "clock", "vco": "vco", "volume": "vca"}   # slot label per place
+RACK_HP = {"clock": 8, "vco": 8, "volume": 4, "seq": 8}
+RACK_KIND = {"clock": "clock", "vco": "vco", "volume": "vca", "seq": "seq"}   # slot label per place
+# Places the configuration doesn't require (add-snail-shell-sequencer D6).
+RACK_OPTIONAL = {"seq"}
 # Built into the burbler's rack; the player adds only the VCO (designer, 2026-11-01).
 RACK_FIXED = {"clock": "burbler_clock", "volume": "volume"}
 # What the player can mount in an open place: an inventory item, consumed, becomes a module.
-RACK_ACCEPTS = {"vco": [{"item": "square_wave", "module": "square_vco"}]}
+RACK_ACCEPTS = {"vco": [{"item": "square_wave", "module": "square_vco"}],
+                "seq": [{"item": "snail_shell", "module": "snail_sequencer"}]}
 RACK_WIDTH = sum(RACK_HP.values()) * HP
 RACK_BASE = 0.30  # module base height in the rack
 RACK_AT = (2.35, -0.25, 0.0)
@@ -649,7 +652,8 @@ class Burbler(ModuleKit):
                           "title": "MUDPIT BURBLER", "interact": INTERACT,
                           "places": [{"place": p, "kind": RACK_KIND[p], "hp": hp, "fixed": p in RACK_FIXED,
                                       **({"module": RACK_FIXED[p]} if p in RACK_FIXED else {}),
-                                      **({"accepts": RACK_ACCEPTS[p]} if p in RACK_ACCEPTS else {})}
+                                      **({"accepts": RACK_ACCEPTS[p]} if p in RACK_ACCEPTS else {}),
+                                      **({"optional": True} if p in RACK_OPTIONAL else {})}
                                      for p, hp in RACK_HP.items()],
                           # The voice's output, normalled to the burbler's outlet (the speakers
                           # until streams carry it).

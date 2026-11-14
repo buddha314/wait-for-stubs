@@ -272,6 +272,18 @@ voice comes from the nearest point of it or its streams. Laid streams aren't sav
 is the lowest. A flowing stream within 3 m waters a scrub oak: mud wakes it to budding
 (0.3); silty and clear water (later, with cleaning) reach leafed (0.7) and full bloom.
 
+**Snail sequencer** (`add-snail-shell-sequencer`): high-spired snail shells (four
+whorls; `tools/blender/create_snail_shell.py`) lie at the reed beds' edges
+(`ReedBed.shells`, own seed `<bed_id>/shells`); E collects one empty-handed, and it
+never returns. In the burbler's rack it mounts in the optional `seq` place as the Snail
+sequencer (`assets/modules/snail_sequencer/`, stubby-rack kind `step_sequencer`): a CV
+knob and a lit push button per step, CLOCK/RESET in, GATE/CV out. Buttons are a rack
+control (`buttons` in a module's asset.json; the 0/1 value lives in `RackState.knobs`
+as `"place/gate_n"`). A step change is a `clock_ticked` from the sequencer's module
+with index = step; `RackLink.current_step(place)` gives the heard step. **"Configured"
+is a signal path:** `RackState.feeds(from, to)` accepts a suggested connection made
+through other modules, and optional places (`optional: true`) needn't be filled.
+
 **Modules follow real Eurorack interactions** (user, 2026-11-13): when a rack control's
 behaviour is in doubt, do what the hardware does (e.g. Intellijel Steppy and KORG SQ-1
 for step sequencers: clock in, push a lit button per step, one LED per step shows its
@@ -454,7 +466,8 @@ with its change); the field recorder in hand (H; needed to collect sounds; recor
 meter on the World bus); E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
 regrow in 60 s); Tab inventory (16 boxes of 100); Q lays streams from the burbler
 (F dismantles), which carry its beat as notes and water scrub oaks to budding; the burbler's rack: mount the square VCO, patch with comb or own
-cables, turn the BPM/freq/level knobs. The burbler and the lightning bugs sound from
+cables, turn the BPM/freq/level knobs; collect a snail shell and mount it as a four-step
+sequencer (light steps, patch clock → sequencer → volume, CV → V/OCT). The burbler and the lightning bugs sound from
 the engine (stubby-rack, vendored in `addons/stubby_rack/`), and the plug-in snap
 plays on its sampler.
 
