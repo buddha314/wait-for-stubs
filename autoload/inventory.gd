@@ -133,6 +133,38 @@ func give(item: String, count: int = 1) -> bool:
 	return true
 
 
+## What building `count` of a cost would still need: [{item, quantity}] (empty = affordable).
+func shortfall(cost: Array, count: int = 1) -> Array:
+	var short := []
+	for stack: Dictionary in cost:
+		var need := int(stack.quantity) * count - quantity(stack.item)
+		if need > 0:
+			short.append({"item": stack.item, "quantity": need})
+	return short
+
+
+func can_afford(cost: Array, count: int = 1) -> bool:
+	return shortfall(cost, count).is_empty()
+
+
+## Takes `count` × `cost`, all or nothing. False (taking nothing) if anything is short.
+func spend(cost: Array, count: int = 1) -> bool:
+	if not can_afford(cost, count):
+		return false
+	for stack: Dictionary in cost:
+		take(stack.item, int(stack.quantity) * count)
+	return true
+
+
+## Gives back `count` × `cost` (a dismantle). Returns false if it didn't all fit; what
+## fits is still returned, item by item.
+func refund(cost: Array, count: int = 1) -> bool:
+	var ok := true
+	for stack: Dictionary in cost:
+		ok = give(stack.item, int(stack.quantity) * count) and ok
+	return ok
+
+
 func set_feedback(text: String) -> void:
 	if feedback != text:
 		feedback = text

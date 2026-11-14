@@ -24,6 +24,10 @@ var configure: Dictionary
 var sounding := false
 ## The rack on the audio engine: the patch itself makes the sound.
 var link: RackLink
+## The mouth: where its stream starts (add-stream-building).
+var _port: StreamPort
+## The notes and bar lines it sends down its streams while it sounds.
+var flow := StreamFlow.new()
 
 var _bpm_range: Dictionary
 var _hearing_radius := 30.0
@@ -45,6 +49,45 @@ func _ready() -> void:
 	rack_state.changed.connect(_on_rack_changed)
 	_add_interact_point()
 	_add_link()
+	_add_port()
+	flow.beats_per_bar = int(ProjectSettings.get_setting("audio/master_clock/beats_per_bar", 4))
+	RackServer.clock_ticked.connect(_on_clock_ticked)
+
+
+func _exit_tree() -> void:
+	if RackServer.clock_ticked.is_connected(_on_clock_ticked):
+		RackServer.clock_ticked.disconnect(_on_clock_ticked)
+
+
+## Each tick of its clock while it sounds is a note at the mouth.
+func _on_clock_ticked(module_id: int, sample: int, index: int) -> void:
+	if sounding and module_id == link.get_module_id("clock"):
+		flow.add_tick(sample, index)
+
+
+func _process(_delta: float) -> void:
+	if not sounding:
+		return
+	var heard := RackLink.heard_sample()
+	if heard >= 0.0:
+		flow.advance(heard, RackServer.get_sample_rate() * 60.0 / bpm())
+	_place_voice()
+
+
+## The voice comes from the nearest point of the burbler or its flowing streams (D9).
+func _place_voice() -> void:
+	var camera := get_viewport().get_camera_3d()
+	if camera == null or link == null:
+		return
+	var listener := camera.global_position
+	var mouth := _port.global_position if _port else global_position
+	var best := mouth
+	for stream: LaidStream in get_tree().get_nodes_in_group("laid_stream"):
+		if stream.source() == self:
+			var p := stream.closest_point(listener)
+			if p.distance_squared_to(listener) < best.distance_squared_to(listener):
+				best = p
+	link.emitter.global_position = best
 
 
 ## The starting tempo: master BPM × a seeded whole multiple from tempo.json.
@@ -85,6 +128,8 @@ func _on_rack_changed() -> void:
 	var now := rack_state.is_complete()
 	if now != sounding:
 		sounding = now
+		if not sounding:
+			flow.clear()
 		sounding_changed.emit(sounding)
 
 
@@ -118,3 +163,26 @@ func _add_interact_point() -> void:
 		push_error("MudpitBurbler: model has no %s node" % node_name)
 		anchor = _model
 	anchor.add_child(point)
+
+
+## The burbler's mouth as a stream port: at Outlet_0, 7 cm down (the stream bed's
+## height), flowing along the outlet's +X; its halo is Outlet_0_Halo.
+func _add_port() -> void:
+	var outlet: Node3D = _model.find_child("Outlet_0", true, false)
+	if outlet == null:
+		push_error("MudpitBurbler: model has no Outlet_0")
+		return
+	_port = StreamPort.new()
+	_port.name = "StreamPort"
+	_port.owner_node = self
+	add_child(_port)
+	var x := outlet.global_basis.x
+	var flow := Vector3(x.x, 0.0, x.z).normalized()
+	_port.global_transform = Transform3D(Basis(flow, Vector3.UP, flow.cross(Vector3.UP)),
+			outlet.global_position - Vector3.UP * 0.07)
+	_port.halo = _model.find_child("Outlet_0_Halo", true, false)
+	_port.set_highlighted(false)
+
+
+func stream_port() -> StreamPort:
+	return _port

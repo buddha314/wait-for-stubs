@@ -1,0 +1,4 @@
+{
+  "note": "Game data beside asset.json (which tools/blender/create_stream.py rewrites). add-stream-building D6: the mud follows the burbler clock, one note spacing per clock beat.",
+  "note_spacing_m": 1.0
+}

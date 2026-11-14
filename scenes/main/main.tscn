@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/hud/hud.tscn" id="20_hud"]
 [ext_resource type="PackedScene" path="res://scenes/rack_screen/rack_screen.tscn" id="21_rack"]
 [ext_resource type="PackedScene" path="res://scenes/inventory_screen/inventory_screen.tscn" id="30_inventory"]
+[ext_resource type="Script" path="res://scenes/stream_builder/stream_builder.gd" id="31_builder"]
 [ext_resource type="Shader" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="2_th5th"]
 [ext_resource type="Texture2D" path="res://addons/sky_3d/assets/resources/SNoise.tres" id="3_7smn1"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
@@ -267,3 +268,6 @@ player = NodePath("../Player")
 [node name="RackScreen" parent="." instance=ExtResource("21_rack")]
 
 [node name="InventoryScreen" parent="." instance=ExtResource("30_inventory")]
+
+[node name="StreamBuilder" type="Node3D" parent="."]
+script = ExtResource("31_builder")
