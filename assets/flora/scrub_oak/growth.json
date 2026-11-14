@@ -1,0 +1,11 @@
+{
+  "note": "Bloom levels and what water reaches them (decided 2026-11-13: each growing asset has a few levels, and mud is the lowest). Game data beside asset.json, which tools/blender/create_scrub_oak.py rewrites. Growth values are the profile's preview stages.",
+  "levels": [
+    {"name": "budding", "growth": 0.3, "water": "muddy", "min_clarity": 0.0},
+    {"name": "leafed", "growth": 0.7, "water": "silty", "min_clarity": 0.5},
+    {"name": "full_bloom", "growth": 1.0, "water": "clear", "min_clarity": 1.0}
+  ],
+  "water_reach_m": 3.0,
+  "rise_per_minute": 0.3,
+  "ease_per_minute": 0.05
+}

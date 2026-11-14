@@ -22,10 +22,20 @@ func _ready() -> void:
 	PlayerInventory.changed.connect(_refresh_status)
 	PlayerInventory.refused.connect(_show_full)
 	_build_notice()
+	_build_build_hud()
 	_on_target_changed(null)
 
 
+## Build mode label and the plan's cost under the reticle (add-stream-building).
+var _build_label: Label
+var _cost: HBoxContainer
+var _cost_icon: TextureRect
+var _cost_text: Label
+const COST_WARN := Color(1.0, 0.35, 0.27)
+
+
 func _process(delta: float) -> void:
+	_update_build()
 	if _notice_left > 0.0:
 		_notice_left -= delta
 		_notice.visible = _notice_left > 0.0
@@ -86,3 +96,46 @@ func _show_full(item: String) -> void:
 ## True while the full notice shows (for tests).
 func full_notice_visible() -> bool:
 	return _notice.visible
+
+
+func _build_build_hud() -> void:
+	_build_label = Label.new()
+	_build_label.name = "BuildMode"
+	_build_label.text = "BUILD  ·  stream     [Q] leave   [LMB] anchor / lay   [RMB] drop"
+	_build_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_build_label.position = Vector2(-260, 24)
+	_build_label.visible = false
+	add_child(_build_label)
+	_cost = HBoxContainer.new()
+	_cost.name = "Cost"
+	_cost.set_anchors_preset(Control.PRESET_CENTER)
+	_cost.position = Vector2(-40, 28)
+	_cost.visible = false
+	_cost_icon = TextureRect.new()
+	_cost_icon.custom_minimum_size = Vector2(28, 28)
+	_cost_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_cost_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_cost.add_child(_cost_icon)
+	_cost_text = Label.new()
+	_cost.add_child(_cost_text)
+	add_child(_cost)
+
+
+## The cost readout: icon and need / have, warning colour when short. No hint text.
+func _update_build() -> void:
+	var builder := get_tree().get_first_node_in_group("stream_builder") as StreamBuilder
+	var active := builder != null and builder.active
+	_build_label.visible = active
+	var cost: Dictionary = builder.cost if active else {}
+	_cost.visible = not cost.is_empty()
+	if _cost.visible:
+		_cost_text.text = "%d / %d" % [cost.need, cost.have]
+		_cost_text.add_theme_color_override("font_color", COST_WARN if cost.have < cost.need else Color.WHITE)
+		var icon := PlayerInventory.ICON_PATH % cost.item
+		if ResourceLoader.exists(icon) and (_cost_icon.texture == null or _cost_icon.texture.resource_path != icon):
+			_cost_icon.texture = load(icon)
+
+
+## The cost readout's text and whether it warns (for tests).
+func cost_readout() -> Array:
+	return [_cost.visible, _cost_text.text, _cost_text.get_theme_color("font_color") == COST_WARN]

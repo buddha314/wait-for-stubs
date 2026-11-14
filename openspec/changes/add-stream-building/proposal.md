@@ -34,6 +34,11 @@ and the burbler, once patched (`add-burbler-rack-screen`), has nowhere to send i
   burbler's tempo is a whole multiple of the 1 BPM master (`add-rack-audio-engine`
   D5). Until stubby-rack plays, laid streams lie quiet, and the note and bar logic is
   tested against recorded tick lists.
+- **Streams water plants, and water quality sets how far they bloom** (decided
+  2026-11-13). Every growing asset has a few bloom levels as data (`growth.json`); mud
+  is the lowest water and reaches only the first level. The scrub oak reaches
+  budding on mud, leafed on silty water and full bloom on clear water. A flowing stream
+  within 3 m waters it ("Water the tree").
 - **Water stays muddy.** The clarity stages and flow speed are read from the profile,
   but cleaning and viscosity (stubby-music `add-fluid-quality-and-viscosity`) stay out
   of scope. Only the hooks they need are recorded.
@@ -53,6 +58,8 @@ and the burbler, once patched (`add-burbler-rack-screen`), has nowhere to send i
 - `stream-flow`: what a laid stream does once its source sounds: notes and bar lines
   driven by clock ticks, the staff wave, clarity stages, the stream's acoustic
   profile, and the machine voice heard along the stream.
+- `plant-growth`: bloom levels per growing asset, capped by water clarity (mud lowest),
+  and watering by flowing streams.
 - `buildable-costs`: a rules file listing what can be built and its item cost, with
   all-or-nothing spending and refunds.
 

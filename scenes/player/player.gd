@@ -31,6 +31,11 @@ var controls_enabled := true:
 		controls_enabled = value
 		_fresh_press = false
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if value else Input.MOUSE_MODE_VISIBLE
+## True while stream build mode is on: E picks up and opens nothing (add-stream-building).
+var building := false:
+	set(value):
+		building = value
+		_fresh_press = false
 ## True from an E press until it acts on something or shows the hint once.
 var _fresh_press := false
 
@@ -95,7 +100,7 @@ func _physics_process(delta: float) -> void:
 		target.interact()
 	elif target:
 		pass  # a machine already acted on this press
-	elif _fresh_press:
+	elif _fresh_press and not building:
 		_fresh_press = false
 		PlayerInventory.set_feedback("Move within 3 m of an available resource to collect.")
 
@@ -104,7 +109,7 @@ func _choose_target() -> void:
 	var eye := _head.global_position
 	var best: Interactable = null
 	var best_distance := REACH * REACH
-	for area in _reach.get_overlapping_areas():
+	for area in ([] if building else _reach.get_overlapping_areas()):
 		var candidate := area as Interactable
 		if candidate == null or candidate.interact_action().is_empty():
 			continue

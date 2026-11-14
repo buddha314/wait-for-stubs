@@ -123,6 +123,17 @@ static func heard_master_beats() -> float:
 	return maxf(0.0, float(pos.beats) - behind * float(pos.bpm) / (60.0 * rate))
 
 
+## The master sample being heard now (the engine's position less what's still in the
+## output buffers), or -1 before audio starts.
+static func heard_sample() -> float:
+	var sample: int = RackServer.now_sample()
+	var heard_at: int = RackServer.sample_to_ticks_usec(sample)
+	if heard_at < 0:
+		return -1.0
+	var behind := float(heard_at - Time.get_ticks_usec()) * RackServer.get_sample_rate() / 1e6
+	return maxf(0.0, float(sample) - behind)
+
+
 ## The wall-clock delay (seconds) until master sample `sample` is heard (0 if past).
 static func seconds_until_heard(sample: int) -> float:
 	var at: int = RackServer.sample_to_ticks_usec(sample)

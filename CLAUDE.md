@@ -80,13 +80,17 @@ addons/stubby_rack/     the audio engine, vendored by tools/sync_stubby_rack.sh;
 addons/gloot/           GLoot v3.0.2 (peter-kish, MIT): inventory boxes and grid UI; don't edit
 autoload/               Rules (assets/recipes JSON), PlayerInventory (GLoot boxes), Calendar
 common/                 classes with no scene: WorldSeed, AssetProfile,
-                        Interactable (E target), ResourceNode (finite pickup)
+                        Interactable (E target), ResourceNode (finite pickup),
+                        RackLink, StreamPort, GrowthLevels
 scenes/<feature>/       a scene, its script and its feature-only resources together
   main/                 the opening: Sky3D, ground, and instances below
   player/               first-person CharacterBody3D (stubby-music's speeds/keys)
                         + Head/Reach area that picks the E target
   hud/                  reticle, "[E] Collect ..." prompt, status/inventory lines
   inventory_screen/     Tab: the 16 boxes (GLoot CtrlInventoryGrid), name/description
+  stream/               StreamPath (Bezier in Curve3D), StreamBender (CPU bend keeping
+                        blend shapes), LaidStream, StreamFlow (notes from clock ticks)
+  stream_builder/       Q build mode: ports, hologram, laying, F dismantle
   rack_screen/          the common rack screen: window + RackView (3D rack in an
                         own-world SubViewport), mounting, cables, knobs
   reed_bed/             @tool; deterministic scatter of reed clumps in a disc
@@ -199,8 +203,24 @@ are a GLoot `Inventory` (`PlayerInventory.boxes`) whose prototypes are built fro
 `items.json` at start, so `Rules` still owns item data. Tab opens the screen; item
 counts are no longer in the text HUD.
 
+**Streams** (`add-stream-building`): Q enters build mode (E does nothing meanwhile).
+The free port nearest the aim point within 3 m (the burbler's mouth at `Outlet_0`, or
+a laid stream's end) shows its halo; left click anchors, the hologram curves to the
+aim in whole 4 m segments (valid/invalid tint, cost `need / have` under the reticle),
+left click lays it (6 reeds a segment from `buildables.json`, all or nothing) and
+re-anchors at the end, right click drops the anchor. F dismantles the aimed segment
+and refunds it. While its burbler sounds, a stream carries one note per clock tick
+(`StreamFlow`, integrated from the heard clock) and bar lines every 4. The burbler's
+voice comes from the nearest point of it or its streams. Laid streams aren't saved yet.
+
+**Growth** (decided 2026-11-13): every growing asset has a few bloom levels in a
+`growth.json` beside its profile (`GrowthLevels`); water quality caps the level, and mud
+is the lowest. A flowing stream within 3 m waters a scrub oak: mud wakes it to budding
+(0.3); silty and clear water (later, with cleaning) reach leafed (0.7) and full bloom.
+
 **Input actions** live in `project.godot` under `[input]`: `move_*`, `jump`,
-`crouch`, `sprint`, `interact` (E), `release_cursor` (Esc), `inventory` (Tab), `item_1`…`item_10`
+`crouch`, `sprint`, `interact` (E), `release_cursor` (Esc), `inventory` (Tab),
+`build` (Q), `dismantle` (F), `build_place` (LMB), `build_cancel` (RMB), `item_1`…`item_10`
 (keys 1–0, insert from the rack's Relevant strip). Use action names, not raw
 keycodes.
 
@@ -370,7 +390,8 @@ player can do next; VR, multiplayer and the module library wait their turn.
 
 **Playable now:** night opening (Sky3D, moon in view at spawn, day after ~7.5 min);
 walking; E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
-regrow in 60 s); Tab inventory (16 boxes of 100); the burbler's rack: mount the square VCO, patch with comb or own
+regrow in 60 s); Tab inventory (16 boxes of 100); Q lays streams from the burbler
+(F dismantles), which carry its beat as notes and water scrub oaks to budding; the burbler's rack: mount the square VCO, patch with comb or own
 cables, turn the BPM/freq/level knobs. The burbler and the lightning bugs sound from
 the engine (stubby-rack, vendored in `addons/stubby_rack/`), and the plug-in snap
 plays on its sampler.
@@ -394,8 +415,9 @@ plays on its sampler.
    `RackPatch`, `RackModuleDefinition`, the sampler. **Vendored** into
    `addons/stubby_rack/` by `tools/sync_stubby_rack.sh` (pinned in its `VERSION`;
    rerun the script after stubby-rack changes). The bugs and the burbler run on it
-   (9.1, 9.2). Inventory screen done (`add-inventory-screen`). Next for playability:
-   streams from the burbler to the trees (`add-stream-building`).
+   (9.1, 9.2). Inventory screen done (`add-inventory-screen`). Streams done
+   (`add-stream-building`, open: clarity materials 5.6, acoustics 6.x, the water's own
+   sound 7.3, reed growth levels 8.3, the goal hook 8.4).
 2. **Archived (2026-11-13), specs in `openspec/specs/`:** `add-burbler-rack-screen`,
    `add-scrub-oak`, `add-sky-motion-and-mountains`, `migrate-off-stubby-music`.
    **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,
