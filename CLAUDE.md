@@ -327,21 +327,31 @@ Until each has a proposal, keep new work from closing them off:
 - Frame budget: 72–90 Hz in stereo, and the Mobile renderer for standalone headsets.
   Sky3D, haze and LOD ranges will need a VR profile.
 
-**Multiplayer** (Godot high-level multiplayer: `MultiplayerSpawner` and
-`MultiplayerSynchronizer` over ENet or WebRTC):
+**Multiplayer: use existing tools, don't write our own networking (user, 2026-11-13).**
+Candidates to evaluate in the proposal, licences checked then:
+- Godot's built-in high-level multiplayer (`MultiplayerAPI`, `MultiplayerSpawner`,
+  `MultiplayerSynchronizer`, RPCs) over ENet or WebRTC, as the base layer.
+- **netfox** (foxssake, MIT, Godot 4): its `NetworkTime` already keeps a synchronised
+  network clock across peers, which is what the master clock needs to align to, plus
+  rollback and interpolation if needed.
+- A transport/lobby service where needed: GodotSteam (MIT) for Steam networking and
+  lobbies, or W4 Cloud / Nakama for hosted lobbies.
+
+What the game itself must still decide (design, not new networking code):
 - Audio is rendered on each client. Replicate patch state (rack edits, knob values,
-  cables as `RackPatch`/`RackState` commands), never audio. The engine is seeded and
-  sample-exact, so the same patch on the same clock sounds the same everywhere.
-- One master clock for the session: the server owns the transport, and clients
-  align their sample counters to server time. Schedule shared events by musical
-  position (`WHEN_NEXT_BEAT`/`BAR`) rather than by local sample, which tolerates each
-  client's latency.
+  cables as `RackPatch`/`RackState` changes) through the chosen tool, never audio.
+  The engine is seeded and sample-exact, so the same patch on the same clock sounds
+  the same everywhere.
+- The master clock follows the session's network time (from the tool, e.g. netfox
+  `NetworkTime`). Shared events are scheduled by musical position
+  (`WHEN_NEXT_BEAT`/`BAR`) rather than local sample, which tolerates each client's
+  latency.
 - The world is seeded (`WorldSeed`): replicate the seed plus changes (harvests,
   builds). `Calendar` and weather are server-authoritative.
 - Pause is per-player UI, not a world pause (the engine already mutes without
   stopping the clock).
-- Seeded random clocks (lightning bugs) count local samples from when they were
-  built; for agreement they'll need a master-referenced start.
+- Uncollected bugs stay on their own random clocks, but those count local samples from
+  when they were built: peers need the same seed and a network-time start to agree.
 
 ## Status and next steps (2026-11-13)
 
