@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/hand/hand.gd" id="1_hand"]
+[ext_resource type="Script" path="res://scenes/hand/hand_item.gd" id="2_item"]
+[ext_resource type="PackedScene" path="res://assets/equipment/field_recorder/field_recorder.tscn" id="3_recorder"]
+
+[node name="Hand" type="Node3D"]
+script = ExtResource("1_hand")
+
+[node name="FieldRecorderItem" type="Node3D" parent="."]
+transform = Transform3D(0.906173, -0.331767, 0.262263, 0.0915609, 0.759342, 0.644218, -0.412877, -0.55976, 0.718472, 0.17, -0.165, -0.42)
+script = ExtResource("2_item")
+item_id = &"field_recorder"
+action = &"field_recorder"
+
+[node name="FieldRecorder" parent="FieldRecorderItem" instance=ExtResource("3_recorder")]

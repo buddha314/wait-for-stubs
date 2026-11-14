@@ -72,6 +72,16 @@ func item_ids() -> Array[String]:
 	return ids
 
 
+## True if a harvest of this resource yields a sound: an item with a `waveform`
+## (a lightning bug's square wave) or a `sample` (an authored sound file).
+func yields_sound(id: String) -> bool:
+	for stack: Dictionary in resource_yields(id):
+		var item: Dictionary = _items.get(stack.get("item", ""), {})
+		if item.has("waveform") or item.has("sample"):
+			return true
+	return false
+
+
 func resource_name(id: String) -> String:
 	return _resources.get(id, {}).get("name", id)
 

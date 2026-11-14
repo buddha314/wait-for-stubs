@@ -114,8 +114,8 @@ time or schedule any sound.
 - **THEN** the bars rise with the click and fall back after it
 
 #### Scenario: Full scale
-- **WHEN** the audio reaching the listener peaks at −3 dBFS
-- **THEN** the bottom seven bars are lit and the top bar is dark
+- **WHEN** the audio reaching the listener peaks at −9 dBFS
+- **THEN** the bottom seven bars are lit and the top bar is dark (bar n lights at −48 + 6·n dBFS, so the top bar lights from −6 dBFS)
 
 ### Requirement: Recorder sounds go through the audio engine
 Every sound the recorder makes SHALL play through the audio engine's sampler on the

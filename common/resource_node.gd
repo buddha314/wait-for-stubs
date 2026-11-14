@@ -6,6 +6,9 @@ extends Interactable
 
 signal collected_changed(collected: bool)
 
+## The hand item that collects sounds, and the action that brings it up.
+const RECORDER := &"field_recorder"
+
 ## Row id in resources.json, e.g. "lightning_bug", "reed_clump".
 @export var resource_id: String
 ## Stable instance identity, unique in the world.
@@ -32,11 +35,22 @@ func interact_action() -> String:
 
 
 func interact() -> void:
-	if collected or not PlayerInventory.harvest(resource_id):
+	if collected:
+		return
+	# Sounds are collected with the field recorder in hand (add-field-recorder).
+	if Rules.yields_sound(resource_id) and not Hand.holds(get_tree(), RECORDER):
+		PlayerInventory.set_feedback(recorder_tip())
+		return
+	if not PlayerInventory.harvest(resource_id):
 		return
 	_harvested_at_seconds = Calendar.elapsed
 	_harvested_at_night = Calendar.nights_started()
 	collected = true
+
+
+## The tip shown when E is pressed on a sound without the recorder in hand.
+static func recorder_tip() -> String:
+	return "Hold the field recorder to collect sounds · [%s]" % Hand.key_label(RECORDER)
 
 
 ## 0 when just harvested, 1 when it returns; 0 for policies without a duration.

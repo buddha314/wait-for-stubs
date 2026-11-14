@@ -60,6 +60,7 @@ func _build_rack(clock: Dictionary, click: Dictionary) -> void:
 	_voice.module = "vca"
 	_voice.max_distance = click.get("hearing_radius_metres", 3.0)
 	_voice.unit_size = 1.0
+	_voice.bus = AudioBuses.WORLD
 	_voice.volume_db = linear_to_db(float(click.get("gain", 0.12)) / STEM_PEAK)
 	rack.add_child(_voice)
 	_body.add_child(rack)

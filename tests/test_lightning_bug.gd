@@ -14,6 +14,8 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	# Sounds are collected with the field recorder in hand (add-field-recorder).
+	root.add_child((load("res://scenes/hand/hand.tscn") as PackedScene).instantiate())
 	var a := _bug("lightning_bug-test")
 	var b := _bug("lightning_bug-test")
 	var c := _bug("lightning_bug-other")

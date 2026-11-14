@@ -32,6 +32,7 @@ func setup(rack_state: RackState, seed_id: String, at: Vector3, hearing_radius: 
 	emitter.output = normalled.get("port", "out")
 	emitter.max_distance = hearing_radius
 	emitter.unit_size = 6.0
+	emitter.bus = AudioBuses.WORLD
 	emitter.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
 	# The engine's audio is ±5 V and a stem's full scale is ±10 V: +6 dB keeps a full
 	# GAIN at full scale, as the pre-rendered voice was.

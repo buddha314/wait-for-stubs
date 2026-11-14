@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://assets/equipment/field_recorder/field_recorder.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://c48ijdaywyh8f" path="res://assets/equipment/field_recorder/field_recorder.glb" id="2_model"]
+
+[node name="FieldRecorder" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]

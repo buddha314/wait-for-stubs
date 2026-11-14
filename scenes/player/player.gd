@@ -8,6 +8,8 @@ extends CharacterBody3D
 
 ## Emitted when what E would act on changes (null: nothing in reach).
 signal target_changed(target: Interactable)
+## Emitted on a physics tick in which E collected a pickup (not a machine).
+signal pickup_collected
 
 const WALK_SPEED := 4.0
 const SPRINT_SPEED := 8.0
@@ -36,6 +38,8 @@ var building := false:
 	set(value):
 		building = value
 		_fresh_press = false
+## True if E collected a pickup on this physics tick (pickups only, not machines).
+var collected_this_tick := false
 ## True from an E press until it acts on something or shows the hint once.
 var _fresh_press := false
 
@@ -91,13 +95,19 @@ func _physics_process(delta: float) -> void:
 		velocity.y -= GRAVITY * delta
 	move_and_slide()
 	_choose_target()
+	collected_this_tick = false
 	if not controls_enabled:
 		return
 	if not Input.is_action_pressed("interact"):
 		_fresh_press = false
 	elif target and (target.hold_repeats or _fresh_press):
 		_fresh_press = false
+		var pickup := target as ResourceNode
+		var was_collected := pickup != null and pickup.collected
 		target.interact()
+		if pickup and not was_collected and pickup.collected:
+			collected_this_tick = true
+			pickup_collected.emit()
 	elif target:
 		pass  # a machine already acted on this press
 	elif _fresh_press and not building:

@@ -1,0 +1,12 @@
+{
+  "asset": "field_recorder",
+  "format": 0,
+  "role": "none",
+  "listening_point": true,
+  "emission": [],
+  "transmission": [],
+  "reflection": [],
+  "absorption": [],
+  "resonance": [],
+  "note": "Held equipment: the player's listening point. It neither emits, transmits, reflects, absorbs nor resonates world sound, so it has no acoustic role in the world. Any sound it makes later plays through the audio engine's sampler on the UI stem, with a provenance record. Minimal placeholder until add-acoustic-asset-profiles (task 1.1) defines the schema; that task upgrades this file. Lives beside asset.json, never inside it."
+}
