@@ -53,6 +53,22 @@
       ],
       "rigid_body": "none (static)"
     },
+    "modules/snail_sequencer/snail_sequencer.glb": {
+      "colliders": [
+        {
+          "shape": "Cuboid",
+          "x_length": 0.406,
+          "y_length": 1.285,
+          "z_length": 0.398,
+          "translation": [
+            0.0,
+            0.642,
+            0.049
+          ]
+        }
+      ],
+      "rigid_body": "none (static)"
+    },
     "modules/square_vco/square_vco.glb": {
       "colliders": [
         {

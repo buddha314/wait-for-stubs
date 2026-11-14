@@ -1,0 +1,4 @@
+{
+  "kind": "step_sequencer",
+  "note": "stubby-rack registry kind (add-snail-shell-sequencer): params cv_n and gate_n share the engine names; steps stays at its default, 4"
+}

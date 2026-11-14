@@ -83,6 +83,8 @@ func open_rack(point: MachineInteract) -> void:
 	_title.text = machine.configure.get("title", "MACHINE")
 	_view.bpm_source = machine.bpm
 	_view.phase_source = machine.beat_phase if machine.has_method("beat_phase") else Callable()
+	var link: Variant = machine.get("link")
+	_view.step_source = link.current_step if link != null and link.has_method("current_step") else Callable()
 	_view.build(state, machine.configure, machine.knob_overrides())
 	if not state.changed.is_connected(_on_state_changed):
 		state.changed.connect(_on_state_changed)
@@ -380,6 +382,10 @@ func _press(pixel: Vector2) -> void:
 	var held := _view.held
 	if not held.is_empty():
 		return  # carried cable: the release decides
+	var button := _view.button_at(pixel)
+	if not button.is_empty():
+		toggle_button(button.place, button.param)
+		return
 	var knob := _view.knob_at(pixel)
 	if not knob.is_empty():
 		var spec := _view.knob_param(knob.place, knob.param)
@@ -501,6 +507,13 @@ func _play_snap() -> void:
 
 
 # ------------------------------------------------------------------ knobs
+
+
+## Pushes a step button: its 0/1 value flips, held in the rack state like a knob's
+## (add-snail-shell-sequencer D5).
+func toggle_button(place: String, param_name: String) -> void:
+	var key := "%s/%s" % [place, param_name]
+	_state().set_knob(key, 0.0 if _state().knob(key, 0.0) >= 0.5 else 1.0)
 
 
 func turn_knob(place: String, param_name: String, turn: float) -> void:

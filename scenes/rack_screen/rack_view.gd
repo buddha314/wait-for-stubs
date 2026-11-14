@@ -19,6 +19,8 @@ const CAMERA_Z := 4.0
 const HAND_Z := 0.5
 ## Jack and knob pick radii in metres (the snap radius is in pixels, on the screen).
 const KNOB_RADIUS := 0.09
+## A step button's pick radius, metres (add-snail-shell-sequencer).
+const BUTTON_RADIUS := 0.06
 ## A ghost cable: the build-ghost colour, translucent (stubby-music rack.rs).
 const GHOST_COLOR := Color(1.0, 0.83, 0.6, 0.22)
 ## Halo pulse: strength 0 → 2 over 1.2 s.
@@ -38,6 +40,8 @@ var held: Dictionary = {}
 var bpm_source: Callable
 ## Returns the heard beat phase (0..1) of the machine's voice, or −1 when silent.
 var phase_source: Callable
+## (place) -> the step sequencer's heard step there (0-based), or -1.
+var step_source: Callable
 
 var _frame: Dictionary
 var _camera: Camera3D
@@ -376,9 +380,19 @@ func _update_lamps() -> void:
 			var level := 0.0
 			if bpm > 0.0 and glow.light in ["lamp", "gate"]:
 				level = _placeholder_envelope(bpm, phase)
+			elif String(glow.light).begins_with("step_"):
+				level = step_light(place, int(String(glow.light).trim_prefix("step_")))
 			var strength: float = lerpf(glow.rest, glow.peak, level)
 			(glow.material as StandardMaterial3D).emission_energy_multiplier = \
 					glow.base * strength / maxf(glow.peak, 0.0001)
+
+
+## A step button's light, as on Steppy and the SQ-1: steady when the step is on, and
+## inverted while the playhead is on it (a lit step blinks dark, an unlit one on).
+func step_light(place: String, step: int) -> float:
+	var on := state.knob("%s/gate_%d" % [place, step], 0.0) >= 0.5
+	var here := step_source.is_valid() and int(step_source.call(place)) == step - 1
+	return 1.0 if on != here else 0.0
 
 
 ## 0..1 flash envelope (15 ms attack, 250 ms decay) on the beat: from the engine's
@@ -452,10 +466,11 @@ func _draw_cables() -> void:
 		_comb_points[n] = _tube(pa, pb, c, radius, _cable_material(color), _cables)
 
 
-## A suggested patch not yet made whose two modules are both mounted.
+## A suggested patch not yet made (directly or through other modules) whose two
+## modules are both mounted.
 func _patch_ready(suggested: Dictionary) -> bool:
 	return state.mounted.has(suggested.from.place) and state.mounted.has(suggested.to.place) \
-			and not state.joins(suggested.from, suggested.to)
+			and not state.feeds(suggested.from, suggested.to)
 
 
 ## A plug at `where` (its sleeve along −Y, into the jack), tinted. Returns the
@@ -603,6 +618,20 @@ func knob_at(pixel: Vector2) -> Dictionary:
 			var node := model.find_child(p.node, true, false) as Node3D
 			if node and to_screen(node.global_position).distance_to(pixel) <= radius:
 				return {"place": entry.place, "param": p.param}
+	return {}
+
+
+## The step button under `pixel`: {place, param}, or {}.
+func button_at(pixel: Vector2) -> Dictionary:
+	var radius := BUTTON_RADIUS * pixels_per_metre()
+	for entry in _places:
+		var model: Node3D = entry.module
+		if model == null:
+			continue
+		for b: Dictionary in RackModules.profile(model.get_meta("module_id")).get("buttons", []):
+			var node := model.find_child(b.node, true, false) as Node3D
+			if node and to_screen(node.global_position).distance_to(pixel) <= radius:
+				return {"place": entry.place, "param": b.param}
 	return {}
 
 

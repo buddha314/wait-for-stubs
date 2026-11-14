@@ -101,8 +101,8 @@ sheltered surface: a desert-native honeycomb, made of the mudflat itself.
 - **Playhead:** the wasp.
 - **Where it lives:** under the oak's shelter or on the burbler, once there's shade.
 
-**Proposed:** the first one, a four-whorl high-spired snail shell as a four-step
-sequencer, is now `openspec/changes/add-snail-shell-sequencer/`.
+**Built (2026-11-14):** the first one, a four-whorl high-spired snail shell as a
+four-step sequencer (`openspec/changes/add-snail-shell-sequencer/`).
 
 **Seashells, plugged into a rack (user, 2026-11-13).** Shells are segmented, and the
 segments come in counts that suit a sequencer: 4, 8 or 16.

@@ -14,7 +14,8 @@ with every step off.
 ### Requirement: Stepping on the clock
 The sequencer SHALL advance one step on each rising edge at CLOCK, from step 1 to step
 4 and back to 1. A rising edge at RESET SHALL make the next clock edge play step 1. The
-step SHALL change on the sample of the clock edge, so it stays on the master grid.
+step SHALL change on the sample the clock edge reaches it (one sample after the edge,
+the cable delay), so it stays on the master grid.
 
 #### Scenario: Four beats
 - **WHEN** a clock is patched into CLOCK and ticks four times

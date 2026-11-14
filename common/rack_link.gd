@@ -18,6 +18,10 @@ var _seed_id := ""
 var _kinds: Dictionary[String, String] = {}  # place -> module id it was built for
 var _cables: Dictionary[String, Dictionary] = {}  # "to.place/to.port" -> cable
 var _sent: Dictionary[String, float] = {}  # "place/param" -> value sent
+## Step sequencers: place -> [[heard usec, step], ...] still to be heard, and the step
+## heard last (add-snail-shell-sequencer D4).
+var _steps_pending: Dictionary[String, Array] = {}
+var _step_heard: Dictionary[String, int] = {}
 
 
 ## Links `rack_state`; the voice plays from `at` (global position). `seed_id` seeds
@@ -40,7 +44,34 @@ func setup(rack_state: RackState, seed_id: String, at: Vector3, hearing_radius: 
 	add_child(emitter)
 	emitter.global_position = at
 	state.changed.connect(sync)
+	RackServer.clock_ticked.connect(_on_clock_ticked)
 	sync()
+
+
+func _exit_tree() -> void:
+	if RackServer.clock_ticked.is_connected(_on_clock_ticked):
+		RackServer.clock_ticked.disconnect(_on_clock_ticked)
+
+
+## A step sequencer's advance is a tick whose index is the step: keep it until heard.
+func _on_clock_ticked(module_id: int, sample: int, index: int) -> void:
+	for place: String in _kinds:
+		if AssetProfile.load_json(ENGINE_PATH % _kinds[place]).get("kind", "") != "step_sequencer":
+			continue
+		if get_module_id(place) == module_id:
+			var at: int = RackServer.sample_to_ticks_usec(sample)
+			_steps_pending.get_or_add(place, []).append([at if at >= 0 else Time.get_ticks_usec(), index])
+			return
+
+
+## The step (0-based) of the sequencer at `place` being heard now, or -1 before its
+## first step is heard.
+func current_step(place: String) -> int:
+	var pending: Array = _steps_pending.get(place, [])
+	var now := Time.get_ticks_usec()
+	while not pending.is_empty() and int(pending[0][0]) <= now:
+		_step_heard[place] = int(pending.pop_front()[1])
+	return _step_heard.get(place, -1)
 
 
 ## Brings the engine in line with the RackState.
@@ -48,6 +79,8 @@ func sync() -> void:
 	# Modules: remove what's gone or changed, then add what's new.
 	for place: String in _kinds.keys():
 		if state.mounted.get(place, "") != _kinds[place]:
+			_steps_pending.erase(place)
+			_step_heard.erase(place)
 			_drop_cables_on(place)
 			remove_module(place)
 			_kinds.erase(place)

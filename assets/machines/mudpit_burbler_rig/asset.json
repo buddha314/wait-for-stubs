@@ -55,6 +55,19 @@
         "hp": 4,
         "fixed": true,
         "module": "volume"
+      },
+      {
+        "place": "seq",
+        "kind": "seq",
+        "hp": 8,
+        "fixed": false,
+        "accepts": [
+          {
+            "item": "snail_shell",
+            "module": "snail_sequencer"
+          }
+        ],
+        "optional": true
       }
     ],
     "normalled_output": {
@@ -154,6 +167,7 @@
     "Mote_7",
     "Rack",
     "Slot_clock",
+    "Slot_seq",
     "Slot_vco",
     "Slot_volume",
     "Wisp_0",
