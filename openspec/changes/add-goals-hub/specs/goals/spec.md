@@ -11,8 +11,8 @@ its minor goals, in file order, are its steps. Any goal MAY list goals it comes 
 - **THEN** every goal loads with no errors, and each minor goal belongs to a major goal
 
 #### Scenario: Steps in order
-- **WHEN** a major goal has the minor goals "Build a heartbeat" then "Water the tree" in the file
-- **THEN** "Build a heartbeat" is its first step and "Water the tree" its second
+- **WHEN** a major goal has the minor goals A then B in the file
+- **THEN** A is its first step and B its second
 
 ### Requirement: Goals are checked on load
 Loading SHALL reject, naming the goal and the field: a duplicate id, a missing or
@@ -60,17 +60,17 @@ conditions SHALL be: a machine of the named kind is fully patched and sounds; a
 flowing stream waters a tree of the named kind; a tree of the named kind is at the
 named bloom level or above; the inventory holds at least the named quantity of an item.
 
-#### Scenario: Build a heartbeat
-- **WHEN** "Build a heartbeat" is active and the player patches the burbler's last cable so it sounds
-- **THEN** the goal completes and the next step becomes active
+#### Scenario: A machine sounds
+- **WHEN** the active step needs the burbler configured and the player patches its last cable so it sounds
+- **THEN** the step completes and the next step becomes active
 
 #### Scenario: Unpatching later
-- **WHEN** the player unplugs a cable from the burbler after "Build a heartbeat" completed
-- **THEN** the goal stays complete
+- **WHEN** the player unplugs a cable from the burbler after that step completed
+- **THEN** the step stays complete
 
-#### Scenario: Water the tree
-- **WHEN** "Water the tree" is active and a stream from the sounding burbler reaches within watering range of a scrub oak
-- **THEN** the goal completes
+#### Scenario: A tree is watered
+- **WHEN** the active step needs a scrub oak watered and a stream from the sounding burbler reaches within watering range of one
+- **THEN** the step completes
 
 #### Scenario: Holding items
 - **WHEN** a step needs 12 reeds held, and the player already holds 12 when it becomes active
@@ -96,8 +96,8 @@ screen has the player's controls, and SHALL leave the top centre of the screen f
 - **THEN** the bar shows the first major goal at 0 of its steps, and its first step's name and description
 
 #### Scenario: A step completes
-- **WHEN** "Build a heartbeat" completes as step 2 of 5
-- **THEN** the bar shows "GOAL COMPLETE · Build a heartbeat" for about 4 seconds, then the major goal at 2 of 5 and the next step
+- **WHEN** a step named S completes as step 2 of 5
+- **THEN** the bar shows "GOAL COMPLETE · S" for about 4 seconds, then the major goal at 2 of 5 and the next step
 
 #### Scenario: Rack screen open
 - **WHEN** the burbler's rack screen is open
