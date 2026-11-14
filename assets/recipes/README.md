@@ -13,11 +13,11 @@ go through OpenSpec. See AGENTS.md, "Rules are data; the schema is code", and
 | `mines.json` | Infinite sources and the resource they produce: `scrub_oak`, `mudpit_burbler` |
 | `recipes.json` | Inputs → outputs. Empty: no production recipe is designed yet |
 | `buildables.json` | What the player builds in the world and its item cost per one built: `stream_segment` (6 `reed`) |
-| `goals.json` | What the hub tells the player to do next. Chores are met by a `condition` (e.g. `machine_configured`), other goals by `requires` (items delivered). Kept in the order the hub offers them |
+| `goals.json` | What the goal bar tells the player to do next: major goals made of minor goals (steps), each step met by a `condition` (e.g. `machine_configured`). Kept in the order the bar offers them. Writing guide: `docs/design/goals.md` |
 | `start.json` | The starter inventory a new player gets: 10 patch cables |
 | `migrations.json` | Every renamed or removed ID, so saves survive the change |
 | `ids.lock` | Every ID ever shipped (maintained by the formatter; never delete lines) |
-| `schema/` | JSON Schemas generated from the Rust types (do not edit) |
+| `schema/` | JSON Schemas for editors. They were generated from stubby-music's Rust types; that generator is archived, so edit them by hand with the matching check in `autoload/rules.gd` |
 
 ## Changing the rules
 

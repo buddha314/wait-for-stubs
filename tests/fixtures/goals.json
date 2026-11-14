@@ -1,0 +1,15 @@
+{
+  "note": "Test goals for tests/test_goals.gd. Never the shipped goals: goal content iterates (add-goals-hub D9). Covers every condition kind, two major goals, and a step that comes after another major goal.",
+  "goals": [
+    {"id": "fixture_major_a", "name": "Major A", "description": "First arc.", "scale": "major"},
+    {"id": "fixture_hold", "name": "Hold reeds", "description": "Hold two reeds.", "scale": "minor", "part_of": "fixture_major_a",
+     "condition": {"kind": "item_held", "item": "reed", "quantity": 2}},
+    {"id": "fixture_machine", "name": "Configure", "description": "Make the burbler sound.", "scale": "minor", "part_of": "fixture_major_a",
+     "condition": {"kind": "machine_configured", "machine": "mudpit_burbler"}},
+    {"id": "fixture_grow", "name": "Grow", "description": "An oak buds.", "scale": "minor", "part_of": "fixture_major_a",
+     "condition": {"kind": "tree_grown", "mine": "scrub_oak", "level": "budding"}},
+    {"id": "fixture_major_b", "name": "Major B", "description": "Second arc.", "scale": "major"},
+    {"id": "fixture_water", "name": "Water", "description": "Water an oak.", "scale": "minor", "part_of": "fixture_major_b",
+     "condition": {"kind": "tree_watered", "mine": "scrub_oak"}}
+  ]
+}

@@ -36,9 +36,14 @@ const SWAY_RATE := 0.25
 		growth = clampf(value, 0.0, 1.0)
 		if is_node_ready():
 			_apply_growth()
+			_report_growth()
+
+## This tree's id in mines.json, for goal conditions.
+const MINE_ID := "scrub_oak"
 
 var _model: Node3D
 var _profile: Dictionary
+var _reported_level := ""
 var _limbs: Array[Node3D] = []
 var _limb_rest: Array[Basis] = []
 var _sway_max := 0.0
@@ -61,6 +66,7 @@ func _ready() -> void:
 	_profile = AssetProfile.load_json(PROFILE_PATH)
 	levels = GrowthLevels.load_for(GROWTH_PATH)
 	_build()
+	_report_growth()
 
 
 func _process(delta: float) -> void:
@@ -232,9 +238,32 @@ func _water(delta: float, grow_seconds: float = -1.0) -> void:
 		if now != watered:
 			watered = now
 			watered_changed.emit(watered)
+			_report_goal("tree_watered", {"mine": MINE_ID}, watered)
 	var next := levels.step(growth, water_clarity, delta if grow_seconds < 0.0 else grow_seconds)
 	if not is_equal_approx(next, growth):
 		growth = next
+
+
+## Tells the goal tracker about a condition (add-goals-hub D4). By path: naming the
+## Goals autoload would stop `-s` tests that type ScrubOak compiling.
+func _report_goal(kind: String, args: Dictionary, holds: bool) -> void:
+	var goals := get_node_or_null(^"/root/Goals") if not Engine.is_editor_hint() else null
+	if goals:
+		goals.report(kind, args, instance_id, holds)
+
+
+## Reports `tree_grown` for each bloom level: held at or below the reached one.
+func _report_growth() -> void:
+	if levels == null:
+		return
+	var reached := bloom_level()
+	if reached == _reported_level:
+		return
+	_reported_level = reached
+	var holds := true
+	for level: Dictionary in levels.levels:
+		holds = holds and growth + 1e-6 >= float(level.growth)
+		_report_goal("tree_grown", {"mine": MINE_ID, "level": level.name}, holds)
 
 
 ## The bloom level reached ("dormant", "budding", ...).

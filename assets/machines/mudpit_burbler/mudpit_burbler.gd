@@ -15,6 +15,8 @@ const BPM_KNOB := "clock/bpm"
 
 ## Unique per burbler; seeds its tempo. Changing it changes the burbler.
 @export var instance_id := "mudpit_burbler"
+## This machine's id in mines.json, for goal conditions.
+const MACHINE_ID := "mudpit_burbler"
 
 ## The rack, as data. Survives closing and reopening the screen.
 var rack_state: RackState
@@ -54,7 +56,16 @@ func _ready() -> void:
 	RackServer.clock_ticked.connect(_on_clock_ticked)
 
 
+## Tells the goal tracker whether this machine is configured (add-goals-hub D4). By
+## path: naming the Goals autoload would stop `-s` tests that type this class compiling.
+func _report_goal(holds: bool) -> void:
+	var goals := get_node_or_null(^"/root/Goals")
+	if goals:
+		goals.report("machine_configured", {"machine": MACHINE_ID}, instance_id, holds)
+
+
 func _exit_tree() -> void:
+	_report_goal(false)
 	if RackServer.clock_ticked.is_connected(_on_clock_ticked):
 		RackServer.clock_ticked.disconnect(_on_clock_ticked)
 
@@ -131,6 +142,7 @@ func _on_rack_changed() -> void:
 		if not sounding:
 			flow.clear()
 		sounding_changed.emit(sounding)
+		_report_goal(sounding)
 
 
 ## Phase within the clock's beat as heard (0..1) while the voice reaches the outlet,

@@ -13,7 +13,8 @@
     "format": {
       "type": "integer",
       "format": "uint32",
-      "minimum": 0
+      "minimum": 0,
+      "description": "2: `scale` and `part_of` (format 1 had `horizon`)."
     },
     "goals": {
       "type": "array",
@@ -50,7 +51,7 @@
           ]
         },
         {
-          "description": "A stream delivers water to a placed tree of this mine (needs add-digging).",
+          "description": "A flowing stream waters a tree of this mine.",
           "type": "object",
           "properties": {
             "kind": {
@@ -66,6 +67,51 @@
             "kind",
             "mine"
           ]
+        },
+        {
+          "description": "A tree of this mine has reached this bloom level (its growth.json) or above.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "tree_grown"
+            },
+            "mine": {
+              "type": "string"
+            },
+            "level": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "mine",
+            "level"
+          ]
+        },
+        {
+          "description": "The player's inventory holds at least this many of the item.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "item_held"
+            },
+            "item": {
+              "type": "string"
+            },
+            "quantity": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "item",
+            "quantity"
+          ]
         }
       ]
     },
@@ -73,28 +119,19 @@
       "type": "object",
       "properties": {
         "after": {
-          "description": "Goals that must be complete before this one opens.",
+          "description": "Goals that must be complete before this one opens (beyond file order).",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
         "condition": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Condition"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "description": "Minor goals only: met when this game state holds. Exactly one of `requires` and `condition`.",
+          "$ref": "#/$defs/Condition"
         },
         "description": {
           "description": "One line the hub shows under the name.",
           "type": "string"
-        },
-        "horizon": {
-          "$ref": "#/$defs/Horizon"
         },
         "id": {
           "type": "string"
@@ -103,7 +140,7 @@
           "type": "string"
         },
         "requires": {
-          "description": "Items delivered to meet it. Exactly one of `requires` and `condition`.",
+          "description": "Minor goals only: items delivered to meet it (delivery is not built yet). Exactly one of `requires` and `condition`.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/Stack"
@@ -115,6 +152,13 @@
           "items": {
             "type": "string"
           }
+        },
+        "scale": {
+          "$ref": "#/$defs/Scale"
+        },
+        "part_of": {
+          "description": "Minor goals only: the major goal this is a step of. A major goal's steps are done in file order.",
+          "type": "string"
         }
       },
       "additionalProperties": false,
@@ -122,14 +166,7 @@
         "id",
         "name",
         "description",
-        "horizon"
-      ]
-    },
-    "Horizon": {
-      "type": "string",
-      "enum": [
-        "long",
-        "short"
+        "scale"
       ]
     },
     "Stack": {
@@ -148,6 +185,14 @@
       "required": [
         "item",
         "quantity"
+      ]
+    },
+    "Scale": {
+      "description": "A major goal is a long arc made of minor goals (its steps); it completes with its last step.",
+      "type": "string",
+      "enum": [
+        "major",
+        "minor"
       ]
     }
   }

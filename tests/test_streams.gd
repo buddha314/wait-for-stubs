@@ -178,9 +178,13 @@ func _run() -> void:
 	oak._water_left = 0.0
 	oak._water(1.0)
 	_expect(oak.watered and is_equal_approx(oak.water_clarity, 0.0), "the oak is watered with mud")
+	var goals := root.get_node("Goals")
+	_expect(goals.holds("tree_watered", {"mine": "scrub_oak"}), "a watered oak reports tree_watered")
 	for i in 30:
 		oak._water(10.0)
 	_expect(is_equal_approx(oak.growth, 0.3) and oak.bloom_level() == "budding", "mud wakes it to budding and no further (%.2f)" % oak.growth)
+	_expect(goals.holds("tree_grown", {"mine": "scrub_oak", "level": "budding"}) \
+			and not goals.holds("tree_grown", {"mine": "scrub_oak", "level": "leafed"}), "a budding oak reports tree_grown budding, not leafed")
 	burbler.sounding = false
 	oak._water_left = 0.0
 	oak._water(60.0)

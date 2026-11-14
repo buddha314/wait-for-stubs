@@ -16,7 +16,7 @@ its minor goals, in file order, are its steps. Any goal MAY list goals it comes 
 
 ### Requirement: Goals are checked on load
 Loading SHALL reject, naming the goal and the field: a duplicate id, a missing or
-unknown scale, a minor goal without a major goal, a major goal with a condition,
+unknown scale, a major goal with no steps, a minor goal without a major goal, a major goal with a condition,
 required items or a major goal of its own, a minor goal with both or neither of a
 condition and required items, an unknown condition kind, item, machine, mine or bloom
 level, an unknown goal it comes after, and a cycle. A rejected goal SHALL be left out,
