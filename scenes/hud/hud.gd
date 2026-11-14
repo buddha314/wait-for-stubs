@@ -105,7 +105,7 @@ func _build_build_hud() -> void:
 	_build_label.name = "BuildMode"
 	_build_label.text = "BUILD  ·  stream     [Q] leave   [LMB] anchor / lay   [RMB] drop"
 	_build_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_build_label.position = Vector2(-260, 24)
+	_build_label.position = Vector2(-260, 56)  # below the compass bar (add-compass-bar)
 	_build_label.visible = false
 	add_child(_build_label)
 	_cost = HBoxContainer.new()

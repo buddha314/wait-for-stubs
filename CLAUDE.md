@@ -122,8 +122,11 @@ tests/                  checks: godot --headless --path . -s tests/<file>.gd
 ```
 
 Placements in `main.tscn` for the burbler and 7 lightning bugs are copied from
-stubby-music's `jackdaw/assets/scene.bsn`. The reed beds are new: that scene had no
-reeds placed.
+stubby-music's `jackdaw/assets/scene.bsn`, **turned −90° about Y** so the opening faces
+east to the sunrise (`add-compass-bar` D5): the content groups (`ScrubOaks`,
+`LightningBugs`, `Reeds`, `MountainRings`), the burbler and the Player carry yaw −90°,
+mapping the old −Z view to +X. Apply the same turn to anything else ported from that
+scene. The reed beds are new: that scene had no reeds placed.
 
 **Seeds:** everything random comes from `WorldSeed.rng("<stable instance id>")`.
 Override the seed at launch with `godot --path . -- --seed=7`. Give every new
@@ -144,11 +147,18 @@ with sidereal time and clouds drift with Sky3D's wind on their own. The **moon
 travels**: `compute_moon_coords = false`, and `MoonPath` (in `main.tscn`) writes
 SkyDome's `moon_azimuth`/`moon_altitude` each frame. Sky3D measures "altitude"
 down from the zenith, with direction (sin θ sin az, cos θ, sin θ cos az). The moon
-is fixed among the stars: its start bearing and altitude (330°, 20° up, 30° left of
-the spawn view along −Z) give a declination and hour angle, then it turns 15° of
-hour angle per simulated hour. That start needs a declination of about 59°, so it's
-circumpolar and never sets, which is unrealistic but keeps the opening view. Change
-the two exports for a real path (`add-sky-motion-and-mountains` D3).
+is fixed among the stars: its start bearing and altitude (60°, 20° up, 30° left of
+the spawn view, which faces east along +X) give a declination and hour angle, then it
+turns 15° of hour angle per simulated hour. That start needs a declination of about
+35° (a real moon stays within 28.6°): it climbs from the north-east and is near the
+zenith at dawn. Change the two exports for another path (`add-sky-motion-and-mountains`
+D3; the bearing moved from 330° when the opening turned east, `add-compass-bar`).
+
+**Compass** (`add-compass-bar`): `scenes/compass_bar/` draws a Satisfactory-style bar
+at the top centre (N/E/S/W, intercardinals, 15° ticks, amber caret) from the active
+camera's heading. Bearings everywhere run clockwise from north: 0° = −Z, 90° = +X
+(east, sunrise), 180° = +Z. It hides behind screens; the build-mode label sits below
+it (y 56). No markers yet: add them with the change that first needs one.
 
 **Goals** (`add-goals-hub`): major goals made of minor goals (steps, in file order),
 in `assets/recipes/goals.json` (format 2; writing guide and draft list in
@@ -188,8 +198,9 @@ and a `SceneTree._init` root isn't in the tree yet.
 
 **Interaction (E):** an `Interactable` is a small `Area3D` on physics layer 3
 ("interact"). The player's `Head/Reach` cylinder (radius 3 m, height 16 m)
-overlaps them. The nearest one with a non-empty `interact_action()`, measured
-horizontally, becomes `Player.target`. Holding E calls `interact()` every physics
+overlaps them. Of those with a non-empty `interact_action()`, the one nearest the
+crosshair within 20° (`AIM_DEGREES`) becomes `Player.target`, as in Satisfactory;
+with none in that cone, the nearest measured horizontally. Holding E calls `interact()` every physics
 tick, so it collects successive pickups, as in Bevy. `ResourceNode` harvests via
 `PlayerInventory.harvest(resource_id)` and replenishes per `resources.json`
 (`next_night` → when `Calendar.nights_started()` increases; `after` → seconds of
@@ -199,6 +210,14 @@ model's `Interact` node (the profile's `configure.interact.node`) and shows
 `configure.interact.prompt`. E calls `open_rack` on the `rack_screen` group, which
 takes the controls (`Player.controls_enabled = false`, cursor visible) until E or
 Esc.
+
+**Outline** (`add-collectible-outline`): the targeted, uncollected `ResourceNode` gets a
+white outline, as in Satisfactory (`common/collectible_outline.gd`, a child of the
+Player). It uses Godot's built-in stencil outline as a `material_overlay` on the
+pickup's `outline_root` meshes (owners set it to the visible body). Its width is in
+pixels (`assets/ui/collectible_outline.json`), converted to each mesh's space every
+frame. Not shown while a screen has the controls or in build mode. A targeted bug keeps
+a dark body between flashes (`outline_shown`). New collectibles need outward normals.
 
 **The rack** (`add-burbler-rack-screen`, ported from stubby-music's
 `machine_config.rs` + `rack.rs`): a machine provides `rack_state` (a `RackState`
@@ -460,7 +479,8 @@ What the game itself must still decide (design, not new networking code):
 **Priority (user, 2026-11-13): back to playability.** Engine work serves what the
 player can do next; VR, multiplayer and the module library wait their turn.
 
-**Playable now:** night opening (Sky3D, moon in view at spawn, day after ~7.5 min);
+**Playable now:** night opening facing east (Sky3D, moon up-left at spawn, the sun rises
+dead ahead after ~7.5 min); a compass bar;
 walking; goals (upper right: "Build a camp", steps 1–5 of 6; the campfire step comes
 with its change); the field recorder in hand (H; needed to collect sounds; record light; level
 meter on the World bus); E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
@@ -511,11 +531,9 @@ plays on its sampler.
    only in shelter; the `built` goal condition; the fire's crackle from the engine and
    its acoustic profile. Ideas for later, undecided, live on the **wall of bad ideas**
    (`docs/design/wall-of-bad-ideas.md`): natural step sequencers (ring of stones,
-   honeycomb, mud cracks, mud dauber tubes, seashells as rack modules, reed pipes). **To propose later:** a **compass bar** across the top of
-   the screen, as in Satisfactory, to help navigation (user, 2026-11-13; backlog):
-   bearings and cardinal points that turn with the view, later markers for discovered
-   sites and machines. Mind the top-centre build-mode label and the top-left time
-   readout. Also weather recipes, such as a rain
+   honeycomb, mud cracks, mud dauber tubes, seashells as rack modules, reed pipes). **To propose later:** markers on the compass bar for
+   discovered sites and machines (the bar itself is done, `add-compass-bar`). Also
+   weather recipes, such as a rain
    song or dance the player builds to call rain or calm a storm (user notes,
    2026-11-13). The form is **sacred sites**: like Satisfactory's resource nodes,
    they're discovered in the world and then configured, with a rack built like the

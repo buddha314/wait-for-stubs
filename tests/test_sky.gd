@@ -89,8 +89,8 @@ func _check_sky() -> void:
 	var calendar := root.get_node("Calendar")
 	var moon := main.get_node("MoonPath") as MoonPath
 	var start := moon.bearing_altitude_at(calendar.solar_hour())
-	_expect(absf(start.x - 330.0) < 1.0 and absf(start.y - 20.0) < 1.0,
-			"moon starts at bearing 330°, 20° up (got %.1f°, %.1f°)" % [start.x, start.y])
+	_expect(absf(start.x - 60.0) < 1.0 and absf(start.y - 20.0) < 1.0,
+			"moon starts at bearing 60°, 20° up (got %.1f°, %.1f°)" % [start.x, start.y])
 	var dir0 := moon.direction_at(calendar.solar_hour())
 	var later: float = calendar.solar_hour() + 3.0
 	_expect(is_equal_approx(moon.hour_angle_at(later) - moon.hour_angle_at(calendar.solar_hour()), deg_to_rad(45.0)),

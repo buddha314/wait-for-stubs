@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scenes/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/hud/hud.tscn" id="20_hud"]
 [ext_resource type="PackedScene" path="res://scenes/goal_bar/goal_bar.tscn" id="21_goal_bar"]
+[ext_resource type="PackedScene" path="res://scenes/compass_bar/compass_bar.tscn" id="32_compass"]
 [ext_resource type="PackedScene" path="res://scenes/rack_screen/rack_screen.tscn" id="21_rack"]
 [ext_resource type="PackedScene" path="res://scenes/inventory_screen/inventory_screen.tscn" id="30_inventory"]
 [ext_resource type="Script" path="res://scenes/stream_builder/stream_builder.gd" id="31_builder"]
@@ -190,11 +191,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
 mesh = SubResource("PlaneMesh_outer")
 
 [node name="MountainRings" parent="." instance=ExtResource("22_mountains")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
 
 [node name="MoonPath" type="Node" parent="."]
 script = ExtResource("23_moon")
 
 [node name="ScrubOaks" type="Node3D" parent="."]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
 
 [node name="ScrubOak1" parent="ScrubOaks" instance=ExtResource("24_oak")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 0, -12.5)
@@ -209,12 +212,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.5, 0, 11.5)
 instance_id = "scrub_oak-3"
 
 [node name="Player" parent="." unique_id=933777680 instance=ExtResource("3_player")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
 
 [node name="MudpitBurbler" parent="." unique_id=492250762 instance=ExtResource("4_burbler")]
-transform = Transform3D(-0.46270576, 0, 0.8865119, 0, 1, 0, -0.8865119, 0, -0.46270576, -1.459, 0, -35.11)
+transform = Transform3D(0.886512, 0, 0.462706, 0, 1, 0, -0.462706, 0, 0.886512, 35.11, 0, -1.459)
 instance_id = "mudpit_burbler-1"
 
 [node name="LightningBugs" type="Node3D" parent="." unique_id=561398352]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
 
 [node name="LightningBug1" parent="LightningBugs" unique_id=591662837 instance=ExtResource("5_bug")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.35, 0, -17.415)
@@ -245,14 +250,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.984, 0, 16.019)
 instance_id = "lightning_bug-7"
 
 [node name="Reeds" type="Node3D" parent="." unique_id=2046209369]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
 
-[node name="ReedBedWest" parent="Reeds" unique_id=1776079098 instance=ExtResource("6_reeds")]
+[node name="ReedBedNorth" parent="Reeds" unique_id=1776079098 instance=ExtResource("6_reeds")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0, -32)
 bed_id = "reed_bed-west"
 shells = 1
 count = 12
 
-[node name="ReedBedEast" parent="Reeds" unique_id=552493312 instance=ExtResource("6_reeds")]
+[node name="ReedBedSouth" parent="Reeds" unique_id=552493312 instance=ExtResource("6_reeds")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, -39)
 bed_id = "reed_bed-east"
 shells = 1
@@ -270,6 +276,8 @@ radius = 2.0
 player = NodePath("../Player")
 
 [node name="GoalBar" parent="." instance=ExtResource("21_goal_bar")]
+
+[node name="CompassBar" parent="." instance=ExtResource("32_compass")]
 
 [node name="RackScreen" parent="." instance=ExtResource("21_rack")]
 
