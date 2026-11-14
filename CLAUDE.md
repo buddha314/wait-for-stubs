@@ -191,6 +191,12 @@ Owners react to `collected_changed`: a bug goes dark, and reeds cut
 to stubble and regrow over the interval. Physics layers: 1 world, 2 player,
 3 interact.
 
+A script error doesn't fail a test (the script just stops that call), so when running
+tests grep their output for `SCRIPT ERROR` as well as for the `: OK` line. Run
+`test_rack_drag.gd` with a window and the Tab inventory present: GLoot's grid items see
+every drag in the window, so drag data must be an object (`ItemDrag`), never a
+Dictionary (Godot 4.8 errors comparing the two).
+
 In `-s` test scripts, autoloads aren't compile-time identifiers. Reach them with
 `root.get_node("PlayerInventory")`. To simulate keys, use `Input.parse_input_event` with
 an `InputEventAction`. `Input.action_press` doesn't reach `_unhandled_input`.

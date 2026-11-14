@@ -289,11 +289,11 @@ func _drag_item(_at: Vector2, item: String) -> Variant:
 	var holder := Control.new()
 	holder.add_child(preview)
 	_centre.set_drag_preview(holder)
-	return {"item": item}
+	return ItemDrag.new(item)
 
 
 func _can_drop_item(at: Vector2, data: Variant) -> bool:
-	if data is not Dictionary or not data.has("item"):
+	if data is not ItemDrag:
 		return false
 	var place := _view.place_at(_to_viewport(at))
 	if place == "" or _state().mounted.has(place):

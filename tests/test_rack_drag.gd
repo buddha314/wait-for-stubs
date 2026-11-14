@@ -29,6 +29,10 @@ func _run() -> void:
 	root.add_child(burbler)
 	var screen := (load(SCREEN) as PackedScene).instantiate()
 	root.add_child(screen)
+	# The (closed) Tab inventory, as in the game: GLoot's grid items see every drag in
+	# the window, so a drag the rack starts must not upset them (regression: the
+	# rack's drag data was a Dictionary, which GLoot compared with an item and errored).
+	root.add_child((load("res://scenes/inventory_screen/inventory_screen.tscn") as PackedScene).instantiate())
 	await process_frame
 	screen.open_rack(burbler.find_child("MachineInteract", true, false))
 	for i in 3:
