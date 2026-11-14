@@ -5,6 +5,8 @@ extends Interactable
 ## The owning scene listens to `collected_changed` to update its visuals.
 
 signal collected_changed(collected: bool)
+## The targeted outline (add-collectible-outline) went on or off.
+signal outline_changed(shown: bool)
 
 ## The hand item that collects sounds, and the action that brings it up.
 const RECORDER := &"field_recorder"
@@ -13,7 +15,15 @@ const RECORDER := &"field_recorder"
 @export var resource_id: String
 ## Stable instance identity, unique in the world.
 @export var instance_id: String
+## The visible body to outline when targeted (add-collectible-outline); null: the parent.
+var outline_root: Node3D
 
+## True while CollectibleOutline draws this pickup's outline.
+var outline_shown := false:
+	set(value):
+		if outline_shown != value:
+			outline_shown = value
+			outline_changed.emit(value)
 var collected := false:
 	set(value):
 		if collected != value:
@@ -46,6 +56,19 @@ func interact() -> void:
 	_harvested_at_seconds = Calendar.elapsed
 	_harvested_at_night = Calendar.nights_started()
 	collected = true
+
+
+## The meshes the targeted outline is drawn on: every mesh under `outline_root`.
+func outline_meshes() -> Array[MeshInstance3D]:
+	var root := outline_root if outline_root else get_parent() as Node3D
+	var meshes: Array[MeshInstance3D] = []
+	if root == null:
+		return meshes
+	if root is MeshInstance3D:
+		meshes.append(root)
+	for node in root.find_children("*", "MeshInstance3D", true, false):
+		meshes.append(node as MeshInstance3D)
+	return meshes
 
 
 ## The tip shown when E is pressed on a sound without the recorder in hand.

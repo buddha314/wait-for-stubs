@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/player/player.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/hand/hand.tscn" id="2_hand"]
+[ext_resource type="Script" path="res://common/collectible_outline.gd" id="3_outline"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.3
@@ -35,3 +36,6 @@ monitorable = false
 shape = SubResource("CylinderShape3D_reach")
 
 [node name="Hand" parent="Head" instance=ExtResource("2_hand")]
+
+[node name="CollectibleOutline" type="Node" parent="."]
+script = ExtResource("3_outline")

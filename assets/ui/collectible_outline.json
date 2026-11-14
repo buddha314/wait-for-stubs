@@ -1,0 +1,5 @@
+{
+  "about": "The outline drawn around the pickup under the reticle (add-collectible-outline), as in Satisfactory: a constant on-screen width. CollectibleOutline converts width_pixels to each mesh's own space every frame.",
+  "color": "#ffffff",
+  "width_pixels": 2.0
+}

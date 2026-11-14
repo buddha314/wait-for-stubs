@@ -3,8 +3,9 @@ extends CharacterBody3D
 ## Grounded first-person walker, matching stubby-music's controls:
 ## WASD walk, mouse look, Space jump, hold C crouch, hold Left Shift sprint.
 ## Escape or focus loss releases the cursor; left click recaptures it.
-## E acts on the nearest Interactable within REACH metres, measured
-## horizontally; hold E to collect successive nearby pickups.
+## E acts on the Interactable under the crosshair (within AIM_DEGREES), else the
+## nearest within REACH metres, measured horizontally; hold E to collect
+## successive nearby pickups.
 
 ## Emitted when what E would act on changes (null: nothing in reach).
 signal target_changed(target: Interactable)
@@ -24,6 +25,9 @@ const CROUCH_EYE_HEIGHT := 1.0
 const CROUCH_RATE := 6.0
 ## Horizontal reach of E, in metres.
 const REACH := 3.0
+## Aim cone: an interactable within this angle of the view is targeted by aim, as in
+## Satisfactory; the one nearest the crosshair wins (add-collectible-outline).
+const AIM_DEGREES := 20.0
 
 ## What E would act on now, or null.
 var target: Interactable
@@ -124,17 +128,28 @@ func _physics_process(delta: float) -> void:
 
 func _choose_target() -> void:
 	var eye := _head.global_position
-	var best: Interactable = null
-	var best_distance := REACH * REACH
+	var forward := -_head.global_basis.z
+	var aimed: Interactable = null
+	var aimed_angle := deg_to_rad(AIM_DEGREES)
+	var nearest: Interactable = null
+	var nearest_distance := REACH * REACH
 	for area in ([] if building else _reach.get_overlapping_areas()):
 		var candidate := area as Interactable
 		if candidate == null or candidate.interact_action().is_empty():
 			continue
 		var offset := candidate.global_position - eye
 		var distance := offset.x * offset.x + offset.z * offset.z
-		if distance <= best_distance:
-			best = candidate
-			best_distance = distance
+		if distance > REACH * REACH:
+			continue
+		var angle := forward.angle_to(offset)
+		if angle <= aimed_angle:
+			aimed = candidate
+			aimed_angle = angle
+		if distance <= nearest_distance:
+			nearest = candidate
+			nearest_distance = distance
+	# What the crosshair is on first; otherwise the nearest in reach (holding E sweeps).
+	var best := aimed if aimed else nearest
 	if best != target:
 		target = best
 		target_changed.emit(target)

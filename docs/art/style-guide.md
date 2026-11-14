@@ -131,6 +131,11 @@ The accents belong to flora and the bloomed world. Keep them off modules: amber 
 the only signal colour. Build holograms are pale amber, kin to the port halos they snap
 to, and turn red where a plan cannot be laid.
 
+**The targeted outline is UI, not light** (`add-collectible-outline`): the pickup under
+the reticle gets a crisp white outline of constant screen width, as in Satisfactory.
+It's the one hard-edged line allowed in the world, like the reticle. Outlines grow
+along normals, so every collectible's normals must face out.
+
 ## Scale
 
 - Metres, +Y up in the game (+Z up in Blender; the exporter converts).

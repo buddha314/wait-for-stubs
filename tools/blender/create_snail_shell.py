@@ -73,12 +73,13 @@ def build_mesh(name, per_whorl, around):
         for j in range(around):
             a = i * around + j
             b = i * around + (j + 1) % around
-            faces.append((a, b, b + around, a + around))
+            # Wound so normals face out of the tube (the targeted outline grows along them).
+            faces.append((a, a + around, b + around, b))
     # Close the apex with a fan to a point.
     verts.append(tuple(sum(verts[j][k] for j in range(around)) / around for k in range(3)))
     apex = len(verts) - 1
     for j in range(around):
-        faces.append((apex, (j + 1) % around, j))
+        faces.append((apex, j, (j + 1) % around))
     mesh = bpy.data.meshes.new(name)
     mesh.from_pydata(verts, [], faces)
     for poly in mesh.polygons:

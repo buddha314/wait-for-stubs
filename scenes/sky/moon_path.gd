@@ -9,12 +9,13 @@ extends Node
 ##
 ## The start bearing and altitude (at the Calendar's start) fix the moon's
 ## declination and hour angle; after that it turns 15° of hour angle per simulated
-## hour, like the star field. The default (bearing 330°, 20° up, in view at spawn)
-## needs a declination near 59°, so this moon is circumpolar and never sets; a
-## real moon has |declination| ≤ 28.6°.
+## hour, like the star field. The default (bearing 60°, 20° up: 30° left of the
+## spawn view, which faces east to the sunrise; add-compass-bar) needs a declination
+## near 35°, so it climbs from the north-east through the night and is still up at
+## dawn; a real moon has |declination| ≤ 28.6°.
 
 ## Where the moon is at the start, as a compass bearing (0 north, 90 east).
-@export_range(0.0, 360.0, 0.5) var start_bearing_degrees := 330.0
+@export_range(0.0, 360.0, 0.5) var start_bearing_degrees := 60.0
 ## Where the moon is at the start, in degrees above the horizon.
 @export_range(-90.0, 90.0, 0.5) var start_altitude_degrees := 20.0
 @export var sky_dome_path: NodePath = ^"../Sky3D/SkyDome"

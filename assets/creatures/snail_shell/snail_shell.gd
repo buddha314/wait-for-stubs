@@ -26,4 +26,5 @@ func _ready() -> void:
 	_model.position.y = height * 0.25
 	_pickup.position.y = height * 0.3
 	_pickup.instance_id = instance_id
+	_pickup.outline_root = _model
 	_pickup.collected_changed.connect(func(collected: bool) -> void: _model.visible = not collected)
