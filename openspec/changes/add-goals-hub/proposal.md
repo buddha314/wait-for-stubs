@@ -65,7 +65,8 @@ writing goals in CSV. See design.md D1 and D7.
 
 ## Impact
 
-- `assets/recipes/goals.json` (format 2, a first major goal), its schema, `ids.lock`.
+- `assets/recipes/goals.json` (format 2; the first major goal, "Build a camp", steps
+  1–5 of 6; the campfire step comes with the campfire change), its schema, `ids.lock`.
 - `autoload/rules.gd`: loads and validates goals.
 - New autoload `Goals` (`autoload/goals.gd`): progress and condition reports.
 - Reporters: `mudpit_burbler.gd`, `scrub_oak.gd` (watered, bloom level), and the
