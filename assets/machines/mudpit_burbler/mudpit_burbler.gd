@@ -82,9 +82,9 @@ func _place_voice() -> void:
 	var listener := camera.global_position
 	var mouth := _port.global_position if _port else global_position
 	var best := mouth
-	for stream: LaidStream in get_tree().get_nodes_in_group("laid_stream"):
+	for stream: Node in get_tree().get_nodes_in_group("laid_stream"):  # untyped: LaidStream needs autoloads
 		if stream.source() == self:
-			var p := stream.closest_point(listener)
+			var p: Vector3 = stream.closest_point(listener)
 			if p.distance_squared_to(listener) < best.distance_squared_to(listener):
 				best = p
 	link.emitter.global_position = best
