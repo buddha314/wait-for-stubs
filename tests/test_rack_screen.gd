@@ -164,9 +164,9 @@ func _run() -> void:
 	# Drag-and-drop: a square wave dropped on the empty VCO slot mounts it.
 	var slot_pixel := view.place_centre("vco")
 	_expect(view.place_at(slot_pixel) == "vco", "slot under the pointer is the VCO place")
-	_expect(not screen._can_drop_item(slot_pixel, {"item": "patch_cable"}), "a patch cable can't mount")
-	_expect(screen._can_drop_item(slot_pixel, {"item": "square_wave"}), "square wave can drop on its slot")
-	screen._drop_item(slot_pixel, {"item": "square_wave"})
+	_expect(not screen._can_drop_item(slot_pixel, ItemDrag.new("patch_cable")), "a patch cable can't mount")
+	_expect(screen._can_drop_item(slot_pixel, ItemDrag.new("square_wave")), "square wave can drop on its slot")
+	screen._drop_item(slot_pixel, ItemDrag.new("square_wave"))
 	_expect(state.mounted.get("vco", "") == "square_vco" and inventory.quantity("square_wave") == 1,
 			"dropping mounts the VCO")
 	await process_frame
