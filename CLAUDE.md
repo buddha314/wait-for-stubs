@@ -70,6 +70,10 @@ music and world stems with a short fade, and the UI stem stays audible.
   ```
   Grep the output for `ERROR`/`SCRIPT ERROR`. Known noise: `UVs are required to
   generate tangents` comes from vertex-coloured glTFs with no UVs. It is harmless.
+  `--import` runs the editor headless: it reopens the script tabs saved in
+  `.godot/editor/editor_layout.cfg` and re-saves them with the editor's tab
+  indentation. Close vendored scripts (`addons/`) in the editor's script tabs, or each
+  import rewrites them. If `git status` shows an addon script changed, check there.
 
 ## Layout (organise by feature, Godot docs convention)
 
