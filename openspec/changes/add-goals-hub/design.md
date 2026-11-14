@@ -80,7 +80,7 @@ complete, a goal stays complete.
 
 **D5. The goal bar.** Upper right, in the HUD's text style:
 ```
-WAKE THE MUDFLAT                ▰▰▱▱▱  2 / 5
+BUILD A CAMP                    ▰▰▱▱▱▱  2 / 6
 › Build a heartbeat
   Patch both cables so the burbler sounds on every beat.
 ```
@@ -117,8 +117,10 @@ no rows. `ids.lock` gains the new ids.
 - [No saving: progress resets each launch] → acceptable while there's no save at all.
 - [Item goals load but never show] → the draft list uses conditions only; delivery
   adds them.
-- [The first major goal's content is a draft] → the user owns goal rows; the draft is
-  in `docs/design/goals.md` and marked provisional until they sign it off.
+- [The first major goal's last step needs the campfire] → "Build a camp" (decided
+  2026-11-13) ships steps 1–5 here; its step 6, "Build a campfire" (`built`), arrives
+  with the campfire change, which adds the `built` kind. Until then the bar holds at
+  "Build a camp" with the campfire as the step after the last shipped one.
 - [Several burblers or oaks] → any instance counts (D3), matching "a tree of that kind".
 
 ## Migration Plan
@@ -128,6 +130,5 @@ removing the autoload, the bar and the reporters, and restoring format 1.
 
 ## Open Questions
 
-- The goal list: the first major goal's name and steps, and the major goals after it
-  (draft in `docs/design/goals.md`).
+- The major goals after "Build a camp" (titles in `docs/design/goals.md`).
 - Completion sound: which CC0 clip (a later change).

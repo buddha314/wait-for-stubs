@@ -7,7 +7,7 @@ Goals point the way; they never end the game.
 
 The design is `openspec/changes/add-goals-hub/`. The goals themselves live in
 `assets/recipes/goals.json`, in the order the bar offers them. This page is the
-writing guide and the draft list. **Status: draft (2026-11-13), not yet signed off.**
+writing guide and the draft list. **Status: the first major goal is decided (2026-11-13); wording and the later major goals are drafts.**
 
 ## Writing a goal
 
@@ -19,9 +19,9 @@ A major goal (no condition: it completes when its last step does):
 
 ```json
 {
-  "id": "wake_the_mudflat",
-  "name": "Wake the mudflat",
-  "description": "Find the mudflat's first sounds and bring water back to it.",
+  "id": "build_a_camp",
+  "name": "Build a camp",
+  "description": "The wind takes everything. Grow a windbreak, then light a fire in its shelter.",
   "scale": "major"
 }
 ```
@@ -34,7 +34,7 @@ A step (a minor goal), listed after its major goal:
   "name": "Build a heartbeat",
   "description": "Patch both cables so the burbler sounds on every beat.",
   "scale": "minor",
-  "part_of": "wake_the_mudflat",
+  "part_of": "build_a_camp",
   "condition": { "kind": "machine_configured", "machine": "mudpit_burbler" }
 }
 ```
@@ -64,23 +64,35 @@ change (schema, a check in `Rules`, and the thing in the game that reports it).
 
 ## Draft goal list
 
-Only the first major goal can be completed with what the game has today. The later
-ones are titles, waiting for their features.
+Decided (user, 2026-11-13): the first major goal is **Build a camp**. The mudflat's wind
+blows everything away, so the player waters a scrub oak until it buds and breaks the
+wind, then lights a campfire in its lee. Budding is enough shelter (muddy burbler water
+reaches it today); later bloom levels widen the shelter. The campfire costs reeds and
+one spark (a square wave from a lightning bug).
 
-### 1. Wake the mudflat (major)
+### 1. Build a camp (major)
 
-*Find the mudflat's first sounds and bring water back to it.*
+*The wind takes everything. Grow a windbreak, then light a fire in its shelter.*
 
-| # | Step | Description | Condition | New? |
+| # | Step | Description | Condition | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Catch a spark | Hold the field recorder up to a lightning bug and collect its square wave. | `item_held` `square_wave` × 1 | kind new |
+| 1 | Catch a spark | Hold the field recorder up to a lightning bug and collect its square wave. | `item_held` `square_wave` × 1 | `add-goals-hub` |
 | 2 | Build a heartbeat | Patch both cables so the burbler sounds on every beat. | `machine_configured` `mudpit_burbler` | exists |
-| 3 | Cut reeds | Gather twelve reeds for a stream. | `item_held` `reed` × 12 | kind new |
+| 3 | Cut reeds | Gather twelve reeds for a stream. | `item_held` `reed` × 12 | `add-goals-hub` |
 | 4 | Water the tree | Lead the burbler's stream to a scrub oak. | `tree_watered` `scrub_oak` | exists |
-| 5 | Wake the tree | Keep the water flowing until the oak buds. | `tree_grown` `scrub_oak` `budding` | kind new |
+| 5 | Stop the wind | Keep the water flowing until the oak buds and breaks the wind. | `tree_grown` `scrub_oak` `budding` | `add-goals-hub` |
+| 6 | Build a campfire | Light a fire of reeds with a spark, in the shelter of the oak. | `built` `campfire` | needs the campfire change |
 
-Note on step 3: a stream segment costs 6 reeds, and an oak is a few segments from the
-burbler, so 12 gets the player started without telling them the exact cost.
+Steps 1–5 ship with `add-goals-hub`. Step 6 needs a new change (to propose): the
+campfire buildable (reeds + 1 `square_wave`, placed only in shelter), the shelter a
+budding oak casts downwind, the wind it shelters from (`add-weather-and-dust-storm`'s
+one wind, or a fixed prevailing wind until then), and the `built { buildable }`
+condition kind. The fire is a sound source too (a crackle from the audio engine), so
+it carries an acoustic profile. Until it lands, the bar shows Build a camp at 5 / 6
+with "Build a campfire" as the next step.
+
+Step 1 comes first because the spark lights the fire at the end; steps 3 and 6 both
+use reeds (a stream segment costs 6).
 
 ### Later major goals (titles only)
 
@@ -93,5 +105,6 @@ burbler, so 12 gets the player started without telling them the exact cost.
 ## Open questions
 
 - Names and wording of everything above.
-- Should collecting the first sound come before the burbler (as drafted), or after?
-- What the first major goal unlocks, once unlocks exist.
+- The campfire's reed count, and how big the budding oak's shelter is.
+- What the camp gives the player (a respawn point, a place to rest at night, a
+  home for later machines), once unlocks exist.
