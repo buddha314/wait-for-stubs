@@ -1,0 +1,7 @@
+{
+  "kind": "tempo_clock",
+  "note": "stubby-rack registry kind (add-rack-audio-engine 9.2). Ports gate and phase share the engine's names.",
+  "params": {
+    "bpm": {"param": "multiple", "per_master_bpm": true}
+  }
+}

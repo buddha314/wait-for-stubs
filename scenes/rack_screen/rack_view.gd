@@ -365,10 +365,9 @@ func _update_halos() -> void:
 			material.emission_energy_multiplier = HALO_PEAK * pulse
 
 
-## STAND-IN (add-burbler-rack-screen D9): flashes clock lamps and gate lights on a
-## placeholder tick computed from wall time at the machine's BPM. Replace with
-## RackServer `clock_ticked` sample times (add-rack-audio-engine 9.2). Visual only;
-## nothing musical is timed from it.
+## Flashes clock lamps and gate lights on the beat. While the machine sounds, the
+## beat is the engine's heard phase (`phase_source`, from the master clock); while
+## silent, a wall-time tick at the machine's BPM keeps the lamp alive. Visual only.
 func _update_lamps() -> void:
 	var bpm := float(bpm_source.call()) if bpm_source.is_valid() else 0.0
 	var phase := float(phase_source.call()) if phase_source.is_valid() else -1.0
@@ -382,8 +381,8 @@ func _update_lamps() -> void:
 					glow.base * strength / maxf(glow.peak, 0.0001)
 
 
-## STAND-IN: 0..1 flash envelope (15 ms attack, 250 ms decay) on the beat: from
-## the voice's heard phase when it plays, else from wall time.
+## 0..1 flash envelope (15 ms attack, 250 ms decay) on the beat: from the engine's
+## heard phase when the machine sounds, else from wall time.
 static func _placeholder_envelope(bpm: float, phase: float = -1.0) -> float:
 	var beat := 60.0 / bpm
 	var since := phase * beat if phase >= 0.0 else fmod(Time.get_ticks_usec() / 1e6, beat)

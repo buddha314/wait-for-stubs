@@ -263,19 +263,26 @@ policy (`asset_dir`, `model_path`, `source_path`, `model_ref`).
   gradient (amber horizon, slate zenith, brown fog); we use Sky3D instead, and its
   defaults (blue sky, white clouds) don't match that bleak, hazy look yet. Same seed must give the same world. Use a seeded `RandomNumberGenerator`, never
   the global `randf()`.
-- **Lightning bugs currently flash on frame time** (a `_process` countdown) and play
-  a pre-rendered square click (`AudioStreamWAV`). That's a stand-in. Replace it with
-  `RackServer` clock ticks once stubby-rack can play (task 9.1).
+- **Lightning bugs run on the engine** (task 9.1): each bug's `Rack` is a seeded
+  `random_clock` → `envelope` → `vca` ← `vco_square`, heard from its body. A bug's clock
+  stays off the master grid (the one exception) until the bug is collected and used.
+  The flash starts when the click is *heard* (`clock_ticked` → `sample_to_ticks_usec`).
 - **Rack screen stand-ins** (marked `STAND-IN` in code): the clock lamp and gate
   lights flash on a wall-time placeholder tick at the burbler's BPM
-  (`RackView._update_lamps`, replace with `clock_ticked`, task 9.2). It times nothing
-  musical. The plug-in snap already plays through the rack's sampler on the UI stem
+  (`RackView._update_lamps`). Its phase comes from the engine's heard position, so
+  it's in time; only the flash shape is a placeholder. The plug-in snap already plays through the rack's sampler on the UI stem
   (`RackScreen._play_snap` → `RackServer.play_sample`).
-- **Burbler voice stand-in** (`assets/machines/mudpit_burbler/burbler_voice.gd`): a patched
-  burbler loops one pre-rendered beat of stubby-music's voice (the square at FREQ ×
-  GAIN, gated for the first half beat) from `Outlet_0`, within 30 m. The mixer loops
-  it, so nothing is frame-timed, but it isn't locked to the master clock. The rack
-  lamp follows its heard phase. Replace it with the engine (task 9.2).
+- **The burbler plays its real patch** (task 9.2): `RackLink` (`common/rack_link.gd`,
+  a `Rack`) mirrors the `RackState` into the engine. Mounted modules become engine
+  modules (kind from `assets/modules/<id>/engine.json`, beside the generated
+  `asset.json`), cables become engine cables, knobs become parameters (the clock's BPM
+  knob → `multiple` of the 1 BPM master). It sounds only when the cables make a signal
+  path. Its `RackEmitter` sits at `Outlet_0` on the normalled output. The rack lamp
+  reads `beat_phase()`, the heard master position × the clock multiple.
+- **Known:** quitting the game prints "N ObjectDB instances leaked" for
+  `RackStemPlayback`s still playing at exit (the driver, UI and emitter players). It
+  happens only at exit and doesn't reproduce in stubby-rack's demo. Not yet
+  investigated further.
 - Audio timing is the musical source of truth. **The rack's sample counter is the
   master clock for all game audio** (design D5). Godot exposes no mix counter or
   callback to extensions, and `AudioStreamGenerator` is fed from the main thread, so
@@ -344,9 +351,9 @@ player can do next; VR, multiplayer and the module library wait their turn.
 **Playable now:** night opening (Sky3D, moon in view at spawn, day after ~7.5 min);
 walking; E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
 regrow in 60 s); the burbler's rack: mount the square VCO, patch with comb or own
-cables, turn the BPM/freq/level knobs. The burbler's voice is still the stand-in
-loop; stubby-rack is vendored (`addons/stubby_rack/`) and loads, with the plug-in
-snap on its sampler.
+cables, turn the BPM/freq/level knobs. The burbler and the lightning bugs sound from
+the engine (stubby-rack, vendored in `addons/stubby_rack/`), and the plug-in snap
+plays on its sampler.
 
 **Open threads, roughly in order:**
 1. **stubby-rack spike done** (`add-rack-audio-engine` group 1; results in its design.md,
@@ -366,8 +373,9 @@ snap on its sampler.
    and Godot classes (group 5) done**: `RackServer`, `Rack`, `RackEmitter`,
    `RackPatch`, `RackModuleDefinition`, the sampler. **Vendored** into
    `addons/stubby_rack/` by `tools/sync_stubby_rack.sh` (pinned in its `VERSION`;
-   rerun the script after stubby-rack changes). Next for playability: the burbler and
-   the bugs on the engine (tasks 9.1, 9.2), which needs group 6's first modules.
+   rerun the script after stubby-rack changes). The bugs and the burbler run on it
+   (9.1, 9.2). Next for playability: inventory, then streams from the burbler to the
+   trees (`add-stream-building`).
 2. **Archived (2026-11-13), specs in `openspec/specs/`:** `add-burbler-rack-screen`,
    `add-scrub-oak`, `add-sky-motion-and-mountains`, `migrate-off-stubby-music`.
    **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,
