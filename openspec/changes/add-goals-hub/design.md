@@ -3,94 +3,131 @@
 Ports the goals part of stubby-music's `add-inventory-and-goals-hud`: its spec
 "goals-hub" and decisions D3 (delivery), D9 (an event reducer), D10 (save shape) and
 D11 (chores). Bevy built the data side only: `goals.json`, its schema,
-`GoalDefinition`, `Condition` and validation in `stubby_recipes` (tasks 1.5b, 1.6a).
-The reducer, the hub and the condition reports were never built.
+`GoalDefinition`, `Condition` and validation in `stubby_recipes`. Its two horizons
+(`long`, `short`) were independent: the hub showed one goal of each. The user's
+request (2026-11-13) is Satisfactory-style **major and minor goals** with a bar that
+shows the active goal and its sub-goal, so the two levels become a hierarchy here.
 
-Here, `goals.json` and its schema are already copied. `Rules` loads the other rules
-files with validation errors as `file: id: field: message`. The two conditions have
-sources: `MudpitBurbler.sounding_changed` (the rack is complete) and
-`ScrubOak.watered_changed` (a flowing stream within reach). The HUD
-(`scenes/hud/`) holds the reticle, prompt and status. The upper right is empty.
+Here, `goals.json` and its schema are copied, and their Rust generator is archived, so
+the schema is now edited by hand. `Rules` loads the other rules files and reports
+errors as `file: id: field: message`. The condition sources exist:
+`MudpitBurbler.sounding_changed`, `ScrubOak.watered_changed` and its bloom level
+(`ScrubOak.bloom_level()`, `GrowthLevels`), and `PlayerInventory` (`changed`,
+`quantity(item)`). The HUD's top left holds the time readout, the top centre the
+build-mode label (and later the compass bar, backlog); the upper right is empty.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- The two chores show, complete in play, and lead from one to the next.
-- Data stays in `goals.json`, validated like the other rules files.
-- The goal tracker takes events and holds progress, with no scene knowledge, so it
-  can be tested headless and replicated later (multiplayer: goals follow
+- A first major goal whose minor goals can all be met in play today.
+- Goals are written as data, easy to author, and checked on load.
+- The tracker takes events and holds progress with no scene knowledge, so it can be
+  tested headless and replicated later (multiplayer: goals follow
   server-authoritative world state).
 
 **Non-Goals:**
-- Item goals' delivery (D3 there) and where items are handed in (its open question
-  0.1). Pins and the recipe book (O). Choosing the active goal. Saving.
-- A completion sound. It would play through the engine's sampler on the UI stem,
-  with a provenance record. That's a later, small change.
-- The first long-term goal (stubby-music's open question 0.2).
+- Item delivery to goals (stubby-music D3) and where items are handed in. Pins and the
+  recipe book (O). Choosing the active goal. Saving (D10 there applies when it lands).
+- A completion sound: it would play through the engine's sampler on the UI stem with a
+  provenance record. A later, small change.
+- The compass bar (backlog), though the layout leaves the top centre free for it.
 
 ## Decisions
 
 **D1. Our own small tracker, not a quest addon.**
 - Rejected: shomykohai's Quest System (MIT, Godot 4). Quests are Resources with
   scripted objectives, kept outside the rules files. Our goals are rows in
-  `goals.json`, validated with the other rules (items, machines, mines) and shared
-  with stubby-music's schema. The addon would mean a second goal format, or a loader
-  that rebuilds its Resources from our JSON, more code than the tracker itself.
+  `goals.json`, validated with the other rules (items, machines, mines). The addon
+  would mean a second goal format, or a loader that rebuilds its Resources from our
+  JSON, more code than the tracker itself.
 - Rejected: Chevifier's QuestManager (MIT, Godot 4.2+). It has its own quest-graph
-  resources and editor; the same mismatch with the rules files.
+  resources and editor; the same mismatch.
 - Same conclusion as stubby-music's research, where no crate fit.
-The tracker is about 100 lines: completed set, open goals, active per horizon,
-condition state.
 
-**D2. Conditions are state, and completion is latched.** Sources report whether a
-condition holds for an instance: `Goals.report(kind, arg, instance_id, holds)`. The
-tracker keeps the set of instances for which each `(kind, arg)` holds. A condition
-goal completes when it is open and its condition holds for any instance. That is
-checked when a report arrives and when the goal opens, so a condition already true
-when its goal opens completes it at once. Once complete, a goal stays complete
-(stubby-music D11).
-- Rejected: one-shot "condition met" events (Bevy's `ConditionMet`). An event that
-  arrives before its goal opens is lost. Here, the oak can't be watered until the
-  burbler sounds, so the order happens to work, but a later chain wouldn't.
+**D2. Two scales, a hierarchy.** `scale` is `major` or `minor`. A minor goal names its
+major goal in `part_of`; a major goal's minor goals are its steps, in file order. A
+major goal has no `condition` or `requires` of its own: it completes when its last
+minor goal completes. Major goals open in file order, or after the major goals in
+their `after`; a minor goal opens when its major goal is active and the minor goals
+before it in the same major goal are complete (its own `after` may add more).
+- Rejected: stubby-music's independent horizons. The bar would show two unrelated
+  goals, and the user asked for a goal and its sub-goal.
+- Rejected: a major goal with its own item cost (Satisfactory's Space Elevator).
+  Delivery isn't built; a major goal can gain `requires` when it is.
+- Rejected: three levels (phase, tier, milestone). Two are enough for the first
+  arcs; a third can be added if the goal list grows.
 
-**D3. Who reports.** The burbler reports `machine_configured` with its machine id
-(`mudpit_burbler`) on `sounding_changed`. The scrub oak reports `tree_watered` with
-`scrub_oak` on `watered_changed`. Each uses its `instance_id`. Reporters don't know
-about goals; the reported kinds are the schema's closed list.
+**D3. Conditions are state, and completion is latched.** Sources report whether a
+condition holds: `Goals.report(kind, args, instance_id, holds)`. The tracker keeps,
+per condition key, the instances for which it holds. A goal completes when it is
+active and its condition holds for any instance, checked on each report and when the
+goal becomes active, so a condition already true then completes it at once. Once
+complete, a goal stays complete.
+- Rejected: one-shot "condition met" events (Bevy's `ConditionMet`): an event before
+  its goal opens is lost.
 
-**D4. Active goal per horizon.** The active goal of a horizon is the first open,
-incomplete goal of that horizon in file order (stubby-music's rule, minus the
-player's choice, which waits for the recipe book). A horizon with none shows
-nothing.
+**D4. The condition kinds.** A closed list; adding one is a rule-type change (schema,
+`Rules` check, a reporter).
 
-**D5. The panel.** Upper right, in the HUD's text style: a "GOAL" header for the
-short-term goal, its name and description, and the same for a long-term goal under
-it if any. On completion it shows "GOAL COMPLETE" and the name for 4 s, then the next
-goal. It hides while a screen has the controls, as the prompt does. It updates on the
-tracker's signals, not every frame.
+| Kind | Args | Holds while | Reporter |
+| --- | --- | --- | --- |
+| `machine_configured` | `machine` | a machine of that kind is fully patched and sounds | burbler, on `sounding_changed` |
+| `tree_watered` | `mine` | a flowing stream waters a tree of that kind | scrub oak, on `watered_changed` |
+| `tree_grown` | `mine`, `level` | a tree of that kind is at that bloom level or above | scrub oak, when its bloom level changes |
+| `item_held` | `item`, `quantity` | the inventory holds at least that many | the tracker, on `PlayerInventory.changed` |
 
-**D6. Validation in `Rules`.** `goals.json` is checked on load with the existing
-error format: duplicate ids, both or neither of `requires` and `condition`, an
-unknown condition kind (the schema's list: `machine_configured`, `tree_watered`),
-unknown item, machine or mine ids (`items.json`, `mines.json`), unknown `after` ids,
-and cycles. A goal with errors is left out.
+`level` is a name from the tree's `growth.json` (`budding`, `leafed`, `full_bloom`).
+
+**D5. The goal bar.** Upper right, in the HUD's text style:
+```
+WAKE THE MUDFLAT                ▰▰▱▱▱  2 / 5
+› Build a heartbeat
+  Patch both cables so the burbler sounds on every beat.
+```
+The major goal's name, a progress bar and count (minor goals complete of total), then
+the active minor goal's name and description. On completion it shows "GOAL COMPLETE ·
+<name>" for 4 s (a major goal's completion replaces its last minor's), then the next
+goals. It hides while a screen has the controls, and it updates on the tracker's
+signals, not every frame. Top centre stays free for the compass bar.
+
+**D6. Validation in `Rules`.** Checked on load, in the existing error format: duplicate
+ids; `scale` missing or unknown; a minor goal without `part_of`, or whose `part_of`
+isn't a major goal; a major goal with `part_of`, `condition` or `requires`; a minor
+goal with both or neither of `condition` and `requires`; an unknown condition kind,
+item, machine, mine or bloom level; an unknown `after` id; a cycle. A goal with errors
+is left out, along with any minor goals of a major goal left out.
+
+**D7. Goals are written in JSON.** `goals.json` stays the source, in the order the
+bar offers them. `docs/design/goals.md` is the writing guide (fields, condition kinds,
+a template) and the draft list.
+- Rejected: CSV. Names and descriptions fit cells, but conditions have different
+  fields per kind, and `after` and `requires` are lists. That needs packed cells
+  (`machine_configured:mudpit_burbler`) and a converter, and loses the schema's
+  autocomplete and checks while writing.
+- Rejected: a spreadsheet exported to JSON. The same converter, plus a second source
+  of truth.
+
+**D8. Format 2.** `horizon` becomes `scale` (`long`→`major`, `short`→`minor`) and
+`part_of` is added, so old files no longer validate: `format` goes to 2 (the rules
+README's rule). No saves exist, and goal ids don't change, so `migrations.json` gets
+no rows. `ids.lock` gains the new ids.
 
 ## Risks / Trade-offs
 
-- [No saving: completed goals reset each launch] → acceptable while there's no save
-  at all; D10's save shape applies when saving lands.
-- [Item goals load but never show] → `goals.json` has none, and the delivery change
-  adds them. Validation still covers them now.
-- [Several burblers or oaks] → the tracker counts any instance (D2), which matches
-  "a tree of that mine".
+- [No saving: progress resets each launch] → acceptable while there's no save at all.
+- [Item goals load but never show] → the draft list uses conditions only; delivery
+  adds them.
+- [The first major goal's content is a draft] → the user owns goal rows; the draft is
+  in `docs/design/goals.md` and marked provisional until they sign it off.
+- [Several burblers or oaks] → any instance counts (D3), matching "a tree of that kind".
 
 ## Migration Plan
 
-Additive. New autoload and panel. Rollback is removing them and the two `report`
-calls.
+Additive apart from the schema's format 2, which only `goals.json` uses. Rollback is
+removing the autoload, the bar and the reporters, and restoring format 1.
 
 ## Open Questions
 
-- Completion sound: which CC0 clip and when (a later change).
-- The first long-term goal and its items (stubby-music 0.2), now with the module
-  library in view.
+- The goal list: the first major goal's name and steps, and the major goals after it
+  (draft in `docs/design/goals.md`).
+- Completion sound: which CC0 clip (a later change).
