@@ -26,19 +26,21 @@ the same multiple tick together.
 
 **Non-Goals:**
 - Inlets on reeds or other growing assets (the same pattern later).
-- Delaying the pulse and knock by the water's travel time (open question).
 - Faster growth: the pulse and knock are feedback; growth rates stay in `growth.json`.
 
 ## Decisions
 
 **D1. Inlets are authored in the model.** `create_scrub_oak.py` adds `Inlet_<n>`
-empties (n = 0…2) at the roots, around the trunk at the root flare's radius plus a
+empties (`INLET_COUNT`, three for now and expected to change with play-testing) at the
+roots, around the trunk at the root flare's radius plus a
 margin, each facing the trunk (+X into the tree), extras `stream: inlet`, and an
 `Inlet_<n>_Halo` of rings exported at scale 1 with `start_scale: 0` (the burbler's
 outlet halo, reused). The angles come from the variant, so instances differ.
 - Rejected: inlet positions computed at runtime from the profile. They wouldn't show in
   previews or the asset viewer, and they'd differ from how the burbler's outlet works.
 - Rejected: a separate `inlets.json`. Positions belong with the geometry they sit on.
+The generator writes the count into `asset.json` (`inlets`); the game and tests read
+the inlets from the model and never assume a number.
 
 **D2. The builder snaps the end to a free inlet.** While anchored, if a free inlet is
 within 3 m of the aim point (the same radius as start ports), it shows its halo and
@@ -55,24 +57,33 @@ connected to them, at their clarity (the clearest). `GrowthLevels.water_at` keep
 proximity rule for growing assets without inlets. `watered_changed` and the goal
 reports are unchanged.
 
-**D4. The pulse is on the source's heard beat.** The tree listens to
-`RackServer.clock_ticked` for its watering source's clock module. Each tick schedules a
-pulse at the tick's heard instant (`sample_to_ticks_usec`), as the bugs' flashes are.
+**D4. The pulse waits for the water, then follows the source's heard beat.** Water
+moves one note spacing per beat (`add-stream-building`: speed = spacing × BPM / 60), so
+the water takes `path length / note_spacing_m` beats from the source's outlet to the
+inlet (decided 2026-11-13: the pulse and knock wait for it). The tree starts on the
+first of the source's beats at or after `ceil(path length / spacing)` beats from the
+moment the stream starts flowing, and stops the same number of beats after it stops
+flowing (the last water arriving). Between, it listens to `RackServer.clock_ticked`
+for the source's clock module, and each tick schedules a pulse at the tick's heard
+instant (`sample_to_ticks_usec`), as the bugs' flashes are. Counting in whole beats
+keeps the pulse and knock on the grid; the notes on the stream arrive within a beat of
+them.
 The pulse is an envelope (attack 0.03 s, decay 0.35 s) driving a slight swell of the
 canopy pivot (scale × 1.04 at peak) and emission on the bark and buds (per-instance
 material copies, as the field recorder's light). It runs only while watered by a
 sounding source.
 - Rejected: pulsing on frame time at the source's BPM: un-clocked, drifts from what's
   heard.
-- Rejected: pulsing when a stream note reaches the inlet: notes arrive at a phase set
-  by the stream's length, so the pulse would sit between beats.
+- Rejected: pulsing when each stream note reaches the inlet: notes arrive at a phase
+  set by the stream's length, so the pulse and knock would sit between beats, off the
+  master grid.
 
 **D5. The knock is a rack on the master grid.** Each oak has a `Rack`: `tempo_clock`
 (`multiple` = its source's clock multiple, so it ticks with the source) → `envelope`
 (attack 2 ms, decay 0.25 s) → `vca` ← `vco_sine` at the trunk's quarter-wave frequency,
 heard through a `RackEmitter` at the trunk on the World bus (hearing radius 15 m, quiet
-beside the burbler). The emitter is paused unless the tree is watered by a sounding
-source; the clock multiple follows the source's BPM knob.
+beside the burbler). The envelope's gate opens and closes on the beats D4 picks (the
+water's arrival and departure), and the clock multiple follows the source's BPM knob.
 - Rejected: a sampled knock. It would need a CC0 recording and provenance, and couldn't
   follow the trunk's size.
 - Rejected: triggering the knock from the source's clock through a cable between racks.
@@ -97,8 +108,8 @@ excited by a source), and the canopy's absorption as "not modelled yet". It foll
   invalid tint show why; the player aims at another inlet or approaches differently.
 - [Many oaks, many racks] → racks are cheap (the spike measured about 10 µs per emitter
   per step), and only watered oaks' emitters play.
-- [Pulse and knock on the beat while the notes arrive between beats] → accepted (D4);
-  see the open question.
+- [Pulse and knock on the beat while the notes arrive up to a beat apart] → accepted
+  (D4): the grid wins over the notes' phase.
 
 ## Migration Plan
 
@@ -107,6 +118,4 @@ aren't saved). Rollback restores the generator and the 3 m rule.
 
 ## Open Questions
 
-- Should the pulse and knock wait for the water's travel time, rounded to whole beats,
-  so they follow the notes down the stream?
-- How many inlets per oak (three drafted)?
+- How many inlets per oak: three for now, tuned by play-testing (a generator setting).
