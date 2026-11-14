@@ -16,7 +16,7 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var inventory := root.get_node("Inventory")
+	var inventory := root.get_node("PlayerInventory")
 	var burbler := (load(BURBLER) as PackedScene).instantiate()
 	burbler.instance_id = "mudpit_burbler-test"
 	root.add_child(burbler)

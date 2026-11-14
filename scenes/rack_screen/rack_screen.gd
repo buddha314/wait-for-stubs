@@ -71,7 +71,7 @@ func _ready() -> void:
 	_input_layer.set_drag_forwarding(Callable(), _can_drop_item, _drop_item)
 	_input_layer.mouse_exited.connect(func() -> void: _hint.visible = false)
 	_centre.resized.connect(_view.fit)
-	Inventory.changed.connect(_refresh_items)
+	PlayerInventory.changed.connect(_refresh_items)
 
 
 func open_rack(point: MachineInteract) -> void:
@@ -161,7 +161,7 @@ func relevant_items() -> Array[Dictionary]:
 		if place.get("fixed", false) or _state().mounted.has(place.place):
 			continue
 		for accept: Dictionary in place.get("accepts", []):
-			if Inventory.quantity(accept.item) > 0 and out.all(func(r: Dictionary) -> bool: return r.item != accept.item):
+			if PlayerInventory.quantity(accept.item) > 0 and out.all(func(r: Dictionary) -> bool: return r.item != accept.item):
 				out.append({"item": accept.item, "place": place.place, "module": accept.module})
 	return out
 
@@ -174,7 +174,7 @@ func insert(item: String, place_name: String = "") -> bool:
 		if place.get("fixed", false) or _state().mounted.has(place.place):
 			continue
 		for accept: Dictionary in place.get("accepts", []):
-			if accept.item == item and Inventory.take(item):
+			if accept.item == item and PlayerInventory.take(item):
 				_state().mount(place.place, accept.module)
 				return true
 	return false
@@ -189,7 +189,7 @@ func unplug(jack: Dictionary) -> bool:
 	var cable := _state().cable_at(jack)
 	if cable.is_empty():
 		return false
-	if cable.source == "inventory" and not Inventory.give(PATCH_CABLE):
+	if cable.source == "inventory" and not PlayerInventory.give(PATCH_CABLE):
 		show_notice("INVENTORY FULL")
 		return true
 	_state().remove_cable(cable)
@@ -207,14 +207,14 @@ func remove(place_name: String) -> bool:
 	for accept: Dictionary in place.get("accepts", []):
 		if accept.module == state.mounted[place_name]:
 			item = accept.item
-	if item != "" and not Inventory.has_room(item):
+	if item != "" and not PlayerInventory.has_room(item):
 		show_notice("INVENTORY FULL")
 		return false
 	for cable in state.unmount(place_name):
 		if cable.source == "inventory":
-			Inventory.give(PATCH_CABLE)
+			PlayerInventory.give(PATCH_CABLE)
 	if item != "":
-		Inventory.give(item)
+		PlayerInventory.give(item)
 	return true
 
 
@@ -226,7 +226,7 @@ func _refresh_items() -> void:
 		child.free()
 	for i in _relevant_items.size():
 		var item: String = _relevant_items[i].item
-		var box := _item_box(item, Inventory.quantity(item), str((i + 1) % 10))
+		var box := _item_box(item, PlayerInventory.quantity(item), str((i + 1) % 10))
 		var button := Button.new()
 		button.flat = true
 		button.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -236,11 +236,11 @@ func _refresh_items() -> void:
 		_relevant.add_child(box)
 	for child in _grid.get_children():
 		child.free()
-	var held := Inventory.items.keys()
-	for i in Inventory.STACKS:
+	var held := PlayerInventory.items.keys()
+	for i in PlayerInventory.STACKS:
 		var box: Control
 		if i < held.size():
-			box = _item_box(held[i], Inventory.quantity(held[i]), "")
+			box = _item_box(held[i], PlayerInventory.quantity(held[i]), "")
 			box.set_drag_forwarding(_drag_item.bind(held[i]), Callable(), Callable())
 		else:
 			box = _item_box("", 0, "")
@@ -395,7 +395,7 @@ func _press(pixel: Vector2) -> void:
 			_state().remove_cable(cable)
 			var other: Dictionary = cable.to if RackState._same(cable.from, jack) else cable.from
 			_hold({"color": cable.color, "source": cable.source, "anchor": other}, pixel)
-		elif Inventory.quantity(PATCH_CABLE) > 0:
+		elif PlayerInventory.quantity(PATCH_CABLE) > 0:
 			_hold({"color": OWN_CABLE_COLOR, "source": "inventory", "anchor": jack, "new": true}, pixel)
 		else:
 			show_notice("No patch cables")
@@ -453,7 +453,7 @@ func can_plug(anchor: Dictionary, jack: Dictionary) -> bool:
 
 func _complete(held: Dictionary, a: Dictionary, b: Dictionary) -> void:
 	var state := _state()
-	if held.get("new", false) and not Inventory.take(PATCH_CABLE):
+	if held.get("new", false) and not PlayerInventory.take(PATCH_CABLE):
 		show_notice("No patch cables")
 		_view.held = {}
 		_view.refresh()
@@ -480,7 +480,7 @@ func _drop_held() -> void:
 		return
 	_view.held = {}
 	if held.source == "inventory" and not held.get("new", false):
-		if not Inventory.give(PATCH_CABLE):
+		if not PlayerInventory.give(PATCH_CABLE):
 			show_notice("INVENTORY FULL")
 	if machine:
 		_view.refresh()

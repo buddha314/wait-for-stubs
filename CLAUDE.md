@@ -77,7 +77,8 @@ music and world stems with a short fade, and the UI stem stays audible.
 project.godot
 addons/sky_3d/          Sky3D v2.1.0 (TokisanGames, MIT), vendored; don't edit
 addons/stubby_rack/     the audio engine, vendored by tools/sync_stubby_rack.sh; don't edit
-autoload/               Rules (assets/recipes JSON), Inventory, Calendar
+addons/gloot/           GLoot v3.0.2 (peter-kish, MIT): inventory boxes and grid UI; don't edit
+autoload/               Rules (assets/recipes JSON), PlayerInventory (GLoot boxes), Calendar
 common/                 classes with no scene: WorldSeed, AssetProfile,
                         Interactable (E target), ResourceNode (finite pickup)
 scenes/<feature>/       a scene, its script and its feature-only resources together
@@ -85,6 +86,7 @@ scenes/<feature>/       a scene, its script and its feature-only resources toget
   player/               first-person CharacterBody3D (stubby-music's speeds/keys)
                         + Head/Reach area that picks the E target
   hud/                  reticle, "[E] Collect ..." prompt, status/inventory lines
+  inventory_screen/     Tab: the 16 boxes (GLoot CtrlInventoryGrid), name/description
   rack_screen/          the common rack screen: window + RackView (3D rack in an
                         own-world SubViewport), mounting, cables, knobs
   reed_bed/             @tool; deterministic scatter of reed clumps in a disc
@@ -154,7 +156,7 @@ and a `SceneTree._init` root isn't in the tree yet.
 overlaps them. The nearest one with a non-empty `interact_action()`, measured
 horizontally, becomes `Player.target`. Holding E calls `interact()` every physics
 tick, so it collects successive pickups, as in Bevy. `ResourceNode` harvests via
-`Inventory.harvest(resource_id)` and replenishes per `resources.json`
+`PlayerInventory.harvest(resource_id)` and replenishes per `resources.json`
 (`next_night` → when `Calendar.nights_started()` increases; `after` → seconds of
 calendar time). Pickups set `hold_repeats` (holding E collects one after another).
 A `MachineInteract` (machines) acts once per press. The burbler puts one on its
@@ -186,11 +188,19 @@ to stubble and regrow over the interval. Physics layers: 1 world, 2 player,
 3 interact.
 
 In `-s` test scripts, autoloads aren't compile-time identifiers. Reach them with
-`root.get_node("Inventory")`. To simulate keys, use `Input.parse_input_event` with
+`root.get_node("PlayerInventory")`. To simulate keys, use `Input.parse_input_event` with
 an `InputEventAction`. `Input.action_press` doesn't reach `_unhandled_input`.
 
+**Inventory** (`add-inventory-screen`): the autoload is **`PlayerInventory`** (GLoot's
+`class_name Inventory` would hide an autoload called `Inventory`). 16 boxes of up to
+100, as in Satisfactory; adding is all or nothing (`give`, `harvest`), and a refusal
+emits `refused(item)`, which the HUD shows as "INVENTORY FULL" with the icon. The boxes
+are a GLoot `Inventory` (`PlayerInventory.boxes`) whose prototypes are built from
+`items.json` at start, so `Rules` still owns item data. Tab opens the screen; item
+counts are no longer in the text HUD.
+
 **Input actions** live in `project.godot` under `[input]`: `move_*`, `jump`,
-`crouch`, `sprint`, `interact` (E), `release_cursor` (Esc), `item_1`…`item_10`
+`crouch`, `sprint`, `interact` (E), `release_cursor` (Esc), `inventory` (Tab), `item_1`…`item_10`
 (keys 1–0, insert from the rack's Relevant strip). Use action names, not raw
 keycodes.
 
@@ -360,7 +370,7 @@ player can do next; VR, multiplayer and the module library wait their turn.
 
 **Playable now:** night opening (Sky3D, moon in view at spawn, day after ~7.5 min);
 walking; E-collect bugs (2 square waves, back next night) and reeds (6 reeds,
-regrow in 60 s); the burbler's rack: mount the square VCO, patch with comb or own
+regrow in 60 s); Tab inventory (16 boxes of 100); the burbler's rack: mount the square VCO, patch with comb or own
 cables, turn the BPM/freq/level knobs. The burbler and the lightning bugs sound from
 the engine (stubby-rack, vendored in `addons/stubby_rack/`), and the plug-in snap
 plays on its sampler.
@@ -384,8 +394,8 @@ plays on its sampler.
    `RackPatch`, `RackModuleDefinition`, the sampler. **Vendored** into
    `addons/stubby_rack/` by `tools/sync_stubby_rack.sh` (pinned in its `VERSION`;
    rerun the script after stubby-rack changes). The bugs and the burbler run on it
-   (9.1, 9.2). Next for playability: inventory, then streams from the burbler to the
-   trees (`add-stream-building`).
+   (9.1, 9.2). Inventory screen done (`add-inventory-screen`). Next for playability:
+   streams from the burbler to the trees (`add-stream-building`).
 2. **Archived (2026-11-13), specs in `openspec/specs/`:** `add-burbler-rack-screen`,
    `add-scrub-oak`, `add-sky-motion-and-mountains`, `migrate-off-stubby-music`.
    **Proposed, ready to apply:** `add-field-recorder` (H, the hand, record light,

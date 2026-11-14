@@ -97,7 +97,7 @@ func _physics_process(delta: float) -> void:
 		pass  # a machine already acted on this press
 	elif _fresh_press:
 		_fresh_press = false
-		Inventory.set_feedback("Move within 3 m of an available resource to collect.")
+		PlayerInventory.set_feedback("Move within 3 m of an available resource to collect.")
 
 
 func _choose_target() -> void:
