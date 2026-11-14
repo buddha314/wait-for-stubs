@@ -38,6 +38,16 @@
         "kind": "after",
         "seconds": 60
       }
+    },
+    {
+      "id": "snail_shell",
+      "name": "Snail shell",
+      "yields": [
+        {
+          "item": "snail_shell",
+          "quantity": 1
+        }
+      ]
     }
   ]
 }

@@ -63,8 +63,10 @@ octaves on V/OCT), `gate_1…gate_N` (0/1); inputs `clock`, `reset`; outputs `ga
 rising edge at `reset` returns to step 1 so the next clock edge plays step 1. `gate`
 outputs the clock input's level while the current step's gate is on (so gate length
 follows the clock's pulse), else 0; `cv` holds the current step's voltage. Each advance
-is reported with its sample through the engine's event path (as `clock_ticked`), as
-`step_changed(module, sample, step)`.
+is reported as a tick event whose index is the step (0-based), so the game receives it
+through the existing `RackServer.clock_ticked(module, sample, index)`: no new signal.
+The step changes on the sample the edge is seen, one sample after the clock's (the
+engine's one-sample cable delay, as in VCV Rack).
 - Rejected: vendoring Peaks' `mini_sequencer` (MIT). Its logic is the same few lines,
   bound to Peaks' fixed-point CV and UI state; porting it costs more than writing it.
   It stays the reference for 8 and 16 steps.
@@ -77,7 +79,7 @@ is reported with its sample through the engine's event path (as `clock_ticked`),
 Steppy and the SQ-1: steady when the step is on, dark when it's off. The playhead is
 shown by the same light as it passes: a lit step blinks dark and an unlit step blinks
 on for the step's duration. It changes at the step's heard instant, from
-`step_changed` converted with `sample_to_ticks_usec`, as the bugs' flashes and the
+the sequencer's `clock_ticked` (index = step) converted with `sample_to_ticks_usec`, as the bugs' flashes and the
 clock lamp are. When per-module lights (`add-rack-audio-engine` 8.2) exist, the light
 moves to them.
 - Rejected: a separate row of active-step lights. Not how either reference works, and

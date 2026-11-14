@@ -56,10 +56,17 @@ def clock(d):
     d.line(px((64, 64), (82, 72)), fill=AMBER, width=6 * SS)
 
 
+def snail_shell(d):
+    # Four whorls, widest at the bottom: one per sequencer step.
+    for i, (w, h, y) in enumerate(((44, 22, 86), (32, 16, 66), (22, 12, 50), (14, 9, 38))):
+        d.ellipse(px((64 - w / 2, y - h / 2), (64 + w / 2, y + h / 2)), outline=AMBER, width=5 * SS)
+    d.ellipse(px((60, 26), (68, 34)), fill=AMBER)
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, draw in {"square_wave": square_wave, "patch_cable": patch_cable,
-                       "reed": reed, "clock": clock}.items():
+                       "reed": reed, "clock": clock, "snail_shell": snail_shell}.items():
         img, d = canvas()
         draw(d)
         img.resize((SIZE, SIZE), Image.LANCZOS).save(OUT / f"{name}.png")

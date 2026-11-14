@@ -1,0 +1,9 @@
+{
+  "about": "Static collider shapes per model; see tools/collider_shapes.py. Each shape is a primitive (Godot: a CollisionShape3D on the asset's StaticBody3D) at `translation`, model coordinates (Y up), metres.",
+  "models": {
+    "creatures/snail_shell/snail_shell.glb": {
+      "walk_through": true,
+      "why": "a small find on the mud, collected with E"
+    }
+  }
+}

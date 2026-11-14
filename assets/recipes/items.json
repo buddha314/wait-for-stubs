@@ -27,6 +27,14 @@
         "lfo",
         "gate"
       ]
+    },
+    {
+      "id": "snail_shell",
+      "name": "Snail shell",
+      "description": "An empty, high-spired snail shell of four whorls. Mounted in a rack it becomes a four-step sequencer: light the steps you want, patch a clock in, and GATE and CV out.",
+      "uses": [
+        "sequencer"
+      ]
     }
   ]
 }

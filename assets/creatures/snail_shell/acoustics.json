@@ -1,0 +1,27 @@
+{
+  "asset": "snail_shell",
+  "format": 0,
+  "role": "resonator",
+  "emission": [],
+  "transmission": [],
+  "reflection": [],
+  "absorption": [],
+  "resonance": [
+    {
+      "what": "the cavity of the shell's whorls, open at the aperture",
+      "model": "Helmholtz resonator",
+      "formula": "f = (c / (2 * pi)) * sqrt(A / (V * L_eff)), L_eff = L + 1.7 * a (one flanged end)",
+      "parameters": {
+        "c_m_per_s": 343.0,
+        "aperture_area": "from the model's aperture (asset.json coiling.aperture at the last whorl)",
+        "volume": "the whorls' enclosed volume, from the model",
+        "neck_length": "the aperture lip's thickness, about 1 mm at real size"
+      },
+      "dsp_approximation": "a resonant band-pass at f, driven by whatever excites it (wind noise, later)",
+      "confidence": "simplified simulation",
+      "excited_by": "nothing yet: the 'sea in a shell' needs wind (add-weather-and-dust-storm)",
+      "citation": "Kinsler, Frey, Coppens and Sanders, Fundamentals of Acoustics, 4th ed., section 10.8 (Helmholtz resonator)"
+    }
+  ],
+  "note": "Emits nothing of its own; it is a find, collected with E. Its in-rack use (the Snail sequencer) makes no acoustic claim. Minimal placeholder until add-acoustic-asset-profiles defines the schema; that task upgrades this file. Lives beside asset.json, which tools/blender/create_snail_shell.py rewrites."
+}

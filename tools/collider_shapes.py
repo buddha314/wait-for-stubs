@@ -151,6 +151,7 @@ FAMILIES = {
     "props/desert": ("props/desert/desert_*/desert_*.glb", None),
     "machines/mudpit_burbler": ("machines/mudpit_burbler/mudpit_burbler.glb", burbler),
     "modules": ("modules/*/*.glb", None),
+    "creatures/snail_shell": ("creatures/snail_shell/snail_shell.glb", "a small find on the mud, collected with E"),
     "creatures/lightning_bug": ("creatures/lightning_bug/lightning_bug.glb", "a small flying creature, collected with E"),
     "streams/stream_segment": ("streams/stream_segment/stream_segment.glb", "low banks under the step height; the player wades across"),
 }

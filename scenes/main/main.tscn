@@ -249,17 +249,20 @@ instance_id = "lightning_bug-7"
 [node name="ReedBedWest" parent="Reeds" unique_id=1776079098 instance=ExtResource("6_reeds")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0, -32)
 bed_id = "reed_bed-west"
+shells = 1
 count = 12
 
 [node name="ReedBedEast" parent="Reeds" unique_id=552493312 instance=ExtResource("6_reeds")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, -39)
 bed_id = "reed_bed-east"
+shells = 1
 count = 9
 radius = 3.0
 
 [node name="ReedBedPath" parent="Reeds" unique_id=2052112121 instance=ExtResource("6_reeds")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -24)
 bed_id = "reed_bed-path"
+shells = 1
 count = 5
 radius = 2.0
 

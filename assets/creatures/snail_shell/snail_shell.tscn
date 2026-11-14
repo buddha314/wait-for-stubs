@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://assets/creatures/snail_shell/snail_shell.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://assets/creatures/snail_shell/snail_shell.glb" id="2_model"]
+[ext_resource type="Script" path="res://common/resource_node.gd" id="3_pickup"]
+
+[node name="SnailShell" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+
+[node name="Pickup" type="Area3D" parent="."]
+script = ExtResource("3_pickup")
+resource_id = "snail_shell"
