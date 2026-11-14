@@ -22,6 +22,17 @@ func item_name(id: String) -> String:
 	return _items.get(id, {}).get("name", id)
 
 
+func item_description(id: String) -> String:
+	return _items.get(id, {}).get("description", "")
+
+
+## Every item id in the catalog, in file order.
+func item_ids() -> Array[String]:
+	var ids: Array[String] = []
+	ids.assign(_items.keys())
+	return ids
+
+
 func resource_name(id: String) -> String:
 	return _resources.get(id, {}).get("name", id)
 

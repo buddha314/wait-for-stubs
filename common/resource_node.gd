@@ -32,7 +32,7 @@ func interact_action() -> String:
 
 
 func interact() -> void:
-	if collected or not Inventory.harvest(resource_id):
+	if collected or not PlayerInventory.harvest(resource_id):
 		return
 	_harvested_at_seconds = Calendar.elapsed
 	_harvested_at_night = Calendar.nights_started()

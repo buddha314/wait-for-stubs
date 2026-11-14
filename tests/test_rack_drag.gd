@@ -23,7 +23,7 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	root.get_node("Inventory").give("square_wave", 1)
+	root.get_node("PlayerInventory").give("square_wave", 1)
 	var burbler := (load(BURBLER) as PackedScene).instantiate()
 	burbler.instance_id = "mudpit_burbler-drag-test"
 	root.add_child(burbler)
@@ -55,7 +55,7 @@ func _run() -> void:
 			"dragging between jacks patches")
 
 	# Right-click the V/OCT plug through the GUI: it unplugs, and the patch cable returns.
-	var held_cables: int = root.get_node("Inventory").quantity("patch_cable")
+	var held_cables: int = root.get_node("PlayerInventory").quantity("patch_cable")
 	await _motion(voct, false)
 	_expect(screen._hint.visible and screen._hint.text.contains("[RMB] unplug"), "hovering a plug shows the unplug hint")
 	var right := InputEventMouseButton.new()
@@ -69,7 +69,7 @@ func _run() -> void:
 	await _send(right)
 	_expect(not state.joins({"place": "clock", "port": "phase"}, {"place": "vco", "port": "voct"}),
 			"right-click unplugs")
-	_expect(root.get_node("Inventory").quantity("patch_cable") == held_cables + 1, "own cable returned")
+	_expect(root.get_node("PlayerInventory").quantity("patch_cable") == held_cables + 1, "own cable returned")
 
 	# Drag the volume knob up 120 px from 0.
 	state.set_knob("volume/gain", 0.0)
