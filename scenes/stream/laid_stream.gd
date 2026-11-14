@@ -121,6 +121,13 @@ func source() -> Node:
 	return node if is_instance_valid(node) and not node is LaidStream else null
 
 
+## The water's clarity, 0 muddy .. 1 clear. A burbler sends raw mud; cleaning comes
+## later (stubby-music add-fluid-quality-and-viscosity).
+func clarity() -> float:
+	var src := source()
+	return float(src.get("clarity")) if src != null and src.get("clarity") != null else 0.0
+
+
 ## True while its source burbler sounds.
 func flowing() -> bool:
 	var src := source()

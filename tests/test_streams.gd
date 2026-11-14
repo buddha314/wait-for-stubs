@@ -140,6 +140,51 @@ func _run() -> void:
 	await process_frame
 	_expect(first.notes_shown() == 1, "a note rides the flowing stream")
 	burbler.sounding = false
+
+	# Growth levels: mud reaches only the first level; cleaner water reaches more.
+	var levels := GrowthLevels.load_for("res://assets/flora/scrub_oak/growth.json")
+	_expect(is_equal_approx(levels.cap(0.0), 0.3) and is_equal_approx(levels.cap(0.5), 0.7)
+			and is_equal_approx(levels.cap(1.0), 1.0) and levels.cap(-1.0) == 0.0, "mud → 0.3, silty → 0.7, clear → 1.0")
+	_expect(levels.level_name(0.3) == "budding" and levels.level_name(0.1) == "dormant", "level names")
+	_expect(is_equal_approx(levels.step(0.9, 0.0, 1200.0), 0.3), "bloomed past what mud allows, it eases back to budding")
+
+	# Lead the burbler's stream to the nearest oak: it wakes to budding, no further.
+	var oak: Node3D = null
+	for o: Node3D in main.find_children("*", "ScrubOak", true, false):
+		if oak == null or o.global_position.distance_to(mouth.global_position) < oak.global_position.distance_to(mouth.global_position):
+			oak = o
+	for st: Node in main.get_tree().get_nodes_in_group("laid_stream"):
+		st.queue_free()
+	await process_frame
+	mouth.connected = false
+	inv.give("reed", 99)
+	builder.anchor = mouth
+	var reached := false
+	for i in 8:
+		builder._replanned_at = -1.0
+		var port: Node3D = builder.anchor
+		builder._update_plan(oak.global_position)
+		if not builder.plan_valid:
+			builder._replanned_at = -1.0
+			builder._update_plan(port.global_position + port.global_basis.x * 6.0)
+		var laid: Node = builder.lay()
+		if laid == null:
+			break
+		if Vector2(laid.end_port.global_position.x - oak.global_position.x, laid.end_port.global_position.z - oak.global_position.z).length() < 2.5:
+			reached = true
+			break
+	_expect(reached, "a stream reaches the oak (%.1f m from the mouth)" % oak.global_position.distance_to(mouth.global_position))
+	burbler.sounding = true
+	oak._water_left = 0.0
+	oak._water(1.0)
+	_expect(oak.watered and is_equal_approx(oak.water_clarity, 0.0), "the oak is watered with mud")
+	for i in 30:
+		oak._water(10.0)
+	_expect(is_equal_approx(oak.growth, 0.3) and oak.bloom_level() == "budding", "mud wakes it to budding and no further (%.2f)" % oak.growth)
+	burbler.sounding = false
+	oak._water_left = 0.0
+	oak._water(60.0)
+	_expect(not oak.watered and oak.growth < 0.3, "without water it eases back")
 	main.free()
 
 	if _failures.is_empty():

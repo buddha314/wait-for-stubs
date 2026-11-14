@@ -4,8 +4,10 @@ extends Node3D
 ## A scrub oak (add-scrub-oak): the mine that will produce lightning bugs. Variant,
 ## yaw, scale, height stretch, lean, sway phase, leaf jitter and bloom tint all
 ## come from (world seed, instance_id), within the profile's per_instance ranges.
-## `growth` (0 dormant .. 1 full bloom) is displayed from the profile's mapping; what
-## raises it (clean water) comes with add-scrub-oak-production. Both LODs are used:
+## `growth` (0 dormant .. 1 full bloom) is displayed from the profile's mapping. Water
+## raises it: a flowing stream within reach waters the oak, and growth rises toward the
+## level that water allows (growth.json: mud wakes it to budding only; cleaner water
+## reaches higher levels), easing back without water. Both LODs are used:
 ## the import script gives the model its visibility ranges, so nothing here sets
 ## them. Children are generated, never saved into scenes.
 ##
@@ -14,6 +16,12 @@ extends Node3D
 
 const PROFILE_PATH := "res://assets/flora/scrub_oak/asset.json"
 const COLLIDERS_PATH := "res://assets/flora/scrub_oak/colliders.json"
+const GROWTH_PATH := "res://assets/flora/scrub_oak/growth.json"
+## How often the oak looks for water (seconds).
+const WATER_CHECK := 0.25
+
+## Emitted when a flowing stream starts or stops reaching the oak ("Water the tree").
+signal watered_changed(watered: bool)
 ## Sway cycles per second (the reeds' rate; the profile gives only the angle).
 const SWAY_RATE := 0.25
 
@@ -41,10 +49,17 @@ var _leaf: StandardMaterial3D
 var _bud: StandardMaterial3D
 var _bud_emission := 1.0
 var _leaf_jitter := 0.0
+## True while a flowing stream reaches it.
+var watered := false
+## The clarity of the water reaching it, or -1.
+var water_clarity := -1.0
+var levels: GrowthLevels
+var _water_left := 0.0
 
 
 func _ready() -> void:
 	_profile = AssetProfile.load_json(PROFILE_PATH)
+	levels = GrowthLevels.load_for(GROWTH_PATH)
 	_build()
 
 
@@ -52,6 +67,7 @@ func _process(delta: float) -> void:
 	if Engine.is_editor_hint() or _limbs.is_empty():
 		return
 	_time += delta
+	_water(delta)
 	for i in _limbs.size():
 		var angle := TAU * (_time * SWAY_RATE + _phase) + i
 		var tilt := Vector3(sin(angle), 0.0, cos(angle * 0.7)) * _sway_max
@@ -200,3 +216,23 @@ static func _named(root: Node, prefix: String) -> Array[Node3D]:
 ## Profile model paths are relative to res://assets/.
 static func _res_path(model: String) -> String:
 	return "res://assets/" + model
+
+
+## Looks for water now and then, and grows toward what it allows.
+func _water(delta: float) -> void:
+	_water_left -= delta
+	if _water_left <= 0.0:
+		_water_left = WATER_CHECK
+		water_clarity = GrowthLevels.water_at(get_tree(), global_position, levels.water_reach)
+		var now := water_clarity >= 0.0
+		if now != watered:
+			watered = now
+			watered_changed.emit(watered)
+	var next := levels.step(growth, water_clarity, delta)
+	if not is_equal_approx(next, growth):
+		growth = next
+
+
+## The bloom level reached ("dormant", "budding", ...).
+func bloom_level() -> String:
+	return levels.level_name(growth)
