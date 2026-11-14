@@ -312,8 +312,8 @@ func _update_knobs_and_display() -> void:
 			if knob == null or not _knob_bases.has(key):
 				continue
 			var spec := knob_param(entry.place, p.param)
-			var value := state.knob(key, knob_default(spec))
-			knob.transform.basis = _knob_bases[key] * Basis(Vector3.UP, -RackModules.knob_angle(value, spec))
+			var knob_value := state.knob(key, knob_default(spec))
+			knob.transform.basis = _knob_bases[key] * Basis(Vector3.UP, -RackModules.knob_angle(knob_value, spec))
 		var display: Dictionary = profile.get("display", {})
 		if display.is_empty():
 			continue
@@ -523,10 +523,10 @@ func _update_held(delta: float) -> void:
 	var color := PatchCable.color(held.color)
 	var radius: float = PatchCable.profile().cable.radius_m
 	var tip := pointer_world(held.pointer)
-	var snapped: Dictionary = held.get("snap", {})
+	var snap_jack: Dictionary = held.get("snap", {})
 	var free_end: Transform3D
-	if not snapped.is_empty() and jack_node(snapped):
-		free_end = jack_node(snapped).global_transform
+	if not snap_jack.is_empty() and jack_node(snap_jack):
+		free_end = jack_node(snap_jack).global_transform
 	else:
 		# Head-on, as in VCV Rack: the sleeve points into the panel.
 		free_end = Transform3D(Basis(Vector3.RIGHT, PI / 2.0), tip)
