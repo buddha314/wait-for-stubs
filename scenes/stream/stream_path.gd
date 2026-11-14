@@ -18,9 +18,9 @@ const FRAME_STEP := 0.01
 
 
 ## From `from` (leaving along `direction`) to `to` (kept at the port's height).
-static func plan(from: Vector3, direction: Vector3, to: Vector3) -> StreamPath:
+static func plan(from: Vector3, flow_dir: Vector3, to: Vector3) -> StreamPath:
 	var path := StreamPath.new()
-	var d0 := Vector3(direction.x, 0.0, direction.z).normalized()
+	var d0 := Vector3(flow_dir.x, 0.0, flow_dir.z).normalized()
 	if d0.is_zero_approx():
 		d0 = Vector3.RIGHT
 	var p0 := from

@@ -177,8 +177,8 @@ func _add_port() -> void:
 	_port.owner_node = self
 	add_child(_port)
 	var x := outlet.global_basis.x
-	var flow := Vector3(x.x, 0.0, x.z).normalized()
-	_port.global_transform = Transform3D(Basis(flow, Vector3.UP, flow.cross(Vector3.UP)),
+	var flow_dir := Vector3(x.x, 0.0, x.z).normalized()
+	_port.global_transform = Transform3D(Basis(flow_dir, Vector3.UP, flow_dir.cross(Vector3.UP)),
 			outlet.global_position - Vector3.UP * 0.07)
 	_port.halo = _model.find_child("Outlet_0_Halo", true, false)
 	_port.set_highlighted(false)

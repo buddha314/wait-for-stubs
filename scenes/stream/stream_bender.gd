@@ -94,7 +94,7 @@ static func _transform_arrays(arrays: Array, xform: Transform3D, offsets: bool) 
 		arrays[Mesh.ARRAY_NORMAL] = n
 	if arrays[Mesh.ARRAY_TANGENT] is PackedFloat32Array and not arrays[Mesh.ARRAY_TANGENT].is_empty():
 		var t: PackedFloat32Array = arrays[Mesh.ARRAY_TANGENT]
-		for i in t.size() / 4:
+		for i in t.size() >> 2:
 			var d := (xform.basis * Vector3(t[4 * i], t[4 * i + 1], t[4 * i + 2])).normalized()
 			t[4 * i] = d.x
 			t[4 * i + 1] = d.y
@@ -154,7 +154,7 @@ static func _bend_arrays(arrays: Array, frames: Array[Transform3D], offsets: boo
 		arrays[Mesh.ARRAY_NORMAL] = n
 	if arrays[Mesh.ARRAY_TANGENT] is PackedFloat32Array and not arrays[Mesh.ARRAY_TANGENT].is_empty():
 		var t: PackedFloat32Array = arrays[Mesh.ARRAY_TANGENT]
-		for i in t.size() / 4:
+		for i in t.size() >> 2:
 			var d := frames[i].basis * Vector3(t[4 * i], t[4 * i + 1], t[4 * i + 2])
 			t[4 * i] = d.x
 			t[4 * i + 1] = d.y

@@ -30,7 +30,6 @@ var _hologram_bender: StreamBender
 var _materials := {}  # "valid"/"invalid" -> {source material: tinted copy}
 var _flow_tiles: Array[Dictionary] = []  # {mi, source, start}
 var _planned_aim := Vector3.INF
-var _planned_segments := 0
 var _scroll := 0.0
 var _replanned_at := -1.0
 ## Where laid streams go.
