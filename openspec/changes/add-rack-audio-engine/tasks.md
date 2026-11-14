@@ -82,6 +82,6 @@
 
 ## 9. Game integration
 
-- [ ] 9.1 Lightning bug: free-running seeded random Clock → Envelope → VCA → Square VCO on its emitter; the flash follows `clock_ticked` (replacing the frame-timed `_process` countdown and the WAV click)
-- [ ] 9.2 Burbler: its fixed Clock and Volume modules exist in its rack (sound starts once the rack-screen change adds mounting and patching)
-- [ ] 9.3 Remove the frame-time stand-in notes from CLAUDE.md; run `openspec validate --strict add-rack-audio-engine`
+- [x] 9.1 Lightning bug: free-running seeded random Clock → Envelope → VCA → Square VCO on its emitter; the flash follows `clock_ticked` (replacing the frame-timed `_process` countdown and the WAV click)
+- [x] 9.2 Burbler: its fixed Clock and Volume modules exist in its rack (sound starts once the rack-screen change adds mounting and patching)
+- [x] 9.3 Remove the frame-time stand-in notes from CLAUDE.md; run `openspec validate --strict add-rack-audio-engine`

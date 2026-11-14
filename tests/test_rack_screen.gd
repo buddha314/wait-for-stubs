@@ -62,8 +62,10 @@ func _run() -> void:
 	_expect(state.cables.size() == 1 and state.joins({"place": "clock", "port": "gate"},
 			{"place": "volume", "port": "trig"}), "GATE → TRIG patched")
 	_expect(_configured == 0 and not burbler.sounding, "half patched is not configured")
-	var voice: BurblerVoice = burbler.find_child("BurblerVoice", true, false)
-	_expect(voice != null and not voice.playing, "half patched burbler is silent")
+	var link: RackLink = burbler.link
+	_expect(link.has_module("clock") and link.has_module("vco") and link.has_module("volume"),
+			"mounted modules are engine modules")
+	_expect(link.to_patch().cables.size() == 1, "half patched: one engine cable (the VCA gets no signal)")
 
 	# Rust comb cable by drag: comb → OUT, then drag to IN.
 	await process_frame
@@ -79,13 +81,25 @@ func _run() -> void:
 	_expect(inventory.quantity("patch_cable") == cables_before, "comb cables are free")
 	_expect(state.cables[1].from.port == "out", "cable stored output first")
 	_expect(burbler.outlet_carries_voice(), "volume OUT normalled to the outlet")
-	_expect(voice.playing, "STAND-IN voice plays once fully patched")
-	var wav := voice.stream as AudioStreamWAV
-	var frames := roundi(48000.0 * 60.0 / burbler.bpm())
-	_expect(wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and wav.loop_end == frames,
-			"voice loops exactly one beat (%d frames)" % frames)
-	_expect(wav.data.decode_s16(2 * (frames / 2 + 10)) == 0 and absi(wav.data.decode_s16(20)) > 0,
-			"gate high for the first half beat, silent for the second")
+	_expect(link.to_patch().cables.size() == 2, "fully patched: the engine has both cables")
+	_expect(link.emitter.is_bound() and not link.emitter.stream_paused, "the voice plays from the outlet")
+	_expect(is_equal_approx(link.get_param("clock", "multiple"), roundf(burbler.bpm())),
+			"the clock runs at ×bpm of the 1 BPM master")
+	# The engine's clock ticks on its exact grid (×bpm of the master), heard in real time.
+	var clock_id: int = link.get_module_id("clock")
+	var ticks: Array[int] = []
+	var on_tick := func(id: int, sample: int, _i: int) -> void:
+		if id == clock_id:
+			ticks.append(sample)
+	RackServer.clock_ticked.connect(on_tick)
+	await create_timer(60.0 / burbler.bpm() * 2.5).timeout
+	RackServer.clock_ticked.disconnect(on_tick)
+	var spacing: float = 48000.0 * 60.0 / burbler.bpm()
+	# Tick k is at ceil(k × samples-per-tick): exact, never accumulated.
+	_expect(ticks.size() >= 2 and ticks.all(func(t: int) -> bool:
+			return t == int(ceilf(roundf(t / spacing) * spacing - 1e-6))),
+			"clock ticks land on its grid: %s" % [ticks])
+	_expect(burbler.beat_phase() >= 0.0, "the lamp reads the heard beat")
 
 	# An occupied input refuses a second cable.
 	_expect(not screen.can_plug({"place": "clock", "port": "gate"}, {"place": "volume", "port": "in"}),
@@ -94,8 +108,7 @@ func _run() -> void:
 	# BPM knob: one scroll notch up is one whole BPM.
 	screen.turn_knob("clock", "bpm", screen.KNOB_SCROLL_STEP)
 	_expect(burbler.bpm() == bpm + 1.0, "scroll steps the bpm by 1")
-	_expect((voice.stream as AudioStreamWAV).loop_end == roundi(48000.0 * 60.0 / (bpm + 1.0)),
-			"voice re-renders at the new tempo")
+	_expect(is_equal_approx(link.get_param("clock", "multiple"), bpm + 1.0), "the engine clock follows the knob")
 	_expect(screen._header.text.begins_with("%d BPM" % (bpm + 1.0)), "header follows the knob")
 	for i in 400:
 		screen.turn_knob("clock", "bpm", 1.0)
@@ -119,7 +132,7 @@ func _run() -> void:
 	screen._on_rack_input(right_in)
 	_expect(state.cables.size() == 1 and not state.comb_in_use(1), "right-click unplugs; rust back on the comb")
 	_expect(state.mounted.has("vco"), "right-click on a plug doesn't remove the module")
-	_expect(not voice.playing, "unplugging by right-click silences the voice")
+	_expect(link.to_patch().cables.size() == 1, "unplugging by right-click unplugs the engine cable")
 	# Re-patch OUT → IN for the drag-off check below.
 	_mouse(screen, view.to_screen(view._comb_points[1][12]), true)
 	_motion(screen, _jack(view, "vco", "out"))
@@ -127,14 +140,14 @@ func _run() -> void:
 	_motion(screen, _jack(view, "volume", "in"))
 	_mouse(screen, _jack(view, "volume", "in"), true)
 	_mouse(screen, _jack(view, "volume", "in"), false)
-	_expect(state.cables.size() == 2 and voice.playing, "re-patched and sounding again")
+	_expect(state.cables.size() == 2 and link.to_patch().cables.size() == 2, "re-patched and sounding again")
 
 	# Unplug by dragging the TRIG end off into empty space: the comb cable goes home.
 	_mouse(screen, _jack(view, "volume", "trig"), true)
 	_motion(screen, Vector2(5, 5))
 	_mouse(screen, Vector2(5, 5), false)
 	_expect(state.cables.size() == 1 and not burbler.sounding, "unplugged; no longer sounding")
-	_expect(not voice.playing, "unplugging silences the voice")
+	_expect(link.to_patch().cables.size() < 2, "unplugging silences the voice")
 	_expect(not state.comb_in_use(0), "verdigris back on the comb")
 
 	# Right-click the VCO: its cable unplugs and the square wave comes back.

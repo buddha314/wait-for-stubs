@@ -20,13 +20,13 @@ const BPM_KNOB := "clock/bpm"
 var rack_state: RackState
 ## The profile's `configure` block.
 var configure: Dictionary
-## True while the rack is fully patched (the engine plays it once it exists).
+## True while the rack is fully patched (every suggested cable made).
 var sounding := false
+## The rack on the audio engine: the patch itself makes the sound.
+var link: RackLink
 
 var _bpm_range: Dictionary
 var _hearing_radius := 30.0
-## STAND-IN voice until stubby-rack plays (BurblerVoice).
-var _voice: BurblerVoice
 
 @onready var _model: Node3D = $Model
 
@@ -44,7 +44,7 @@ func _ready() -> void:
 	})
 	rack_state.changed.connect(_on_rack_changed)
 	_add_interact_point()
-	_add_voice()
+	_add_link()
 
 
 ## The starting tempo: master BPM × a seeded whole multiple from tempo.json.
@@ -88,18 +88,23 @@ func _on_rack_changed() -> void:
 		sounding_changed.emit(sounding)
 
 
-## Phase within the beat as heard (0..1) while the voice plays, else −1. The rack
-## lamp's placeholder flash follows it, so light and sound agree.
+## Phase within the clock's beat as heard (0..1) while the voice reaches the outlet,
+## else −1: the master clock's heard position × the clock's multiple. The rack lamp
+## follows it, so light and sound agree.
 func beat_phase() -> float:
-	return _voice.heard_phase() if _voice else -1.0
+	if not outlet_carries_voice():
+		return -1.0
+	var beats := RackLink.heard_master_beats()
+	return fposmod(beats * roundf(bpm() / master_bpm()), 1.0) if beats >= 0.0 else -1.0
 
 
-## STAND-IN: a pre-rendered looping voice at the outlet (BurblerVoice).
-func _add_voice() -> void:
-	_voice = BurblerVoice.new()
+## The engine rack, its voice at the outlet (`Outlet_0`).
+func _add_link() -> void:
+	link = RackLink.new()
+	link.name = "RackLink"
+	add_child(link)
 	var outlet: Node3D = _model.find_child("Outlet_0", true, false)
-	(outlet if outlet else _model).add_child(_voice)
-	_voice.setup(self, _hearing_radius)
+	link.setup(rack_state, instance_id, (outlet if outlet else _model).global_position, _hearing_radius)
 
 
 func _add_interact_point() -> void:
